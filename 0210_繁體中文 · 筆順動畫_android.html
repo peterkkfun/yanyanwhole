@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>欣欣學中文 | 粵語筆順教學 (每個漢字獨立發音)</title>
+    <!-- Hanzi Writer 核心庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Noto Sans CJK TC', 'PingFang TC', 'Microsoft YaHei', system-ui, sans-serif;
+            background: linear-gradient(145deg, #f0f2f5 0%, #e9eef3 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .manager-panel {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .manager-panel.hide {
+            display: none;
+        }
+        .teaching-panel {
+            background: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .teaching-panel.hide {
+            display: none;
+        }
+        h2 {
+            color: #2c3e2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .word-input-area {
+            background: #fef9e6;
+            border-radius: 60px;
+            padding: 12px 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        input#wordsInput {
+            flex: 2;
+            min-width: 250px;
+            padding: 12px 18px;
+            font-size: 1.1rem;
+            border: 1px solid #cbd5cf;
+            border-radius: 48px;
+            font-family: monospace;
+            background: white;
+        }
+        button.primary {
+            background: #3b6e3f;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            border-radius: 48px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button.primary:hover { background: #2b542e; transform: scale(0.97);}
+        button.secondary {
+            background: #e7b42c;
+            color: #3d2b00;
+            border: none;
+            padding: 10px 24px;
+            font-size: 1rem;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .groups-container {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .group-btn {
+            background: #eef2e6;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .group-btn span {
+            cursor: pointer;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            padding: 4px;
+        }
+        .icon-btn:hover { opacity: 1; }
+        .current-word {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            background: #fef3cf;
+            border-radius: 48px;
+            padding: 20px;
+            margin: 20px 0;
+            letter-spacing: 8px;
+            color: #3b5c2e;
+        }
+        .stroke-area {
+            background: #faf9ff;
+            border-radius: 32px;
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 220px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+        }
+        .char-card {
+            background: white;
+            border-radius: 28px;
+            padding: 15px 12px 12px 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: 200px;
+            text-align: center;
+            transition: 0.1s;
+        }
+        .char-card canvas {
+            border-radius: 16px;
+            background: #fefef7;
+        }
+        .btn-group-stroke {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 14px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .stroke-control-btn {
+            background: #f0f4ec;
+            border: 2px solid #b9cdae;
+            border-radius: 48px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #2d4a2a;
+            min-width: 80px;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .stroke-control-btn:hover {
+            background: #e2f0da;
+            transform: scale(0.97);
+            border-color: #8bb57b;
+        }
+        .pronounce-char-btn {
+            background: #f9e0b0;
+            border-color: #e0b87a;
+            color: #9b6a1a;
+        }
+        .pronounce-char-btn:hover {
+            background: #f7d99c;
+        }
+        @media (max-width: 640px) {
+            .stroke-control-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: 70px;
+            }
+            .char-card {
+                width: 180px;
+            }
+            .btn-group-stroke {
+                gap: 8px;
+            }
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .big-btn {
+            padding: 14px 32px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 60px;
+            border: none;
+            cursor: pointer;
+        }
+        .pronounce-btn {
+            background: #4c7a8a;
+            color: white;
+        }
+        .next-btn {
+            background: #e9a23b;
+            color: white;
+        }
+        .progress {
+            text-align: center;
+            font-size: 1.1rem;
+            background: #e2e8e0;
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 40px;
+            margin-bottom: 10px;
+        }
+        .banner {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffecb3;
+            border-radius: 80px;
+            padding: 24px 48px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #d45a1e;
+            border: 3px solid gold;
+            backdrop-filter: blur(8px);
+            white-space: nowrap;
+            animation: bounce 0.3s ease;
+        }
+        .rainbow-banner {
+            background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+            color: white;
+            text-shadow: 2px 2px 0 black;
+            font-size: 2rem;
+            padding: 30px;
+            border-radius: 60px;
+            white-space: normal;
+            text-align: center;
+        }
+        @keyframes bounce {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        .hidden {
+            display: none;
+        }
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.8rem;
+        }
+        .speak-hint {
+            font-size: 0.9rem;
+            color: #6f6f4a;
+            background: #faf3df;
+            display: inline-block;
+            padding: 5px 16px;
+            border-radius: 40px;
+        }
+        @media (max-width: 560px) {
+            .current-word { font-size: 2.5rem; letter-spacing: 4px; }
+            .banner { font-size: 1.2rem; padding: 16px 24px; white-space: normal; width: 80%; text-align: center; }
+            .big-btn { padding: 10px 20px; font-size: 1rem; }
+        }
+        /* 导入导出按钮样式 */
+        .import-export-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .import-export-btn {
+            background: #d9e6d9;
+            border: 2px solid #6f9e7c;
+            border-radius: 40px;
+            padding: 10px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .import-export-btn:hover {
+            background: #c2d9c2;
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- 管理面板 -->
+    <div id="managerPanel" class="manager-panel">
+        <h2>📚 欣欣中文詞庫管理 ✍️</h2>
+        <div class="word-input-area">
+            <input type="text" id="wordsInput" placeholder="輸入詞語，用逗號分隔，例如：蘋果,香蕉,車站" value="蘋果,香蕉,快樂">
+            <button id="startTeachingBtn" class="primary">🎓 開始教學</button>
+        </div>
+        <div style="margin: 10px 0; text-align: left; font-weight: bold;">📂 我的詞語組：</div>
+        <div id="groupsList" class="groups-container"></div>
+        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+            <button id="addGroupBtn" class="secondary">➕ 新增分組</button>
+            <span style="font-size: 0.85rem; color: gray;">💡 點擊分組名稱載入詞語｜可編輯/刪除</span>
+        </div>
+        <!-- 匯入 / 匯出 資料按鈕區域 -->
+        <div class="import-export-area">
+            <button id="exportDataBtn" class="import-export-btn">📤 匯出分組資料</button>
+            <button id="importDataBtn" class="import-export-btn">📥 匯入分組資料</button>
+            <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
+        </div>
+        <footer>✨ 按下「開始教學」後，按空白鍵或「讀出詞語」播放粵語發音，按「完成此詞」出現鼓勵語音及橫幅。<br>✍️ 每個漢字下方有【粵語發音】【暫停/播放】【重播】大按鈕，點擊卡片也可重播筆順。</footer>
+    </div>
+
+    <!-- 教學面板 -->
+    <div id="teachingPanel" class="teaching-panel hide">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="progress" id="progressText">第1 / 3詞</span>
+            <button id="backToMenuBtn" class="secondary" style="background:#c0cbc0;">🏠 返回主頁</button>
+        </div>
+        <div class="current-word" id="currentWordDisplay">蘋果</div>
+        <div class="btn-group">
+            <button id="pronounceWordBtn" class="big-btn pronounce-btn">🔊 讀出詞語 (粵語)</button>
+            <button id="completeWordBtn" class="big-btn next-btn">⭐ 完成此詞｜欣欣叻叻</button>
+        </div>
+        <div class="speak-hint">💡 提示：按鍵盤【空格鍵】也可讀出當前詞語發音</div>
+        <div style="margin-top: 15px; font-weight: bold;">✍️ 筆順練習 (每個漢字有獨立發音、暫停/播放及重播):</div>
+        <div id="strokeContainer" class="stroke-area"></div>
+        <div style="font-size:0.85rem; margin-top:10px;">✅ 點擊「完成此詞」會彈出「欣欣叻叻 + 詞語」橫幅並播放粵語，之後自動進入下一詞。</div>
+    </div>
+</div>
+
+<script>
+    // ---------- 全局變量 ----------
+    let groups = [];            
+    let currentTeachingList = [];   
+    let currentIndex = 0;
+    let isTeaching = false;     
+    let allowNext = true;       
+    let currentWordWriters = []; 
+    
+    // 粵語語音函式 (通用)
+    function speakCantonese(text, onEnd = null) {
+        if (!window.speechSynthesis) {
+            console.warn("不支援語音");
+            if(onEnd) onEnd();
+            return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-HK';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
+        let voices = window.speechSynthesis.getVoices();
+        const cantoneseVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'zh-Hant-HK' || v.lang.includes('HK'));
+        if (cantoneseVoice) utterance.voice = cantoneseVoice;
+        if (onEnd) {
+            utterance.onend = () => { setTimeout(() => onEnd(), 50); };
+            utterance.onerror = () => { setTimeout(() => onEnd(), 50); };
+        }
+        window.speechSynthesis.speak(utterance);
+    }
+    
+    // 彈出橫幅
+    function showBanner(message, isRainbow = false, duration = 2500) {
+        const existingBanner = document.querySelector('.banner');
+        if(existingBanner) existingBanner.remove();
+        const bannerDiv = document.createElement('div');
+        bannerDiv.className = 'banner';
+        if(isRainbow) bannerDiv.classList.add('rainbow-banner');
+        bannerDiv.innerHTML = message;
+        document.body.appendChild(bannerDiv);
+        setTimeout(() => {
+            if(bannerDiv && bannerDiv.remove) bannerDiv.remove();
+        }, duration);
+    }
+    
+    // 判斷漢字
+    function isCJK(ch) {
+        const code = ch.charCodeAt(0);
+        return (code >= 0x4E00 && code <= 0x9FFF) || (code >= 0x3400 && code <= 0x4DBF);
+    }
+    
+    // 筆順快取
+    const strokeCache = new Map();
+    async function fetchStrokeData(ch) {
+        if(strokeCache.has(ch)) {
+            const v = strokeCache.get(ch);
+            return v.error ? null : v.data;
+        }
+        const url = `https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/${ch}.json`;
+        try {
+            const res = await fetch(url);
+            if(!res.ok) throw new Error('no data');
+            const json = await res.json();
+            if(json && Array.isArray(json.strokes)) {
+                strokeCache.set(ch, { data: json, error: false });
+                return json;
+            } else throw new Error();
+        } catch(e) {
+            strokeCache.set(ch, { data: null, error: true });
+            return null;
+        }
+    }
+    
+    // ---------- 筆順渲染 (每個漢字卡片加入粵語發音、暫停/播放、重播按鈕) ----------
+    async function renderStrokeForWord(word) {
+        const container = document.getElementById('strokeContainer');
+        if(!container) return;
+        container.innerHTML = '<div style="padding:20px;">⏳ 載入筆順資料中...</div>';
+        if(currentWordWriters) {
+            currentWordWriters.forEach(item => { if(item.writer && item.writer._destroy) item.writer._destroy(); });
+            currentWordWriters = [];
+        }
+        const chars = [...word];
+        container.innerHTML = '';
+        if(chars.length === 0) {
+            container.innerHTML = '<div>⚠️ 沒有漢字</div>';
+            return;
+        }
+        
+        for(let ch of chars) {
+            if(!isCJK(ch)) {
+                const card = document.createElement('div');
+                card.className = 'char-card';
+                card.innerHTML = `<div style="font-size:3rem;">${ch}</div><div style="color:gray;">非漢字 (無筆順)</div>`;
+                container.appendChild(card);
+                continue;
+            }
+            
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'char-card';
+            const canvasDiv = document.createElement('div');
+            canvasDiv.style.width = '150px';
+            canvasDiv.style.height = '150px';
+            canvasDiv.style.margin = '0 auto';
+            const label = document.createElement('div');
+            label.innerText = ch;
+            label.style.fontSize = '1.7rem';
+            label.style.fontWeight = 'bold';
+            label.style.marginTop = '8px';
+            label.style.color = '#2e5c2a';
+            
+            const btnWrapper = document.createElement('div');
+            btnWrapper.className = 'btn-group-stroke';
+            
+            const pronounceBtn = document.createElement('button');
+            pronounceBtn.className = 'stroke-control-btn pronounce-char-btn';
+            pronounceBtn.innerHTML = '🔊 發音';
+            pronounceBtn.title = `聽「${ch}」粵語發音`;
+            
+            const pausePlayBtn = document.createElement('button');
+            pausePlayBtn.className = 'stroke-control-btn';
+            pausePlayBtn.innerHTML = '⏸️ 暫停';
+            
+            const replayBtn = document.createElement('button');
+            replayBtn.className = 'stroke-control-btn';
+            replayBtn.innerHTML = '🔄 重播';
+            
+            btnWrapper.appendChild(pronounceBtn);
+            btnWrapper.appendChild(pausePlayBtn);
+            btnWrapper.appendChild(replayBtn);
+            
+            cardDiv.appendChild(canvasDiv);
+            cardDiv.appendChild(label);
+            cardDiv.appendChild(btnWrapper);
+            container.appendChild(cardDiv);
+            
+            try {
+                const strokeJson = await fetchStrokeData(ch);
+                if(strokeJson) {
+                    let isPlaying = true;
+                    let isPaused = false;
+                    let animationFinished = false;
+                    
+                    const writer = HanziWriter.create(canvasDiv, ch, {
+                        width: 150, height: 150, padding: 5,
+                        showOutline: true,
+                        strokeAnimationSpeed: 1,
+                        delayBetweenStrokes: 200,
+                        characterData: strokeJson,
+                        radicalColor: '#d9b48b',
+                        onComplete: () => {
+                            isPlaying = false;
+                            isPaused = false;
+                            animationFinished = true;
+                            pausePlayBtn.innerHTML = '▶️ 重播';
+                        }
+                    });
+                    
+                    currentWordWriters.push({ writer, ch });
+                    
+                    pronounceBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        speakCantonese(ch);
+                    });
+                    
+                    pausePlayBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (animationFinished) {
+                            writer.animateCharacter();
+                            animationFinished = false;
+                            isPlaying = true;
+                            isPaused = false;
+                            pausePlayBtn.innerHTML = '⏸️ 暫停';
+                        } else if (isPaused) {
+                            writer.resumeAnimation();
+                            isPaused = false;
+                            isPlaying = true;
+                            pausePlayBtn.innerHTML = '⏸️ 暫停';
+                        } else if (isPlaying) {
+                            writer.pauseAnimation();
+                            isPlaying = false;
+                            isPaused = true;
+                            pausePlayBtn.innerHTML = '▶️ 播放';
+                        } else {
+                            writer.animateCharacter();
+                            animationFinished = false;
+                            isPlaying = true;
+                            isPaused = false;
+                            pausePlayBtn.innerHTML = '⏸️ 暫停';
+                        }
+                    });
+                    
+                    replayBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        writer.animateCharacter();
+                        animationFinished = false;
+                        isPlaying = true;
+                        isPaused = false;
+                        pausePlayBtn.innerHTML = '⏸️ 暫停';
+                    });
+                    
+                    cardDiv.addEventListener('click', (e) => {
+                        if(e.target === pronounceBtn || e.target === pausePlayBtn || e.target === replayBtn || btnWrapper.contains(e.target)) return;
+                        writer.animateCharacter();
+                        animationFinished = false;
+                        isPlaying = true;
+                        isPaused = false;
+                        pausePlayBtn.innerHTML = '⏸️ 暫停';
+                    });
+                    
+                    writer.animateCharacter();
+                } else {
+                    canvasDiv.innerHTML = `<div style="text-align:center; padding-top:40px;">❌ 無筆順資料</div>`;
+                    pronounceBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        speakCantonese(ch);
+                    });
+                }
+            } catch(e) {
+                canvasDiv.innerHTML = `<div style="color:red;">載入失敗</div>`;
+                pronounceBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    speakCantonese(ch);
+                });
+            }
+        }
+    }
+    
+    function speakCurrentWord() {
+        if(!isTeaching || !currentTeachingList.length) return;
+        const word = currentTeachingList[currentIndex];
+        if(word) speakCantonese(word);
+    }
+    
+    function completeCurrentWordAndNext() {
+        if(!isTeaching) return;
+        if(!allowNext) {
+            showBanner("⏳ 請稍後，語音播放中...", false, 1000);
+            return;
+        }
+        if(currentIndex >= currentTeachingList.length) {
+            finishAllWords();
+            return;
+        }
+        const currentWord = currentTeachingList[currentIndex];
+        const bannerMsg = `🎉 欣欣叻叻！ ${currentWord} 🎉`;
+        showBanner(bannerMsg, false, 2500);
+        allowNext = false;
+        speakCantonese("欣欣叻叻", () => {
+            allowNext = true;
+            moveToNextWord();
+        });
+    }
+    
+    function moveToNextWord() {
+        if(!isTeaching) return;
+        if(currentIndex + 1 < currentTeachingList.length) {
+            currentIndex++;
+            loadCurrentWordToUI();
+        } else {
+            finishAllWords();
+        }
+    }
+    
+    async function loadCurrentWordToUI() {
+        if(!isTeaching) return;
+        const word = currentTeachingList[currentIndex];
+        document.getElementById('currentWordDisplay').innerText = word;
+        const progressSpan = document.getElementById('progressText');
+        progressSpan.innerText = `第 ${currentIndex+1} / ${currentTeachingList.length} 詞`;
+        await renderStrokeForWord(word);
+    }
+    
+    function finishAllWords() {
+        if(!isTeaching) return;
+        isTeaching = false;
+        showBanner("🌈 欣欣好叻，爸爸媽媽哥哥愛欣欣! 🌈", true, 4000);
+        speakCantonese("欣欣好叻，爸爸媽媽哥哥愛欣欣", () => {});
+        exitTeachingMode();
+    }
+    
+    function exitTeachingMode() {
+        isTeaching = false;
+        document.getElementById('managerPanel').classList.remove('hide');
+        document.getElementById('teachingPanel').classList.add('hide');
+        if(currentWordWriters) {
+            currentWordWriters.forEach(item => { if(item.writer && item.writer._destroy) item.writer._destroy(); });
+            currentWordWriters = [];
+        }
+    }
+    
+    function startTeaching() {
+        const inputVal = document.getElementById('wordsInput').value;
+        let wordsArray = inputVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        if(wordsArray.length === 0) {
+            alert("請至少輸入一個詞語 (用逗號分隔)");
+            return;
+        }
+        currentTeachingList = wordsArray;
+        currentIndex = 0;
+        isTeaching = true;
+        allowNext = true;
+        document.getElementById('managerPanel').classList.add('hide');
+        document.getElementById('teachingPanel').classList.remove('hide');
+        loadCurrentWordToUI().catch(e => console.warn(e));
+    }
+    
+    // ---------- 分組管理 (localStorage) ----------
+    const STORAGE_KEY = 'xinxiang_groups';
+    
+    function saveGroupsToLocal() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(groups));
+    }
+    
+    function loadGroupsFromLocal() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if(stored) {
+            groups = JSON.parse(stored);
+            groups.forEach(g => { if(!g.id) g.id = Date.now() + Math.random(); });
+        } else {
+            groups = [
+                { id: 1, name: "動物組", wordsStr: "老虎,獅子,熊貓,大象" },
+                { id: 2, name: "水果組", wordsStr: "蘋果,香蕉,橙,提子" },
+                { id: 3, name: "家庭組", wordsStr: "爸爸,媽媽,哥哥,姐姐" },
+                { id: 4, name: "日常組", wordsStr: "學校,書包,鉛筆,開心" }
+            ];
+        }
+        renderGroupsList();
+    }
+    
+    function renderGroupsList() {
+        const container = document.getElementById('groupsList');
+        if(!container) return;
+        container.innerHTML = '';
+        groups.forEach(group => {
+            const btnWrap = document.createElement('div');
+            btnWrap.className = 'group-btn';
+            const nameSpan = document.createElement('span');
+            nameSpan.innerText = `${group.name} (${group.wordsStr})`;
+            nameSpan.style.cursor = 'pointer';
+            nameSpan.style.fontWeight = 'bold';
+            nameSpan.addEventListener('click', () => {
+                document.getElementById('wordsInput').value = group.wordsStr;
+            });
+            const editWordsBtn = document.createElement('button');
+            editWordsBtn.innerText = '📝';
+            editWordsBtn.className = 'icon-btn';
+            editWordsBtn.title = '編輯詞語 (逗號分隔)';
+            editWordsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let newWords = prompt(`編輯「${group.name}」的詞語 (用逗號分隔)`, group.wordsStr);
+                if(newWords !== null) {
+                    group.wordsStr = newWords.trim();
+                    saveGroupsToLocal();
+                    renderGroupsList();
+                }
+            });
+            const editBtn = document.createElement('button');
+            editBtn.innerText = '✏️';
+            editBtn.className = 'icon-btn';
+            editBtn.title = '重新命名分組';
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const newName = prompt('輸入新分組名稱:', group.name);
+                if(newName && newName.trim()) {
+                    group.name = newName.trim();
+                    saveGroupsToLocal();
+                    renderGroupsList();
+                }
+            });
+            const delBtn = document.createElement('button');
+            delBtn.innerText = '🗑️';
+            delBtn.className = 'icon-btn';
+            delBtn.title = '刪除分組';
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if(confirm(`確定刪除分組「${group.name}」？`)) {
+                    groups = groups.filter(g => g.id !== group.id);
+                    saveGroupsToLocal();
+                    renderGroupsList();
+                }
+            });
+            btnWrap.appendChild(nameSpan);
+            btnWrap.appendChild(editWordsBtn);
+            btnWrap.appendChild(editBtn);
+            btnWrap.appendChild(delBtn);
+            container.appendChild(btnWrap);
+        });
+        if(groups.length === 0) {
+            const emptyHint = document.createElement('div');
+            emptyHint.innerText = '✨ 點擊下方「新增分組」建立詞庫 ✨';
+            container.appendChild(emptyHint);
+        }
+    }
+    
+    function addNewGroup() {
+        const groupName = prompt('請輸入新分組名稱', '我的詞組');
+        if(!groupName) return;
+        const wordsStr = prompt('輸入詞語 (逗號分隔)', '太陽,月亮,星星');
+        if(wordsStr === null) return;
+        const newId = Date.now();
+        groups.push({ id: newId, name: groupName.trim(), wordsStr: wordsStr.trim() });
+        saveGroupsToLocal();
+        renderGroupsList();
+    }
+    
+    // ---------- 匯出 / 匯入 功能 ----------
+    function exportGroupsData() {
+        const dataStr = JSON.stringify(groups, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `欣欣詞庫備份_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    function importGroupsData(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    // 簡單驗證結構
+                    const isValid = imported.every(item => item.name && typeof item.wordsStr === 'string');
+                    if (!isValid) {
+                        alert('匯入的資料格式不正確，請確認是之前匯出的備份檔案。');
+                        return;
+                    }
+                    groups = imported;
+                    // 確保每個分組都有id
+                    groups.forEach(g => { if(!g.id) g.id = Date.now() + Math.random(); });
+                    saveGroupsToLocal();
+                    renderGroupsList();
+                    alert('✅ 匯入成功！分組資料已更新。');
+                } else {
+                    alert('檔案內容不是有效的分組陣列。');
+                }
+            } catch (err) {
+                alert('讀取檔案失敗：' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    // 鍵盤空格監聽
+    function handleKeydown(e) {
+        if(e.code === 'Space') {
+            e.preventDefault();
+            if(isTeaching && document.getElementById('teachingPanel') && !document.getElementById('teachingPanel').classList.contains('hide')) {
+                speakCurrentWord();
+            }
+        }
+    }
+    
+    function bindEvents() {
+        document.getElementById('startTeachingBtn').addEventListener('click', startTeaching);
+        document.getElementById('backToMenuBtn').addEventListener('click', () => {
+            if(isTeaching) {
+                if(confirm('返回主頁會中斷目前教學進度，確定嗎？')) {
+                    exitTeachingMode();
+                }
+            } else exitTeachingMode();
+        });
+        document.getElementById('pronounceWordBtn').addEventListener('click', speakCurrentWord);
+        document.getElementById('completeWordBtn').addEventListener('click', completeCurrentWordAndNext);
+        document.getElementById('addGroupBtn').addEventListener('click', addNewGroup);
+        
+        // 匯出按鈕
+        document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
+        
+        // 匯入按鈕：觸發隱藏的 file input
+        const importFileInput = document.getElementById('importFileInput');
+        document.getElementById('importDataBtn').addEventListener('click', () => {
+            importFileInput.click();
+        });
+        importFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                importGroupsData(file);
+                importFileInput.value = ''; // 清空，允許再次選取相同檔案
+            }
+        });
+        
+        window.addEventListener('keydown', handleKeydown);
+        loadGroupsFromLocal();
+    }
+    
+    // 初始化語音 voices
+    if (window.speechSynthesis) {
+        window.speechSynthesis.getVoices();
+    }
+    
+    bindEvents();
+    if(groups.length) document.getElementById('wordsInput').value = groups[0].wordsStr;
+</script>
+</body>
+</html>

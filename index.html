@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>欣欣學習樂園 · 遊戲大廳</title>
+  <!-- 使用可爱的系统字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fef7e9 0%, #fff2db 100%);
+      min-height: 100vh;
+      font-family: 'Quicksand', 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+      padding: 24px 16px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      max-width: 1000px;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: #a5550e;
+      text-shadow: 4px 4px 0 #ffe5b4;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    h1 i {
+      font-size: 2.8rem;
+      background: #ffcf8a;
+      border-radius: 60px;
+      padding: 8px 18px;
+      color: #5d3a1a;
+      text-shadow: none;
+      box-shadow: 0 5px 0 #b77c3c;
+    }
+
+    .subhead {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #7b4a2a;
+      background: #ffeac2;
+      display: inline-block;
+      padding: 10px 30px;
+      border-radius: 60px;
+      box-shadow: inset 0 2px 5px #fff6e0, 0 6px 0 #d49b5f;
+      border: 2px solid #ffd58c;
+      margin-top: 5px;
+    }
+
+    .game-grid {
+      max-width: 1100px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 22px;
+      margin: 20px 0 30px;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 40px;
+      padding: 22px 18px 20px;
+      box-shadow: 0 15px 0 #b28142, 0 10px 20px rgba(0,0,0,0.1);
+      border: 3px solid #ffdfb3;
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      /* 保证卡片可点击 */
+    }
+
+    .game-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 0 #b28142, 0 15px 25px rgba(0,0,0,0.15);
+    }
+
+    .game-card:active {
+      transform: translateY(6px);
+      box-shadow: 0 9px 0 #b28142, 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    .card-emoji {
+      font-size: 3.8rem;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #5d3413;
+      text-shadow: 2px 2px 0 #ffddaa;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .card-desc {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #7b4f26;
+      background: #fff1db;
+      padding: 6px 12px;
+      border-radius: 30px;
+      margin-top: 6px;
+      border: 1.5px solid #edc48b;
+    }
+
+    .banner-love {
+      max-width: 800px;
+      width: 100%;
+      background: #ffb347;
+      background-image: radial-gradient(circle at 30% 20%, #ffdb8a, #ffa52f);
+      border-radius: 70px;
+      padding: 20px 25px;
+      text-align: center;
+      box-shadow: 0 12px 0 #b35e00, 0 8px 20px rgba(180, 100, 20, 0.3);
+      border: 4px solid #ffefc0;
+      margin-top: 30px;
+    }
+
+    .banner-love p {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #3b250a;
+      text-shadow: 3px 3px 0 #ffd58c;
+      letter-spacing: 3px;
+    }
+
+    .banner-love small {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #5c3b14;
+    }
+
+    .footer-note {
+      margin-top: 25px;
+      color: #b27a40;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    /* 移动端调整 */
+    @media (max-width: 600px) {
+      h1 { font-size: 2.4rem; }
+      .subhead { font-size: 1.2rem; }
+      .game-grid { gap: 16px; }
+      .card-title { font-size: 1.6rem; }
+      .banner-love p { font-size: 1.8rem; }
+    }
+
+    @media (max-width: 400px) {
+      .game-card { padding: 18px 12px; }
+    }
+
+    /* 为了适配可能缺少的 Font Awesome，我们用纯文本 emoji，不用图标库 */
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>
+      <span>🌸 欣欣學習樂園</span>
+      <span style="font-size: 2rem;">🧸</span>
+    </h1>
+    <div class="subhead">✨ 揀一個遊戲開始玩啦 ✨</div>
+  </div>
+
+  <div class="game-grid">
+    <!-- 1. 時鐘遊戲 -->
+    <a href="0010_clock.html" class="game-card">
+      <div class="card-emoji">🕒⏰</div>
+      <div class="card-title">睇鐘學時間</div>
+      <div class="card-desc">認鐘 · 粵語 + 英式英語</div>
+    </a>
+
+    <!-- 2. 左右辨別 -->
+    <a href="0020_lift_right_iphone.html" class="game-card">
+      <div class="card-emoji">⬅️➡️🧭</div>
+      <div class="card-title">左定右？</div>
+      <div class="card-desc">Left or Right · 箭頭挑戰</div>
+    </a>
+
+    <!-- 3. 奇偶數 (單雙數) -->
+    <a href="0100%20odd%20even%20v3_andriod.html" class="game-card">
+      <div class="card-emoji">🔢🕵️</div>
+      <div class="card-title">奇偶小偵探</div>
+      <div class="card-desc">單數 Odd · 雙數 Even</div>
+    </a>
+
+    <!-- 4. 加減法 (≤20, ≤10) -->
+    <a href="0120%20addition%20less%2020%20substraction%20less%2010.html" class="game-card">
+      <div class="card-emoji">➕➖🧮</div>
+      <div class="card-title">欣欣學加減數</div>
+      <div class="card-desc">加法≤20 · 減法≤10</div>
+    </a>
+
+    <!-- 5. 數字排序 -->
+    <a href="0120_sorting_numbers.html" class="game-card">
+      <div class="card-emoji">🔢📈</div>
+      <div class="card-title">數字排排樂</div>
+      <div class="card-desc">由小到大 / 由大至小</div>
+    </a>
+
+    <!-- 6. 繁體中文筆順動畫 -->
+    <a href="0210_繁體中文%20·%20筆順動畫_android.html" class="game-card">
+      <div class="card-emoji">✍️📖</div>
+      <div class="card-title">中文筆順樂園</div>
+      <div class="card-desc">粵語發音 · 筆順動畫</div>
+    </a>
+
+    <!-- 7. 中文文章閱讀 (粵普) -->
+    <a href="0220_article_Chinese_reading.html" class="game-card">
+      <div class="card-emoji">📚🗣️</div>
+      <div class="card-title">欣欣學中文 · 文章</div>
+      <div class="card-desc">粵語 / 普通話朗讀</div>
+    </a>
+
+    <!-- 8. 英文單詞句子 (拼讀) -->
+    <a href="0300_eng_word_v2.html" class="game-card">
+      <div class="card-emoji">🌿🇬🇧</div>
+      <div class="card-title">開心學英文</div>
+      <div class="card-desc">句子 + Phonics 拼讀</div>
+    </a>
+
+    <!-- 9. 英文填空 (2-3字母) -->
+    <a href="0310_eng_fill_in.html" class="game-card">
+      <div class="card-emoji">🔤🧩</div>
+      <div class="card-title">字母填空樂園</div>
+      <div class="card-desc">英式英語 + 粵語解釋</div>
+    </a>
+
+    <!-- 10. 英文文章閱讀 -->
+    <a href="0320_eng_article.html" class="game-card">
+      <div class="card-emoji">📰🌱</div>
+      <div class="card-title">英文文章 · 雙語</div>
+      <div class="card-desc">英式英文 + 粵語翻譯</div>
+    </a>
+  </div>
+
+  <div class="banner-love">
+    <p>🌈 欣欣叻叻！ 🌈</p>
+    <small>❤️ 爸爸 媽媽 哥哥 愛欣欣 ❤️</small>
+  </div>
+
+  <div class="footer-note">
+    ⭐ 㩒任何卡片開始玩 · 所有進度會自動保存 ⭐
+  </div>
+
+  <!-- 一个小提示：如果链接有空格，浏览器会自动处理，上面的href已经进行了URL编码 -->
+  <script>
+    (function(){
+      // 确保所有卡片链接在新页面打开（可选，这里就在当前页打开，保持简单）
+      // 也可以添加一些可爱的控制台问候
+      console.log("🎈 欣欣學習樂園 · 每日學一點，快樂成長！");
+      
+      // 处理可能的文件名错误（如果用户上传时文件名空格被转义，这里不做额外操作，相信href）
+      // 但我们可以加一个fallback：如果某些浏览器对中文文件名支持不佳，可提醒。
+      // 实际上现代浏览器都支持UTF-8文件名。
+    })();
+  </script>
+</body>
+</html>

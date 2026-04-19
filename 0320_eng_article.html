@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>馮樂欣學英文 · 欣欣學英文 (清新綠)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            /* 綠色漸變主題 */
+            background: linear-gradient(145deg, #c1e1c1 0%, #d4efdf 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(235, 248, 235, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            box-shadow: 0 20px 40px rgba(80, 140, 100, 0.25), 0 8px 20px rgba(0,0,0,0.08);
+            padding: 28px 24px;
+            border: 3px solid #9fcca8;
+        }
+        h1, h2 {
+            font-weight: 700;
+            color: #1e5a3c;
+            text-shadow: 3px 3px 0 #d0f0d0;
+        }
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        h1 i { color: #2f7a4c; font-size: 2.5rem; }
+        h2 {
+            font-size: 1.9rem;
+            margin-bottom: 16px;
+            border-left: 14px solid #6fbf7a;
+            padding-left: 22px;
+        }
+        /* 卡片改為綠色調 */
+        .pink-card {
+            background: #e2f3e2;
+            border-radius: 36px;
+            padding: 24px 26px;
+            box-shadow: inset 0 2px 8px #cfebcf, 0 10px 18px #8fc09f;
+            border: 2px solid #9bc0a8;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #a3d0a3;
+            border: none;
+            color: #1d4a2c;
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-family: 'Quicksand', sans-serif;
+            box-shadow: 0 6px 0 #4f8a5e, 0 4px 8px rgba(40, 90, 60, 0.2);
+            cursor: pointer;
+            transition: all 0.05s;
+            border: 2px solid #d9f0dc;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px;
+        }
+        button i { font-size: 1.3rem; color: #1c5530; }
+        button:active { transform: translateY(5px); box-shadow: 0 2px 0 #3a704a; }
+        button.secondary { background: #c6e0c6; box-shadow: 0 5px 0 #6d9b7a; color: #1d462c; }
+        input, textarea {
+            background: #f4fcf4;
+            border: 3px solid #8fc09f;
+            border-radius: 30px;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            width: 100%;
+            margin: 12px 0;
+            outline: none;
+            color: #1f3b28;
+            font-weight: 500;
+            resize: vertical;
+        }
+        .article-list { display: flex; flex-direction: column; gap: 14px; max-height: 280px; overflow-y: auto; }
+        .article-item {
+            background: #daf1da;
+            border-radius: 40px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px dashed #6ea57a;
+        }
+        .article-name { font-weight: 700; font-size: 1.3rem; color: #1b6533; }
+        .article-actions i {
+            margin: 0 8px;
+            font-size: 1.7rem;
+            color: #2f7243;
+            cursor: pointer;
+            background: #cae5ca;
+            padding: 8px;
+            border-radius: 50%;
+        }
+        .sentence-box {
+            background: #e0f0e0;
+            border-radius: 60px 60px 30px 60px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 3px solid #8fc09f;
+            box-shadow: inset 0 0 0 5px #d0ecd0, 0 8px 0 #5f9170;
+        }
+        .english-text { font-size: 2.2rem; font-weight: 700; color: #1d4a2c; line-height: 1.5; margin-bottom: 20px; }
+        .chinese-text { font-size: 1.9rem; color: #235b33; background: #cbe5cb; padding: 16px 24px; border-radius: 40px; display: inline-block; font-weight: 600; border-left: 12px solid #5fa875; }
+        .highlight {
+            background: #f5e56b !important;  /* 高亮保持明顯，黃綠色調 */
+            color: #1e3a1e !important;
+            border-radius: 18px;
+            padding: 2px 8px;
+            box-shadow: 0 0 10px #b3b83e;
+            font-weight: 800;
+        }
+        .word-span, .char-span { display: inline-block; padding: 0 2px; border-radius: 18px; transition: background 0.1s; }
+        .progress-indicator { font-size: 1.6rem; background: #9fcca8; padding: 8px 30px; border-radius: 50px; color: #163d20; }
+        .banner-pop {
+            position: fixed; top: 30%; left: 50%; transform: translate(-50%, -30%);
+            background: #f3e27b; padding: 28px 50px; border-radius: 100px; font-size: 3.8rem;
+            font-weight: 800; color: #1e6b3a; border: 8px solid #fcf1bb; z-index: 999;
+            animation: bouncePop 0.5s;
+        }
+        .rainbow-banner {
+            background: linear-gradient(45deg, #c1e6c1, #e0f0b4, #b4e0e0, #c3d4ff, #b4f0d0);
+            padding: 30px 40px; border-radius: 80px; font-size: 2.8rem; font-weight: 800;
+            color: #173e1f; border: 6px solid white; box-shadow: 0 20px 30px #6fa882;
+        }
+        @keyframes bouncePop {
+            0% { transform: translate(-50%, -30%) scale(0.7); opacity: 0; }
+            80% { transform: translate(-50%, -30%) scale(1.1); }
+            100% { transform: translate(-50%, -30%) scale(1); opacity: 1; }
+        }
+        .hide { display: none !important; }
+        .flex-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+        /* 導入導出按鈕微調 */
+        .import-export-group { margin-top: 10px; border-top: 2px dashed #8fc09f; padding-top: 18px; }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <h1><i class="fas fa-book-open"></i> 馮樂欣學英文 <i class="fas fa-heart" style="color:#2f7a4c;"></i></h1>
+
+    <!-- 管理頁 -->
+    <div id="managerView">
+        <div class="pink-card">
+            <div class="manager-header" style="display:flex; justify-content:space-between;">
+                <h2><i class="fas fa-pencil-alt"></i> 欣欣文章庫</h2>
+                <button id="newArticleBtn"><i class="fas fa-plus-circle"></i> 新文章</button>
+            </div>
+            <input type="text" id="articleNameInput" placeholder="文章標題" value="我的故事">
+            <textarea id="articleContentInput" rows="6" placeholder="輸入英文文章...">I love reading. My son is smart. He learns English every day.</textarea>
+            <div class="flex-row">
+                <button id="saveArticleBtn"><i class="fas fa-save"></i> 儲存文章</button>
+                <button id="cancelEditBtn" class="secondary"><i class="fas fa-times"></i> 取消</button>
+            </div>
+            <!-- 導入 / 導出 JSON 功能區 -->
+            <div class="import-export-group flex-row">
+                <button id="exportJsonBtn"><i class="fas fa-download"></i> 匯出 JSON</button>
+                <button id="importJsonBtn"><i class="fas fa-upload"></i> 匯入 JSON</button>
+                <input type="file" id="fileInput" accept=".json,application/json" style="display:none;">
+                <span style="margin-left:auto; font-size:0.9rem; color:#2c6e3c;"><i class="fas fa-sync-alt"></i> 跨電腦同步</span>
+            </div>
+        </div>
+        <div class="pink-card">
+            <h2><i class="fas fa-list-ul"></i> 我的文章</h2>
+            <div id="articleListContainer" class="article-list"></div>
+        </div>
+    </div>
+
+    <!-- 練習頁 -->
+    <div id="practiceView" class="hide">
+        <div class="flex-row" style="justify-content:space-between;">
+            <button id="backToManagerBtn" class="secondary"><i class="fas fa-arrow-left"></i> 文章庫</button>
+            <span class="progress-indicator" id="progressDisplay">句子 1 / 3</span>
+        </div>
+        <div style="margin:10px 0"><span id="currentArticleTitle" style="background:#a3d0a3; padding:8px 24px; border-radius:40px; font-size:1.5rem; color:#1b4d2b;">---</span></div>
+        <div class="sentence-box">
+            <div id="englishSentenceDisplay" class="english-text"></div>
+            <div id="chineseSentenceDisplay" class="chinese-text"></div>
+        </div>
+        <div class="flex-row" style="justify-content:center;">
+            <button id="speakEnglishBtn"><i class="fas fa-volume-up"></i> 英式英文</button>
+            <button id="speakCantoneseBtn"><i class="fas fa-volume-up"></i> 粵語</button>
+            <button id="nextSentenceBtn" style="background:#7fb07f; box-shadow:0 6px 0 #3f6e4c;"><i class="fas fa-arrow-right"></i> 下一句 欣欣叻叻</button>
+        </div>
+        <div style="margin-top:20px; text-align:right; color:#2b6e42;"><i class="fas fa-star"></i> 爸爸媽媽哥哥愛欣欣 <i class="fas fa-star"></i></div>
+    </div>
+</div>
+
+<div id="popupBanner" class="banner-pop hide">欣欣叻叻</div>
+<div id="rainbowFinalBanner" class="rainbow-banner hide">🌈 欣欣好叻，爸爸媽媽哥哥愛欣欣! 🌈</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- 數據 ----------
+        let articles = [];
+        let currentEditId = null;
+        let currentArticle = null;
+        let sentences = [], translations = [];
+        let currentIdx = 0;
+        const speechSynth = window.speechSynthesis;
+        const EN_LANG = 'en-GB';
+        const ZH_LANG = 'zh-HK'; // 粵語
+
+        // DOM
+        const managerView = document.getElementById('managerView');
+        const practiceView = document.getElementById('practiceView');
+        const nameInput = document.getElementById('articleNameInput');
+        const contentInput = document.getElementById('articleContentInput');
+        const listDiv = document.getElementById('articleListContainer');
+        const saveBtn = document.getElementById('saveArticleBtn');
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        const newBtn = document.getElementById('newArticleBtn');
+        const backBtn = document.getElementById('backToManagerBtn');
+        const engDisplay = document.getElementById('englishSentenceDisplay');
+        const chiDisplay = document.getElementById('chineseSentenceDisplay');
+        const progressSpan = document.getElementById('progressDisplay');
+        const titleLabel = document.getElementById('currentArticleTitle');
+        const speakEnBtn = document.getElementById('speakEnglishBtn');
+        const speakCantoBtn = document.getElementById('speakCantoneseBtn');
+        const nextBtn = document.getElementById('nextSentenceBtn');
+        const popup = document.getElementById('popupBanner');
+        const rainbow = document.getElementById('rainbowFinalBanner');
+
+        // 導入導出相關
+        const exportBtn = document.getElementById('exportJsonBtn');
+        const importBtn = document.getElementById('importJsonBtn');
+        const fileInput = document.getElementById('fileInput');
+
+        // 翻譯緩存
+        const translateCache = new Map();
+
+        // 加載/儲存
+        function loadArticles() {
+            const stored = localStorage.getItem('fung_articles_v3');
+            if(stored) {
+                try { articles = JSON.parse(stored); } catch(e){ articles = []; }
+            }
+            if(!articles.length) {
+                articles = [
+                    { id: '1', name: '欣欣的第一篇', content: 'I love my family. My brother plays with me. We are happy.' },
+                    { id: '2', name: '小動物', content: 'The cat is cute. The dog runs fast. I like animals.' }
+                ];
+            }
+            saveArticles();
+        }
+        function saveArticles() { 
+            localStorage.setItem('fung_articles_v3', JSON.stringify(articles)); 
+        }
+
+        // ----- 導入 / 導出 JSON 功能 -----
+        function exportToJson() {
+            const dataStr = JSON.stringify(articles, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fung_articles_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importFromJson(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) throw new Error('格式必須是陣列');
+                    // 基本驗證：每個物件應有 id, name, content
+                    for (let item of imported) {
+                        if (typeof item.id !== 'string' || typeof item.name !== 'string' || typeof item.content !== 'string') {
+                            throw new Error('文章格式不正確 (需要 id, name, content)');
+                        }
+                    }
+                    if (imported.length === 0) {
+                        if (!confirm('匯入的檔案是空的，確定要取代現有文章嗎？')) return;
+                    } else {
+                        if (!confirm(`確定要匯入 ${imported.length} 篇文章，並取代目前所有文章嗎？`)) return;
+                    }
+                    articles = imported;
+                    saveArticles();
+                    renderList();
+                    resetForm();
+                    alert('✅ 匯入成功！');
+                } catch (err) {
+                    alert('❌ 匯入失敗：' + err.message);
+                } finally {
+                    fileInput.value = ''; // 清空，允許再次選取同一檔案
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 觸發檔案選擇
+        function triggerImport() {
+            fileInput.click();
+        }
+
+        // ----- 列表渲染 -----
+        function renderList() {
+            if(!articles.length) {
+                listDiv.innerHTML = '<div style="padding:20px;">✨ 按「新文章」加入故事 ✨</div>';
+                return;
+            }
+            let html = '';
+            articles.forEach(a => {
+                html += `<div class="article-item">
+                    <span class="article-name"><i class="fas fa-bookmark"></i> ${escapeHtml(a.name)}</span>
+                    <span class="article-actions">
+                        <i class="fas fa-play-circle" data-action="practice" data-id="${a.id}"></i>
+                        <i class="fas fa-edit" data-action="edit" data-id="${a.id}"></i>
+                        <i class="fas fa-trash-alt" data-action="delete" data-id="${a.id}"></i>
+                    </span>
+                </div>`;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        function resetForm() {
+            nameInput.value = '';
+            contentInput.value = '';
+            currentEditId = null;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> 儲存文章';
+        }
+
+        function editArticle(art) {
+            nameInput.value = art.name;
+            contentInput.value = art.content;
+            currentEditId = art.id;
+            saveBtn.innerHTML = '<i class="fas fa-pen"></i> 更新文章';
+        }
+
+        function handleSave() {
+            const name = nameInput.value.trim();
+            const content = contentInput.value.trim();
+            if(!name || !content) { alert('請填寫標題和內容'); return; }
+            if(currentEditId) {
+                const idx = articles.findIndex(a => a.id === currentEditId);
+                if(idx !== -1) { articles[idx].name = name; articles[idx].content = content; }
+            } else {
+                articles.push({ id: Date.now() + '', name, content });
+            }
+            saveArticles();
+            renderList();
+            // 保留內容方便連續編輯 (不清空)
+        }
+
+        function deleteArticle(id) {
+            articles = articles.filter(a => a.id !== id);
+            if(currentEditId === id) resetForm();
+            saveArticles();
+            renderList();
+        }
+
+        // 翻譯 (MyMemory + Google fallback)
+        async function translateText(text) {
+            if(translateCache.has(text)) return translateCache.get(text);
+            try {
+                const url1 = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|zh-TW`;
+                const res1 = await fetch(url1);
+                const data1 = await res1.json();
+                if(data1.responseData && data1.responseData.translatedText) {
+                    const trans = data1.responseData.translatedText;
+                    translateCache.set(text, trans);
+                    return trans;
+                }
+                throw new Error('MyMemory failed');
+            } catch {
+                try {
+                    const url2 = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(text)}`;
+                    const res2 = await fetch(url2);
+                    const data2 = await res2.json();
+                    const trans = data2[0].map(x => x[0]).join('');
+                    translateCache.set(text, trans);
+                    return trans;
+                } catch {
+                    return '❌ 翻譯失敗，請檢查網絡';
+                }
+            }
+        }
+
+        // 開始練習
+        async function startPractice(article) {
+            currentArticle = article;
+            titleLabel.textContent = article.name;
+            const raw = article.content;
+            const splitRegex = /(?<=[.!?])\s+/g;
+            let rawSents = raw.split(splitRegex).filter(s => s.trim().length > 0);
+            if(rawSents.length === 0) rawSents = [raw];
+            sentences = rawSents.map(s => s.trim());
+
+            engDisplay.textContent = '🔄 準備翻譯...';
+            chiDisplay.textContent = '請稍候 💚';
+
+            translations = [];
+            for(let eng of sentences) {
+                const trans = await translateText(eng);
+                translations.push(trans);
+            }
+            currentIdx = 0;
+            displaySentence(currentIdx);
+            managerView.classList.add('hide');
+            practiceView.classList.remove('hide');
+            updateProgress();
+        }
+
+        function displaySentence(idx) {
+            const eng = sentences[idx];
+            const chi = translations[idx] || '翻譯中';
+
+            const engTokens = eng.split(/(\s+|\b)/g).filter(t => t.length);
+            let engHtml = '', offset = 0;
+            engTokens.forEach((tok) => {
+                if(tok.trim() === '') {
+                    engHtml += tok;
+                } else {
+                    engHtml += `<span class="word-span" data-start="${offset}" data-end="${offset + tok.length}">${escapeHtml(tok)}</span>`;
+                }
+                offset += tok.length;
+            });
+            engDisplay.innerHTML = engHtml;
+
+            const chars = [...chi];
+            let chiHtml = '', charOffset = 0;
+            chars.forEach((ch) => {
+                chiHtml += `<span class="char-span" data-start="${charOffset}" data-end="${charOffset + ch.length}">${escapeHtml(ch)}</span>`;
+                charOffset += ch.length;
+            });
+            chiDisplay.innerHTML = chiHtml;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            progressSpan.textContent = `句子 ${currentIdx+1} / ${sentences.length}`;
+        }
+
+        function stopSpeaking() { if(speechSynth.speaking) speechSynth.cancel(); }
+        function clearHighlights() { document.querySelectorAll('.word-span, .char-span').forEach(s => s.classList.remove('highlight')); }
+
+        function highlightByCharIndex(charIndex, type) {
+            const selector = type === 'english' ? '.word-span' : '.char-span';
+            const spans = document.querySelectorAll(selector);
+            clearHighlights();
+            for(let span of spans) {
+                const start = parseInt(span.dataset.start);
+                const end = parseInt(span.dataset.end);
+                if(charIndex >= start && charIndex < end) {
+                    span.classList.add('highlight');
+                    break;
+                }
+            }
+        }
+
+        function speakWithHighlight(text, lang, type) {
+            stopSpeaking();
+            clearHighlights();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.9;
+
+            utterance.onboundary = (e) => {
+                if(e.name === 'word' || e.name === 'sentence') {
+                    highlightByCharIndex(e.charIndex, type);
+                }
+            };
+            utterance.onend = () => clearHighlights();
+            utterance.onerror = () => clearHighlights();
+            speechSynth.speak(utterance);
+        }
+
+        async function speakPhrase(phrase) {
+            return new Promise(resolve => {
+                stopSpeaking();
+                const u = new SpeechSynthesisUtterance(phrase);
+                u.lang = ZH_LANG;
+                u.rate = 0.9;
+                u.onend = resolve;
+                u.onerror = resolve;
+                speechSynth.speak(u);
+            });
+        }
+
+        async function showCongrats() {
+            popup.classList.remove('hide');
+            await speakPhrase('欣欣叻叻');
+            await new Promise(r => setTimeout(r, 300));
+            popup.classList.add('hide');
+        }
+
+        async function showFinal() {
+            rainbow.classList.remove('hide');
+            await speakPhrase('欣欣好叻，爸爸媽媽哥哥愛欣欣');
+            await new Promise(r => setTimeout(r, 1500));
+            rainbow.classList.add('hide');
+            practiceView.classList.add('hide');
+            managerView.classList.remove('hide');
+            if(currentArticle) {
+                nameInput.value = currentArticle.name;
+                contentInput.value = currentArticle.content;
+            }
+        }
+
+        async function handleNext() {
+            if(!sentences.length) return;
+            stopSpeaking(); clearHighlights();
+            if(currentIdx === sentences.length - 1) {
+                await showFinal();
+                return;
+            }
+            await showCongrats();
+            currentIdx++;
+            displaySentence(currentIdx);
+        }
+
+        // 事件綁定
+        function bindEvents() {
+            listDiv.addEventListener('click', e => {
+                const icon = e.target.closest('[data-action]');
+                if(!icon) return;
+                const action = icon.dataset.action;
+                const id = icon.dataset.id;
+                const art = articles.find(a => a.id === id);
+                if(!art) return;
+                if(action === 'practice') startPractice(art);
+                else if(action === 'edit') editArticle(art);
+                else if(action === 'delete') { if(confirm('確定刪除？')) deleteArticle(id); }
+            });
+
+            saveBtn.addEventListener('click', handleSave);
+            cancelBtn.addEventListener('click', resetForm);
+            newBtn.addEventListener('click', resetForm);
+            backBtn.addEventListener('click', () => {
+                stopSpeaking();
+                practiceView.classList.add('hide');
+                managerView.classList.remove('hide');
+            });
+
+            speakEnBtn.addEventListener('click', () => {
+                if(sentences.length) speakWithHighlight(sentences[currentIdx], EN_LANG, 'english');
+            });
+            speakCantoBtn.addEventListener('click', () => {
+                if(sentences.length) speakWithHighlight(translations[currentIdx]||'', ZH_LANG, 'chinese');
+            });
+            nextBtn.addEventListener('click', handleNext);
+
+            // 導入導出
+            exportBtn.addEventListener('click', exportToJson);
+            importBtn.addEventListener('click', triggerImport);
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                importFromJson(file);
+            });
+        }
+
+        function init() {
+            loadArticles();
+            renderList();
+            resetForm();
+            bindEvents();
+            if(!window.speechSynthesis) alert('瀏覽器不支援語音');
+        }
+        init();
+    })();
+</script>
+</body>
+</html>

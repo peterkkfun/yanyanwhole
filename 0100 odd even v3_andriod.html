@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- 安卓优化：主题色、全屏体验 -->
+    <meta name="theme-color" content="#1e5a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>🔢 奇偶小侦探 · 单双数 | 儿童数学</title>
+    <style>
+        * { 
+            box-sizing: border-box; 
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent; /* 去掉安卓点击灰块 */
+        }
+        body {
+            margin: 0; 
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1e5a8a 0%, #0e3a5f 100%);
+            font-family: 'Comic Neue', 'Segoe UI Emoji', 'Comic Sans MS', 'Chalkboard SE', 'Poppins', sans-serif;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 16px;
+            /* 防止内容被裁切 */
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+        }
+        .game-container {
+            background: rgba(255,248,225,0.96);
+            border-radius: 70px 70px 60px 60px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.35), inset 0 1px 4px rgba(255,255,255,0.7);
+            padding: 22px 16px 30px;
+            max-width: 650px; 
+            width: 100%; 
+            text-align: center;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255,215,150,0.5);
+        }
+        h1 {
+            font-size: 2rem; 
+            margin: 0 0 6px;
+            background: linear-gradient(135deg, #ffb347, #ff8c1a);
+            background-clip: text; 
+            -webkit-background-clip: text; 
+            color: transparent;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.1); 
+            display: inline-block; 
+            padding: 0 10px;
+            letter-spacing: 1px;
+        }
+        .sub {
+            font-size: 1rem; 
+            color: #2c5a2e; 
+            background: #e9f5e6; 
+            display: inline-block;
+            padding: 6px 18px; 
+            border-radius: 40px; 
+            font-weight: bold; 
+            margin-bottom: 16px;
+            box-shadow: inset 0 1px 2px #0001, 0 2px 4px #fff8;
+        }
+        .number-card {
+            background: #fef7e0; 
+            margin: 10px 12px 8px; 
+            padding: 20px 8px 12px; 
+            border-radius: 65px;
+            box-shadow: inset 0 0 0 5px white, 0 12px 20px rgba(0,0,0,0.15); 
+            border: 2px solid #ffcd94;
+        }
+        .big-number {
+            font-size: 9rem; 
+            font-weight: 800; 
+            letter-spacing: 6px; 
+            color: #3c2a1f;
+            text-shadow: 6px 6px 0 #ffcd94; 
+            line-height: 1.1; 
+            font-family: 'Courier New', monospace, 'Comic Neue';
+            margin: 5px 0 0;
+        }
+        /* 重听按钮 —— 安卓专用优化，触摸区域足够 */
+        .replay-wrap {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .replay-btn {
+            background: #ffecb3;
+            border: 2px solid #ffb347;
+            color: #4b2f14;
+            font-size: 1.25rem;
+            font-weight: bold;
+            padding: 10px 22px;
+            border-radius: 60px;
+            box-shadow: 0 4px 0 #cc8f3b;
+            cursor: pointer;
+            transition: all 0.07s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            touch-action: manipulation;  /* 禁止双击缩放，提升响应 */
+            -webkit-touch-callout: none;
+            border-bottom: 3px solid #b97f2e;
+        }
+        .replay-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #b97f2e;
+        }
+        .choice-buttons {
+            display: flex; 
+            gap: 18px; 
+            justify-content: center; 
+            margin: 16px 0 12px; 
+            flex-wrap: wrap;
+        }
+        .btn {
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            padding: 16px 22px; 
+            border: none; 
+            border-radius: 60px;
+            background: #ffe6c7; 
+            box-shadow: 0 7px 0 #b97f2e; 
+            cursor: pointer; 
+            transition: 0.07s;
+            font-family: inherit; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: #4b2f14;
+            touch-action: manipulation;
+            border-bottom: 3px solid #a56b1f;
+        }
+        .btn:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 2px 0 #b97f2e; 
+        }
+        .btn-odd { background: #ffdd99; border-bottom-color: #e09d32; }
+        .btn-even { background: #c8e7f5; border-bottom-color: #3f8db3; }
+        .btn span { 
+            font-size: 1.2rem; 
+            background: rgba(0,0,0,0.05); 
+            padding: 4px 12px; 
+            border-radius: 40px; 
+        }
+        .feedback-area {
+            margin: 15px 10px 10px; 
+            background: #fff3e0; 
+            border-radius: 70px; 
+            padding: 16px 10px;
+            box-shadow: inset 0 0 0 3px #fff6e8, 0 5px 12px rgba(0,0,0,0.1);
+        }
+        .marker { 
+            font-size: 4.5rem; 
+            line-height: 1.2; 
+            transition: 0.2s; 
+            min-height: 5rem;
+        }
+        .message { 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            margin-top: 8px; 
+            color: #4b3e2e; 
+        }
+        .correct-marker { color: #2b7a2b; text-shadow: 0 2px 5px #b5ffb5; }
+        .wrong-marker { color: #c7362b; text-shadow: 0 2px 5px #ffb3ae; }
+        .score-panel {
+            display: flex; 
+            justify-content: space-between; 
+            background: #f7e9d2; 
+            margin: 10px 12px 0;
+            padding: 12px 20px; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            font-size: 1.3rem;
+            box-shadow: inset 0 1px 3px #0001, 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .score-item { 
+            background: white; 
+            padding: 6px 18px; 
+            border-radius: 40px; 
+            color: #3a2a1c; 
+        }
+        .next-btn {
+            background: #6fbf4c; 
+            color: white; 
+            font-size: 1.7rem; 
+            font-weight: bold; 
+            padding: 14px 20px;
+            margin-top: 18px; 
+            width: 85%; 
+            border: none; 
+            border-radius: 50px; 
+            box-shadow: 0 7px 0 #367c1a;
+            cursor: pointer; 
+            transition: 0.07s; 
+            font-family: inherit; 
+            display: inline-flex;
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px;
+            touch-action: manipulation;
+            border-bottom: 3px solid #2d6b14;
+        }
+        .next-btn:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 2px 0 #367c1a; 
+        }
+        button:disabled { 
+            opacity: 0.55; 
+            transform: translateY(0); 
+            cursor: not-allowed; 
+            box-shadow: 0 4px 0 #7a5e3a;
+        }
+        .instruction {
+            font-size: 0.9rem; 
+            margin-top: 16px; 
+            background: #fff1cf; 
+            border-radius: 32px;
+            padding: 8px 14px; 
+            display: inline-block; 
+            color: #aa6f2c;
+            font-weight: 500;
+        }
+        /* 安卓小屏适配 */
+        @media (max-width: 550px) {
+            .game-container { padding: 18px 10px 25px; border-radius: 50px; }
+            .big-number { font-size: 5.8rem; }
+            .btn { font-size: 1.4rem; padding: 14px 16px; }
+            .btn span { font-size: 1rem; }
+            .marker { font-size: 3.8rem; }
+            .message { font-size: 1.2rem; }
+            .score-item { font-size: 1rem; padding: 5px 12px; }
+            .replay-btn { font-size: 1.1rem; padding: 8px 18px; }
+        }
+        @media (max-width: 400px) {
+            .big-number { font-size: 4.8rem; }
+            .choice-buttons { gap: 10px; }
+        }
+        /* 增加点击区域，防止误触 */
+        .replay-btn, .btn, .next-btn { 
+            min-height: 56px; 
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <h1>🔢 奇偶小侦探 🕵️‍♂️</h1>
+    <div class="sub">⚡ 單數 (Odd) 還是 雙數 (Even) ?</div>
+    
+    <!-- 数字卡片区 + 新增重听按钮 (安卓友好) -->
+    <div class="number-card">
+        <div class="big-number" id="currentNumberDisplay">0</div>
+        <div class="replay-wrap">
+            <button class="replay-btn" id="replayNumberBtn" title="點擊重聽數字 (英式英語＋粵語)">🔊 重聽數字</button>
+        </div>
+    </div>
+    
+    <div class="choice-buttons">
+        <button class="btn btn-odd" id="oddBtn">🟠 Odd 單數 <span>🔲</span></button>
+        <button class="btn btn-even" id="evenBtn">🔵 Even 雙數 <span>🔲</span></button>
+    </div>
+    
+    <div class="feedback-area" id="feedbackArea">
+        <div class="marker" id="markerIcon">✨</div>
+        <div class="message" id="messageText">🤗 點擊單數或雙數，試試看！</div>
+    </div>
+    
+    <div class="score-panel">
+        <div class="score-item">🏆 正確: <span id="correctCount">0</span></div>
+        <div class="score-item">📋 答題: <span id="totalAttempts">0</span></div>
+    </div>
+    
+    <button class="next-btn" id="nextBtn">🎲 新數字 🎲</button>
+    <div class="instruction">
+        ⭐ 點擊按鈕 —— 英式英語 🇬🇧 + 粵語 🇭🇰 讀出答案！<br>
+        🔊 按「重聽數字」可重複聆聽數字。
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- 状态 ----------
+        let currentNumber = 0;            
+        let correctCount = 0;           
+        let totalAttempts = 0;          
+        let isAnswered = false;         
+        let replayTimeout = null;       // 用于重听按钮文字恢复
+
+        // DOM 元素
+        const numberDisplay = document.getElementById('currentNumberDisplay');
+        const oddBtn = document.getElementById('oddBtn');
+        const evenBtn = document.getElementById('evenBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const replayBtn = document.getElementById('replayNumberBtn');
+        const markerIcon = document.getElementById('markerIcon');
+        const messageText = document.getElementById('messageText');
+        const correctCountSpan = document.getElementById('correctCount');
+        const totalAttemptsSpan = document.getElementById('totalAttempts');
+
+        // ---------- 语音辅助 (英式英语 + 粤语，安卓优化) ----------
+        function isSpeechSupported() {
+            return window.speechSynthesis && typeof SpeechSynthesisUtterance !== 'undefined';
+        }
+
+        function speakText(text, lang, callback) {
+            if (!isSpeechSupported()) {
+                console.warn("浏览器不支持语音合成");
+                if (callback) callback();
+                return;
+            }
+            // 安卓上有时需要先取消再新建，避免队列混乱
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.9;
+            utterance.pitch = 1.2;
+            
+            // 安卓兼容：某些设备需要设置voice，但用lang会自动匹配
+            utterance.onend = () => { if (callback) callback(); };
+            utterance.onerror = (err) => { 
+                console.warn("语音错误", err); 
+                if (callback) callback(); 
+            };
+            
+            // 确保取消之前的语音 (但cancelAllSpeech在外层调用，这里也加一道防线)
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function cancelAllSpeech() {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        // 朗读数字序列：先英式英语，再粤语
+        function speakNumberSequence(num, callback) {
+            const numStr = num.toString();
+            speakText(numStr, 'en-GB', () => {
+                speakText(numStr, 'zh-HK', () => {
+                    if (callback) callback();
+                });
+            });
+        }
+
+        // 朗读答案类型
+        function speakAnswerType(isEven, callback) {
+            const englishWord = isEven ? "even" : "odd";
+            const cantoneseWord = isEven ? "雙數" : "單數";
+            speakText(englishWord, 'en-GB', () => {
+                speakText(cantoneseWord, 'zh-HK', () => {
+                    if (callback) callback();
+                });
+            });
+        }
+
+        // 仅朗读数字 (用于新数字、重听)
+        function speakNumberOnly(num) {
+            cancelAllSpeech();
+            speakNumberSequence(num, null);
+        }
+
+        // ---------- 奇偶判断 ----------
+        function isNumberEven(num) { return num % 2 === 0; }
+
+        // ---------- 更新显示 ----------
+        function updateNumberDisplay() { 
+            numberDisplay.innerText = currentNumber; 
+        }
+
+        function resetFeedbackForNewQuestion() {
+            markerIcon.innerHTML = "✨";
+            markerIcon.className = "marker";
+            messageText.innerHTML = "🤗 點擊單數或雙數，試試看！";
+            markerIcon.classList.remove('correct-marker', 'wrong-marker');
+            isAnswered = false;
+            oddBtn.disabled = false;
+            evenBtn.disabled = false;
+        }
+
+        function showFeedback(isCorrect, selectedIsEven, actualIsEven) {
+            if (isCorrect) {
+                markerIcon.innerHTML = "✅✔️ 正確！";
+                markerIcon.classList.add('correct-marker');
+                messageText.innerHTML = `🎉 太棒了！ ${currentNumber} 是 ${actualIsEven ? '偶數 (雙數)' : '奇數 (單數)'} 🎉`;
+            } else {
+                markerIcon.innerHTML = "❌✖️ 再試試！";
+                markerIcon.classList.add('wrong-marker');
+                const correctType = actualIsEven ? "偶數 (雙數)" : "奇數 (單數)";
+                messageText.innerHTML = `😲 哎呀！ ${currentNumber} 是 ${correctType}，下次一定對！ 💪`;
+            }
+            markerIcon.style.transform = "scale(1.1)";
+            setTimeout(() => { if(markerIcon) markerIcon.style.transform = ""; }, 200);
+        }
+
+        function updateScoreUI() {
+            correctCountSpan.innerText = correctCount;
+            totalAttemptsSpan.innerText = totalAttempts;
+        }
+
+        // ---------- 处理选择 (不再朗读数字，只朗读答案类型) ----------
+        function handleChoice(selectedOdd) {
+            if (isAnswered) {
+                messageText.innerHTML = "🎯 已經選過囉！按『新數字』繼續挑戰～";
+                markerIcon.innerHTML = "⚠️";
+                setTimeout(() => {
+                    if (isAnswered) messageText.innerHTML = `🔍 答案是 ${isNumberEven(currentNumber) ? '雙數' : '單數'}，按下一題吧！`;
+                }, 1200);
+                return;
+            }
+
+            const actualIsEven = isNumberEven(currentNumber);
+            const selectedIsEven = !selectedOdd;
+            
+            let isCorrect = false;
+            if (selectedOdd && !actualIsEven) isCorrect = true;
+            else if (!selectedOdd && actualIsEven) isCorrect = true;
+
+            totalAttempts++;
+            if (isCorrect) correctCount++;
+            updateScoreUI();
+
+            showFeedback(isCorrect, selectedIsEven, actualIsEven);
+
+            isAnswered = true;
+            oddBtn.disabled = true;
+            evenBtn.disabled = true;
+
+            cancelAllSpeech();
+            speakAnswerType(actualIsEven, null);
+        }
+
+        // ---------- 生成新数字 (0~99)，并朗读 ----------
+        function generateNewNumber(skipSpeech = false) {
+            cancelAllSpeech();
+            const newNum = Math.floor(Math.random() * 100);
+            currentNumber = newNum;
+            updateNumberDisplay();
+            resetFeedbackForNewQuestion();
+            
+            numberDisplay.style.transform = "scale(1.05)";
+            setTimeout(() => { if(numberDisplay) numberDisplay.style.transform = ""; }, 200);
+
+            if (!skipSpeech) {
+                speakNumberOnly(currentNumber);
+            }
+        }
+
+        function nextQuestion() {
+            generateNewNumber(false);
+        }
+
+        // ---------- 重听数字 (安卓新增功能) ----------
+        function replayCurrentNumber() {
+            if (currentNumber === undefined) return;
+            
+            // 清除之前的恢复定时器
+            if (replayTimeout) clearTimeout(replayTimeout);
+            
+            // 取消任何正在进行的语音，播放数字
+            cancelAllSpeech();
+            speakNumberOnly(currentNumber);
+            
+            // 按钮文字短暂变化，不影响主反馈区域
+            if (replayBtn) {
+                replayBtn.innerText = '🔊 朗讀中...';
+                replayTimeout = setTimeout(() => {
+                    if (replayBtn) replayBtn.innerText = '🔊 重聽數字';
+                }, 1500);
+            }
+            
+            // 可选：在marker显示小耳机提示（不覆盖主要消息）
+            const originalMarker = markerIcon.innerHTML;
+            const originalClass = markerIcon.className;
+            markerIcon.innerHTML = "🎧";
+            markerIcon.classList.remove('correct-marker', 'wrong-marker');
+            setTimeout(() => {
+                // 恢复标记，但要根据答题状态
+                if (!isAnswered) {
+                    markerIcon.innerHTML = "✨";
+                    markerIcon.className = "marker";
+                } else {
+                    // 保持之前正确/错误样式 (showFeedback已经设置过，但我们需要还原)
+                    // 简单根据当前正确与否重建样式
+                    const actualEven = isNumberEven(currentNumber);
+                    if (correctCount > 0 || totalAttempts > 0) {
+                        // 但无法得知上次是否答对，为了简单，我们重新从message判断？ 
+                        // 更稳健：不改变已经显示的反馈，只恢复图标
+                        if (messageText.innerHTML.includes('太棒了')) {
+                            markerIcon.innerHTML = "✅✔️ 正確！";
+                            markerIcon.classList.add('correct-marker');
+                        } else if (messageText.innerHTML.includes('哎呀')) {
+                            markerIcon.innerHTML = "❌✖️ 再試試！";
+                            markerIcon.classList.add('wrong-marker');
+                        } else {
+                            markerIcon.innerHTML = originalMarker;
+                            markerIcon.className = originalClass;
+                        }
+                    } else {
+                        markerIcon.innerHTML = originalMarker;
+                        markerIcon.className = originalClass;
+                    }
+                }
+            }, 800);
+        }
+
+        // ---------- 重置分数 (双击分数面板) ----------
+        function resetScore() {
+            if (confirm("✨ 要重設計分嗎？正確和答題數將歸零 ✨")) {
+                correctCount = 0;
+                totalAttempts = 0;
+                updateScoreUI();
+                messageText.innerHTML = "🏅 分數已歸零！繼續挑戰～";
+                markerIcon.innerHTML = "🔄";
+                setTimeout(() => {
+                    if(!isAnswered) {
+                        messageText.innerHTML = "🤗 點擊單數或雙數，試試看！";
+                        markerIcon.innerHTML = "✨";
+                    }
+                }, 1500);
+            }
+        }
+
+        // ---------- 事件绑定 ----------
+        function bindEvents() {
+            oddBtn.addEventListener('click', () => handleChoice(true));
+            evenBtn.addEventListener('click', () => handleChoice(false));
+            nextBtn.addEventListener('click', nextQuestion);
+            
+            if (replayBtn) {
+                replayBtn.addEventListener('click', replayCurrentNumber);
+            }
+            
+            const scorePanel = document.querySelector('.score-panel');
+            if (scorePanel) {
+                scorePanel.addEventListener('dblclick', resetScore);
+                // 移动端长按也可重置？ 保持双击，也可增加触摸长按备选 (但双击已够)
+            }
+        }
+
+        // ---------- 初始化 (首次不朗读，等待用户交互) ----------
+        function initGame() {
+            currentNumber = Math.floor(Math.random() * 100);
+            updateNumberDisplay();
+            correctCount = 0;
+            totalAttempts = 0;
+            isAnswered = false;
+            updateScoreUI();
+            resetFeedbackForNewQuestion();
+            oddBtn.disabled = false;
+            evenBtn.disabled = false;
+            cancelAllSpeech();
+            
+            // 安卓首次可能语音权限未激活，没关系，点击按钮即可。
+            bindEvents();
+        }
+
+        window.addEventListener('load', () => {
+            initGame();
+            // 提示语音功能
+            setTimeout(() => {
+                if (messageText) {
+                    messageText.innerHTML = "🎤 點擊『單數』或『雙數』，我會用英式英語+粵語讀出答案！";
+                }
+                if (!isSpeechSupported()) {
+                    messageText.innerHTML = "⚠️ 你的瀏覽器不支援語音，但仍可玩遊戲。";
+                }
+            }, 300);
+        });
+
+        // 页面卸载前停止语音，避免安卓后台继续播放
+        window.addEventListener('beforeunload', () => {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            if (replayTimeout) clearTimeout(replayTimeout);
+        });
+
+        // 安卓返回键不会影响，但确保语音取消
+        window.addEventListener('pagehide', () => {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        });
+
+    })();
+</script>
+</body>
+</html>

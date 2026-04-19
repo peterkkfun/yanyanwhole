@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.5">
+  <title>欣欣學時間 · 欣欣学时间 · 大字時鐘</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fef9e6 0%, #fff5d7 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+      padding: 16px;
+      margin: 0;
+    }
+
+    .game-container {
+      max-width: 620px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 64px 64px 48px 48px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 6px 12px rgba(0, 0, 0, 0.08);
+      padding: 28px 24px 36px;
+      border: 2px solid #ffdfb3;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #a5550e;
+      text-shadow: 3px 3px 0 #ffe5b4;
+      margin-top: -8px;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+      word-break: keep-all;
+    }
+
+    .banner {
+      background: #ffb347;
+      background-image: radial-gradient(circle at 20% 30%, #ffd966, #ff9f1c);
+      color: #2d1b0a;
+      font-size: 3.8rem;
+      font-weight: 900;
+      padding: 12px 10px;
+      border-radius: 60px;
+      margin: 5px 0 15px;
+      box-shadow: 0 8px 0 #b35e00, 0 12px 20px rgba(0,0,0,0.1);
+      border: 3px solid #ffefc0;
+      text-shadow: 2px 2px 0 #ffdd99;
+      letter-spacing: 8px;
+      transform: rotate(-1deg);
+      transition: all 0.25s;
+      line-height: 1.2;
+    }
+
+    .banner.hidden {
+      display: none;
+    }
+
+    .clock-wrapper {
+      background: #fef7e9;
+      border-radius: 50%;
+      padding: 15px;
+      display: inline-block;
+      box-shadow: inset 0 -4px 0 #d9b382, 0 18px 25px -8px rgba(100, 50, 10, 0.2);
+      border: 4px solid #edc48b;
+      margin-bottom: 20px;
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      aspect-ratio: 1/1;
+      background: #fff9f0;
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px #fbe6c2, 0 8px 0 #b28142;
+    }
+
+    .answers {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px 12px;
+      margin: 28px 0 20px;
+    }
+
+    .answer-btn {
+      background: #ffe5b4;
+      border: 4px solid #cb8b3a;
+      color: #3b280b;
+      font-size: 2.2rem;
+      font-weight: bold;
+      padding: 16px 0;
+      width: 130px;
+      border-radius: 80px;
+      box-shadow: 0 7px 0 #9e601c, 0 6px 12px rgba(0,0,0,0.1);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.08s;
+      font-family: 'Segoe UI', 'Courier New', monospace;
+      letter-spacing: 2px;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .answer-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 4px 0 #9e601c, 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .answer-btn.correct-highlight {
+      background: #a5d6a5 !important;
+      border-color: #2e7d32 !important;
+      box-shadow: 0 4px 0 #1b5e20, 0 6px 12px rgba(0,100,0,0.2) !important;
+      transform: translateY(3px);
+      color: #1a3b1a;
+    }
+
+    .answer-btn.disabled-true, .answer-btn:disabled {
+      opacity: 0.7;
+      filter: grayscale(0.2);
+      transform: translateY(5px);
+      box-shadow: 0 2px 0 #9e601c, 0 6px 12px rgba(0,0,0,0.1);
+      pointer-events: none;
+    }
+
+    /* 错误时的 bump + flash 动画 */
+    .bump-flash {
+      animation: bumpFlash 0.35s ease-in-out;
+      background-color: #ffaaaa !important;
+      border-color: #b00020 !important;
+      box-shadow: 0 4px 0 #7a0015, 0 6px 12px rgba(180,0,0,0.3) !important;
+    }
+
+    @keyframes bumpFlash {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-12px); }
+      40% { transform: translateX(12px); }
+      60% { transform: translateX(-7px); }
+      80% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .action-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .next-btn {
+      background: #b0d9b1;
+      border: 3px solid #3f7840;
+      color: #1e421f;
+      font-size: 1.5rem;
+      font-weight: bold;
+      padding: 12px 28px;
+      border-radius: 50px;
+      box-shadow: 0 5px 0 #2b5e2c, 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.1s;
+      border: none;
+      border-bottom: 5px solid #1f4a20;
+      background: #c8e6c9;
+      letter-spacing: 2px;
+    }
+
+    .next-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #1f4a20, 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      transform: translateY(5px);
+      box-shadow: 0 2px 0 #1f4a20;
+      pointer-events: none;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: #ae6b2b;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      .game-container { padding: 16px 12px 24px; }
+      .answer-btn { font-size: 1.8rem; width: 110px; padding: 12px 0; }
+      .banner { font-size: 2.8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <h1>🕒 睇鐘學時間</h1>
+
+  <!-- 欣欣叻叻 表揚橫幅 -->
+  <div id="praiseBanner" class="banner hidden">欣欣叻叻</div>
+
+  <!-- 時鐘畫布 (大字版) -->
+  <div class="clock-wrapper">
+    <canvas id="clockCanvas" width="320" height="320"></canvas>
+  </div>
+
+  <!-- 三個答案選項 -->
+  <div class="answers" id="answersContainer">
+    <button class="answer-btn" id="ans0" data-value="">--:--</button>
+    <button class="answer-btn" id="ans1" data-value="">--:--</button>
+    <button class="answer-btn" id="ans2" data-value="">--:--</button>
+  </div>
+
+  <div class="action-area">
+    <button class="next-btn" id="newQuestionBtn" aria-label="下一題">⏩ 下一題</button>
+  </div>
+  <div class="footer-note">
+    <span>✅ 答對會講粵語 + 英式英語 · ㊗️ 欣欣叻叻！</span>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ---------- 全域變量 ----------
+    const canvas = document.getElementById('clockCanvas');
+    const ctx = canvas.getContext('2d');
+    const banner = document.getElementById('praiseBanner');
+    const ansBtns = [
+      document.getElementById('ans0'),
+      document.getElementById('ans1'),
+      document.getElementById('ans2')
+    ];
+    const newBtn = document.getElementById('newQuestionBtn');
+
+    // 當前題目數據
+    let currentHour = 3;
+    let currentMinute = 0;
+    let correctAnswerStr = '';
+    let answerOptions = [];
+    
+    // 狀態鎖
+    let isCorrectAnswered = false;
+    let isSpeaking = false;
+    let speechSynth = window.speechSynthesis;
+    
+    // 可用時間 (15分鐘間隔)
+    const possibleMinutes = [0, 15, 30, 45];
+    const possibleHours = [1,2,3,4,5,6,7,8,9,10,11,12];
+
+    // ---------- 錯誤音效 (簡短「咚」聲) ----------
+    function playBumpSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 180;
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.15);
+        
+        setTimeout(() => audioCtx.close(), 200);
+      } catch (e) {
+        fallbackBeep();
+      }
+    }
+    
+    function fallbackBeep() {
+      const audio = new Audio("data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVoAAACAgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f38=");
+      audio.volume = 0.4;
+      audio.play().catch(()=>{});
+    }
+
+    // ---------- 格式化顯示時間 ----------
+    function formatDisplayTime(hour, minute) {
+      const paddedMin = minute.toString().padStart(2, '0');
+      return `${hour}:${paddedMin}`;
+    }
+
+    // ---------- 粵語時間短語 ----------
+    function getCantoneseTimePhrase(hour, minute) {
+      if (minute === 0) return `${hour}點正`;
+      if (minute === 30) return `${hour}點半`;
+      if (minute === 15) return `${hour}點三`;
+      if (minute === 45) return `${hour}點九`;
+      return `${hour}點${minute}分`;
+    }
+
+    // ---------- 英式英語 ----------
+    function getBritishTimePhrase(hour, minute) {
+      if (minute === 0) return `${hour} o'clock`;
+      if (minute === 15) return `quarter past ${hour}`;
+      if (minute === 30) return `half past ${hour}`;
+      if (minute === 45) return `quarter to ${(hour % 12) + 1}`;
+      return `${hour} ${minute}`;
+    }
+
+    // ---------- 繪製時鐘 (大字體數字) ----------
+    function drawClock(hour, minute) {
+      const radius = canvas.width / 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 錶盤
+      ctx.beginPath();
+      ctx.arc(radius, radius, radius - 8, 0, 2 * Math.PI);
+      ctx.fillStyle = '#fff9f0';
+      ctx.fill();
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = '#d49b5f';
+      ctx.stroke();
+      
+      // 中心點
+      ctx.beginPath();
+      ctx.arc(radius, radius, 7, 0, 2 * Math.PI);
+      ctx.fillStyle = '#7b4a1e';
+      ctx.shadowColor = '#bba88b';
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      // ---------- 大字體數字 (主要改動) ----------
+      ctx.font = 'bold 28px "Segoe UI", "Roboto", "Arial", sans-serif';
+      ctx.fillStyle = '#3b280b';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // 數字距離中心的位置：半徑減去45px，保證大字不超出錶盤
+      const numberRadius = radius - 48;
+      for (let i = 1; i <= 12; i++) {
+        let angle = (i * 30 - 90) * Math.PI / 180;
+        let numX = radius + Math.cos(angle) * numberRadius;
+        let numY = radius + Math.sin(angle) * numberRadius;
+        ctx.fillText(i.toString(), numX, numY);
+      }
+
+      // 時針 (稍微調細以更清楚)
+      let hourAngle = ((hour % 12) * 30 + minute * 0.5 - 90) * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(radius, radius);
+      ctx.lineTo(radius + Math.cos(hourAngle) * (radius * 0.4), radius + Math.sin(hourAngle) * (radius * 0.4));
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = '#2c1a0a';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // 分針
+      let minuteAngle = (minute * 6 - 90) * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(radius, radius);
+      ctx.lineTo(radius + Math.cos(minuteAngle) * (radius * 0.65), radius + Math.sin(minuteAngle) * (radius * 0.65));
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#4f2e12';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // 裝飾小圓 (秒針軸)
+      ctx.beginPath();
+      ctx.arc(radius, radius - (radius-22), 6, 0, 2*Math.PI);
+      ctx.fillStyle = '#c0392b';
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#b34e1a';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // ---------- 生成新題目 ----------
+    function generateNewQuestion() {
+      if (speechSynth.speaking) {
+        speechSynth.cancel();
+      }
+      
+      isCorrectAnswered = false;
+      isSpeaking = false;
+      banner.classList.add('hidden');
+      
+      ansBtns.forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('bump-flash', 'correct-highlight');
+        btn.style.background = '';
+      });
+
+      const randomHour = possibleHours[Math.floor(Math.random() * possibleHours.length)];
+      const randomMinute = possibleMinutes[Math.floor(Math.random() * possibleMinutes.length)];
+      currentHour = randomHour;
+      currentMinute = randomMinute;
+      correctAnswerStr = formatDisplayTime(currentHour, currentMinute);
+      
+      drawClock(currentHour, currentMinute);
+      
+      const allPossible = [];
+      possibleHours.forEach(h => {
+        possibleMinutes.forEach(m => {
+          allPossible.push({ hour: h, minute: m, display: formatDisplayTime(h, m) });
+        });
+      });
+      
+      const otherOptions = allPossible.filter(opt => opt.display !== correctAnswerStr);
+      const shuffled = [...otherOptions].sort(() => Math.random() - 0.5);
+      const wrongOptions = shuffled.slice(0, 2);
+      
+      const correctOption = { hour: currentHour, minute: currentMinute, display: correctAnswerStr };
+      let options = [correctOption, ...wrongOptions];
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      answerOptions = options;
+      
+      ansBtns.forEach((btn, idx) => {
+        if (idx < options.length) {
+          const opt = options[idx];
+          btn.textContent = opt.display;
+          btn.dataset.value = opt.display;
+          btn.dataset.hour = opt.hour;
+          btn.dataset.minute = opt.minute;
+        }
+      });
+    }
+
+    // ---------- 語音播放 (粵 + 英) ----------
+    function speakTimeCantoneseAndBritish(hour, minute) {
+      return new Promise((resolve) => {
+        const cantoneseText = getCantoneseTimePhrase(hour, minute);
+        const britishText = getBritishTimePhrase(hour, minute);
+        
+        const utterCanto = new SpeechSynthesisUtterance(cantoneseText);
+        utterCanto.lang = 'zh-HK';
+        utterCanto.rate = 0.9;
+        
+        const utterEng = new SpeechSynthesisUtterance(britishText);
+        utterEng.lang = 'en-GB';
+        utterEng.rate = 0.9;
+        
+        utterCanto.onend = () => {
+          speechSynth.speak(utterEng);
+        };
+        
+        utterEng.onend = () => {
+          resolve();
+        };
+        
+        utterEng.onerror = (ev) => {
+          console.warn('英語語音錯誤', ev);
+          resolve();
+        };
+        utterCanto.onerror = (ev) => {
+          console.warn('粵語語音錯誤', ev);
+          speechSynth.speak(utterEng);
+        };
+        
+        speechSynth.speak(utterCanto);
+      });
+    }
+
+    // ---------- 說出「欣欣叻叻」粵語 ----------
+    function speakPraiseCantonese() {
+      return new Promise((resolve) => {
+        const praise = '欣欣叻叻';
+        const utter = new SpeechSynthesisUtterance(praise);
+        utter.lang = 'zh-HK';
+        utter.rate = 0.95;
+        utter.onend = () => resolve();
+        utter.onerror = () => resolve();
+        speechSynth.speak(utter);
+      });
+    }
+
+    // ---------- 正確答案處理 (只高亮正確按鈕) ----------
+    async function handleCorrect(selectedBtn) {
+      if (isCorrectAnswered || isSpeaking) return;
+      isCorrectAnswered = true;
+      isSpeaking = true;
+      
+      ansBtns.forEach(btn => {
+        btn.disabled = true;
+        btn.classList.remove('bump-flash', 'correct-highlight');
+      });
+      selectedBtn.classList.add('correct-highlight');
+      
+      try {
+        await speakTimeCantoneseAndBritish(currentHour, currentMinute);
+      } catch (e) {
+        console.warn('時間語音異常', e);
+      }
+      
+      banner.classList.remove('hidden');
+      try {
+        await speakPraiseCantonese();
+      } catch (e) {}
+      
+      setTimeout(() => {
+        if (speechSynth.speaking) speechSynth.cancel();
+        generateNewQuestion();
+        isSpeaking = false;
+      }, 700);
+    }
+
+    // ---------- 錯誤答案處理 (bump + flash + 音效) ----------
+    function handleWrong(btn) {
+      if (isCorrectAnswered) return;
+      if (btn.disabled) return;
+      
+      playBumpSound();
+      
+      btn.classList.add('bump-flash');
+      btn.style.background = '#ffb0b0';
+      
+      setTimeout(() => {
+        btn.classList.remove('bump-flash');
+        btn.style.background = '';
+      }, 400);
+      
+      if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    // ---------- 答案點擊事件 ----------
+    function onAnswerClick(e) {
+      const btn = e.currentTarget;
+      if (btn.disabled) return;
+      if (isCorrectAnswered) return;
+      
+      const selectedValue = btn.dataset.value;
+      const isCorrect = (selectedValue === correctAnswerStr);
+      
+      if (isCorrect) {
+        handleCorrect(btn);
+      } else {
+        handleWrong(btn);
+      }
+    }
+
+    // ---------- 初始化 ----------
+    function init() {
+      if (!window.speechSynthesis) {
+        alert('瀏覽器不支援語音朗讀，但仍可學習認鐘～');
+      }
+      
+      generateNewQuestion();
+      
+      ansBtns.forEach(btn => btn.addEventListener('click', onAnswerClick));
+      
+      newBtn.addEventListener('click', () => {
+        if (speechSynth.speaking) speechSynth.cancel();
+        generateNewQuestion();
+        isCorrectAnswered = false;
+        isSpeaking = false;
+        banner.classList.add('hidden');
+      });
+      
+      if (speechSynth) {
+        const silent = new SpeechSynthesisUtterance('');
+        silent.volume = 0;
+        speechSynth.speak(silent);
+      }
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>

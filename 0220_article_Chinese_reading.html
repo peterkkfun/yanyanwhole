@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>欣欣學中文 · 粵普朗讀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(145deg, #ffd1dc 0%, #ffe4ec 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            box-shadow: 0 20px 40px rgba(245, 150, 180, 0.25), 0 8px 20px rgba(0,0,0,0.08);
+            padding: 28px 24px;
+            border: 3px solid #ffb6c1;
+        }
+        h1, h2 {
+            font-weight: 700;
+            color: #b3406c;
+            text-shadow: 3px 3px 0 #ffe0f0;
+        }
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        h1 i { color: #ff85a2; font-size: 2.5rem; }
+        h2 {
+            font-size: 1.9rem;
+            margin-bottom: 16px;
+            border-left: 14px solid #ff98b9;
+            padding-left: 22px;
+        }
+        .pink-card {
+            background: #fff0f5;
+            border-radius: 36px;
+            padding: 24px 26px;
+            box-shadow: inset 0 2px 8px #ffe6f0, 0 10px 18px #fbb0c0;
+            border: 2px solid #ffb3c6;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #ffb6c1;
+            border: none;
+            color: #6b2e4a;
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-family: 'Quicksand', sans-serif;
+            box-shadow: 0 6px 0 #d46b87, 0 4px 8px rgba(190, 80, 110, 0.2);
+            cursor: pointer;
+            transition: all 0.05s;
+            border: 2px solid #ffe5f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px;
+        }
+        button i { font-size: 1.3rem; color: #a13054; }
+        button:active { transform: translateY(5px); box-shadow: 0 2px 0 #b84c6e; }
+        button.secondary { background: #ffd9e4; box-shadow: 0 5px 0 #c07a95; }
+        input, textarea {
+            background: #fff9fb;
+            border: 3px solid #ffb0c3;
+            border-radius: 30px;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            width: 100%;
+            margin: 12px 0;
+            outline: none;
+            color: #3f1e2c;
+            font-weight: 500;
+            resize: vertical;
+        }
+        .article-list { display: flex; flex-direction: column; gap: 14px; max-height: 280px; overflow-y: auto; }
+        .article-item {
+            background: #ffeef4;
+            border-radius: 40px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px dashed #ff98ae;
+        }
+        .article-name { font-weight: 700; font-size: 1.3rem; color: #a1375e; }
+        .article-actions i {
+            margin: 0 8px;
+            font-size: 1.7rem;
+            color: #c95f82;
+            cursor: pointer;
+            background: #ffe0eb;
+            padding: 8px;
+            border-radius: 50%;
+        }
+        .sentence-box {
+            background: #ffeef2;
+            border-radius: 60px 60px 30px 60px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 3px solid #ffb7c7;
+            box-shadow: inset 0 0 0 5px #ffe4ed, 0 8px 0 #cf7a97;
+        }
+        .chinese-sentence-display {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #3e1e2c;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            background: #fff2f9;
+            padding: 20px 30px;
+            border-radius: 50px;
+            border-left: 12px solid #ff80a5;
+            word-break: break-word;
+        }
+        .highlight {
+            background: #ffd966 !important;
+            color: #2d1a22 !important;
+            border-radius: 18px;
+            padding: 2px 8px;
+            box-shadow: 0 0 10px #ffb82e;
+            font-weight: 800;
+        }
+        .char-span { display: inline-block; padding: 0 2px; border-radius: 18px; transition: background 0.1s; }
+        .progress-indicator { font-size: 1.6rem; background: #ffb7c3; padding: 8px 30px; border-radius: 50px; }
+        .voice-info { font-size: 1rem; background: #ffe0f0; padding: 4px 16px; border-radius: 30px; color: #7a3f58; }
+        .banner-pop {
+            position: fixed; top: 30%; left: 50%; transform: translate(-50%, -30%);
+            background: #ffdb8b; padding: 28px 50px; border-radius: 100px; font-size: 3.8rem;
+            font-weight: 800; color: #b32e5e; border: 8px solid #fff1bb; z-index: 999;
+            animation: bouncePop 0.5s;
+        }
+        .rainbow-banner {
+            background: linear-gradient(45deg, #ffc3d0, #ffe5b4, #c3e0ff, #e0c3ff, #b4f0d0);
+            padding: 30px 40px; border-radius: 80px; font-size: 2.8rem; font-weight: 800;
+            color: #451e2e; border: 6px solid white; box-shadow: 0 20px 30px #d9829b;
+        }
+        @keyframes bouncePop {
+            0% { transform: translate(-50%, -30%) scale(0.7); opacity: 0; }
+            80% { transform: translate(-50%, -30%) scale(1.1); }
+            100% { transform: translate(-50%, -30%) scale(1); opacity: 1; }
+        }
+        .hide { display: none !important; }
+        .flex-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <h1><i class="fas fa-book-open"></i> 欣欣學中文 · 粵普樂園 <i class="fas fa-heart" style="color:#ff4d6d;"></i></h1>
+
+    <div id="managerView">
+        <div class="pink-card">
+            <div class="manager-header" style="display:flex; justify-content:space-between;">
+                <h2><i class="fas fa-pencil-alt"></i> 欣欣文章庫 (繁體)</h2>
+                <button id="newArticleBtn"><i class="fas fa-plus-circle"></i> 新文章</button>
+            </div>
+            <input type="text" id="articleNameInput" placeholder="文章標題" value="我的故事">
+            <textarea id="articleContentInput" rows="6" placeholder="輸入繁體中文文章，以句號、問號或感嘆號分隔句子。">我愛閱讀。我的兒子很聰明。他每天都學中文。爸爸媽媽哥哥好愛欣欣！</textarea>
+            <div class="flex-row">
+                <button id="saveArticleBtn"><i class="fas fa-save"></i> 儲存文章</button>
+                <button id="cancelEditBtn" class="secondary"><i class="fas fa-times"></i> 取消</button>
+            </div>
+        </div>
+        <div class="pink-card">
+            <h2><i class="fas fa-list-ul"></i> 我的文章</h2>
+            <div id="articleListContainer" class="article-list"></div>
+        </div>
+    </div>
+
+    <div id="practiceView" class="hide">
+        <div class="flex-row" style="justify-content:space-between;">
+            <button id="backToManagerBtn" class="secondary"><i class="fas fa-arrow-left"></i> 文章庫</button>
+            <span class="progress-indicator" id="progressDisplay">句子 1 / 3</span>
+        </div>
+        <div style="margin:10px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <span id="currentArticleTitle" style="background:#ffb0cb; padding:8px 24px; border-radius:40px; font-size:1.5rem;">---</span>
+            <span id="voiceStatusDisplay" class="voice-info"><i class="fas fa-microphone"></i> 載入語音中...</span>
+        </div>
+        
+        <div class="sentence-box">
+            <div id="chineseSentenceDisplay" class="chinese-sentence-display"></div>
+        </div>
+        
+        <div class="flex-row" style="justify-content:center;">
+            <button id="speakCantoneseBtn"><i class="fas fa-volume-up"></i> 粵語朗讀</button>
+            <button id="speakMandarinBtn"><i class="fas fa-volume-up"></i> 普通話朗讀</button>
+            <button id="nextSentenceBtn" style="background:#ff9eb5;"><i class="fas fa-arrow-right"></i> 下一句 欣欣叻叻</button>
+        </div>
+        <div style="margin-top:20px; text-align:right; color:#ad5370;"><i class="fas fa-star"></i> 爸爸媽媽哥哥愛欣欣 <i class="fas fa-star"></i></div>
+    </div>
+</div>
+
+<div id="popupBanner" class="banner-pop hide">欣欣叻叻</div>
+<div id="rainbowFinalBanner" class="rainbow-banner hide">🌈 欣欣好叻，爸爸媽媽哥哥愛欣欣! 🌈</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- 數據 ----------
+        let articles = [];
+        let currentEditId = null;
+        let currentArticle = null;
+        let sentences = [];
+        let currentIdx = 0;
+        const speechSynth = window.speechSynthesis;
+        
+        let voiceList = [];
+        let mandarinVoice = null;
+        let cantoneseVoice = null;
+
+        // DOM
+        const managerView = document.getElementById('managerView');
+        const practiceView = document.getElementById('practiceView');
+        const nameInput = document.getElementById('articleNameInput');
+        const contentInput = document.getElementById('articleContentInput');
+        const listDiv = document.getElementById('articleListContainer');
+        const saveBtn = document.getElementById('saveArticleBtn');
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        const newBtn = document.getElementById('newArticleBtn');
+        const backBtn = document.getElementById('backToManagerBtn');
+        const chiDisplay = document.getElementById('chineseSentenceDisplay');
+        const progressSpan = document.getElementById('progressDisplay');
+        const titleLabel = document.getElementById('currentArticleTitle');
+        const voiceStatusDisplay = document.getElementById('voiceStatusDisplay');
+        const speakCantoBtn = document.getElementById('speakCantoneseBtn');
+        const speakMandarinBtn = document.getElementById('speakMandarinBtn');
+        const nextBtn = document.getElementById('nextSentenceBtn');
+        const popup = document.getElementById('popupBanner');
+        const rainbow = document.getElementById('rainbowFinalBanner');
+
+        // ---------- 本地儲存 ----------
+        function loadArticles() {
+            const stored = localStorage.getItem('fung_chinese_articles_v3');
+            if(stored) {
+                try { articles = JSON.parse(stored); } catch(e){ articles = []; }
+            }
+            if(!articles.length) {
+                articles = [
+                    { id: '1', name: '欣欣的第一篇', content: '我愛閱讀。我的兒子很聰明。他每天都學中文。爸爸媽媽哥哥好愛欣欣！' },
+                    { id: '2', name: '可愛動物', content: '小貓很可愛。小狗跑得快。欣欣喜歡所有動物。' }
+                ];
+            }
+            saveArticles();
+        }
+        function saveArticles() { localStorage.setItem('fung_chinese_articles_v3', JSON.stringify(articles)); }
+
+        function renderList() {
+            if(!articles.length) {
+                listDiv.innerHTML = '<div style="padding:20px;">✨ 按「新文章」加入繁體故事 ✨</div>';
+                return;
+            }
+            let html = '';
+            articles.forEach(a => {
+                html += `<div class="article-item">
+                    <span class="article-name"><i class="fas fa-bookmark"></i> ${escapeHtml(a.name)}</span>
+                    <span class="article-actions">
+                        <i class="fas fa-play-circle" data-action="practice" data-id="${a.id}"></i>
+                        <i class="fas fa-edit" data-action="edit" data-id="${a.id}"></i>
+                        <i class="fas fa-trash-alt" data-action="delete" data-id="${a.id}"></i>
+                    </span>
+                </div>`;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        function resetForm() {
+            nameInput.value = '';
+            contentInput.value = '';
+            currentEditId = null;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> 儲存文章';
+        }
+        function editArticle(art) {
+            nameInput.value = art.name;
+            contentInput.value = art.content;
+            currentEditId = art.id;
+            saveBtn.innerHTML = '<i class="fas fa-pen"></i> 更新文章';
+        }
+        function handleSave() {
+            const name = nameInput.value.trim();
+            const content = contentInput.value.trim();
+            if(!name || !content) { alert('請填寫標題和內容'); return; }
+            if(currentEditId) {
+                const idx = articles.findIndex(a => a.id === currentEditId);
+                if(idx !== -1) { articles[idx].name = name; articles[idx].content = content; }
+            } else {
+                articles.push({ id: Date.now() + '', name, content });
+            }
+            saveArticles();
+            renderList();
+        }
+        function deleteArticle(id) {
+            articles = articles.filter(a => a.id !== id);
+            if(currentEditId === id) resetForm();
+            saveArticles();
+            renderList();
+        }
+
+        function splitChineseSentences(text) {
+            const sentences = text.match(/[^。！？!?]+[。！？!?]+/g);
+            if (!sentences) return [text.trim()];
+            return sentences.map(s => s.trim()).filter(s => s.length > 0);
+        }
+
+        // ---------- 嚴格語音篩選 ----------
+        function loadVoices() {
+            voiceList = speechSynth.getVoices();
+            if (voiceList.length === 0) {
+                setTimeout(() => { voiceList = speechSynth.getVoices(); selectVoicesStrict(); }, 150);
+            } else {
+                selectVoicesStrict();
+            }
+        }
+
+        function selectVoicesStrict() {
+            voiceList = speechSynth.getVoices();
+            
+            // 1. 嚴格普通話: 必須包含普通話/國語/ Mandarin/ China 等，且排除粵語關鍵字
+            mandarinVoice = voiceList.find(v => {
+                const name = v.name.toLowerCase();
+                const lang = v.lang.toLowerCase();
+                const isMandarin = (lang.includes('zh-cn') || lang.includes('cmn') || name.includes('普通话') || name.includes('國語') || name.includes('mandarin') || name.includes('china'));
+                const isNotCantonese = !(lang.includes('hk') || lang.includes('yue') || name.includes('粤') || name.includes('廣東') || name.includes('cantonese') || name.includes('hong kong'));
+                return isMandarin && isNotCantonese;
+            });
+            
+            // 2. 粵語語音
+            cantoneseVoice = voiceList.find(v => {
+                const name = v.name.toLowerCase();
+                const lang = v.lang.toLowerCase();
+                return (lang.includes('zh-hk') || lang.includes('yue') || name.includes('粤') || name.includes('廣東') || name.includes('cantonese') || name.includes('hong kong'));
+            });
+
+            // 更新狀態顯示
+            updateVoiceStatus();
+            console.log('✅ 普通話語音:', mandarinVoice?.name || '未找到', '| 粵語語音:', cantoneseVoice?.name || '未找到');
+        }
+
+        function updateVoiceStatus() {
+            const manName = mandarinVoice ? mandarinVoice.name : '❌ 無普通話語音';
+            const canName = cantoneseVoice ? cantoneseVoice.name : '❌ 無粵語語音';
+            voiceStatusDisplay.innerHTML = `<i class="fas fa-microphone"></i> 普: ${manName} | 粵: ${canName}`;
+        }
+
+        // 初始化語音
+        if (speechSynth.onvoiceschanged !== undefined) {
+            speechSynth.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
+        setInterval(() => { if(voiceList.length===0) loadVoices(); }, 500); // 確保加載
+
+        // ---------- 練習控制 ----------
+        function startPractice(article) {
+            currentArticle = article;
+            titleLabel.textContent = article.name;
+            sentences = splitChineseSentences(article.content);
+            if (sentences.length === 0) sentences = [article.content];
+            currentIdx = 0;
+            displaySentence(currentIdx);
+            managerView.classList.add('hide');
+            practiceView.classList.remove('hide');
+            updateProgress();
+            // 刷新語音顯示
+            setTimeout(updateVoiceStatus, 200);
+        }
+
+        function displaySentence(idx) {
+            const chiText = sentences[idx] || '';
+            const chars = [...chiText];
+            let chiHtml = '', charOffset = 0;
+            chars.forEach(ch => {
+                chiHtml += `<span class="char-span" data-start="${charOffset}" data-end="${charOffset + ch.length}">${escapeHtml(ch)}</span>`;
+                charOffset += ch.length;
+            });
+            chiDisplay.innerHTML = chiHtml;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            progressSpan.textContent = `句子 ${currentIdx+1} / ${sentences.length}`;
+        }
+
+        function stopSpeaking() { if(speechSynth.speaking) speechSynth.cancel(); }
+        function clearHighlights() { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }
+
+        function highlightByCharIndex(charIndex) {
+            const spans = document.querySelectorAll('.char-span');
+            clearHighlights();
+            for(let span of spans) {
+                const start = parseInt(span.dataset.start);
+                const end = parseInt(span.dataset.end);
+                if(charIndex >= start && charIndex < end) {
+                    span.classList.add('highlight');
+                    break;
+                }
+            }
+        }
+
+        // 核心朗讀
+        function speakWithVoiceType(text, type) {
+            stopSpeaking();
+            clearHighlights();
+            
+            // 重新確保語音列表最新
+            voiceList = speechSynth.getVoices();
+            selectVoicesStrict();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            let selectedVoice = null;
+            
+            if (type === 'mandarin') {
+                if (!mandarinVoice) {
+                    alert('❌ 找不到普通話語音！\n請安裝普通話語音包（如 Google 普通話）或使用 Chrome 瀏覽器。');
+                    return;
+                }
+                selectedVoice = mandarinVoice;
+                utterance.lang = 'zh-CN';
+            } else {
+                if (!cantoneseVoice) {
+                    alert('❌ 找不到粵語語音！\n請安裝粵語語音包。');
+                    return;
+                }
+                selectedVoice = cantoneseVoice;
+                utterance.lang = 'zh-HK';
+            }
+            
+            utterance.voice = selectedVoice;
+            utterance.rate = 0.9;
+            
+            utterance.onboundary = (e) => {
+                if(e.name === 'word' || e.name === 'sentence') {
+                    highlightByCharIndex(e.charIndex);
+                }
+            };
+            utterance.onend = () => clearHighlights();
+            utterance.onerror = () => clearHighlights();
+            
+            speechSynth.speak(utterance);
+        }
+
+        async function speakPhrase(phrase) {
+            return new Promise(resolve => {
+                stopSpeaking();
+                const u = new SpeechSynthesisUtterance(phrase);
+                if (cantoneseVoice) u.voice = cantoneseVoice;
+                u.lang = cantoneseVoice ? cantoneseVoice.lang : 'zh-HK';
+                u.rate = 0.9;
+                u.onend = resolve;
+                u.onerror = resolve;
+                speechSynth.speak(u);
+            });
+        }
+
+        async function showCongrats() {
+            popup.classList.remove('hide');
+            await speakPhrase('欣欣叻叻');
+            await new Promise(r => setTimeout(r, 300));
+            popup.classList.add('hide');
+        }
+
+        async function showFinal() {
+            rainbow.classList.remove('hide');
+            await speakPhrase('欣欣好叻，爸爸媽媽哥哥愛欣欣');
+            await new Promise(r => setTimeout(r, 1500));
+            rainbow.classList.add('hide');
+            practiceView.classList.add('hide');
+            managerView.classList.remove('hide');
+            if(currentArticle) {
+                nameInput.value = currentArticle.name;
+                contentInput.value = currentArticle.content;
+            }
+        }
+
+        async function handleNext() {
+            if(!sentences.length) return;
+            stopSpeaking(); clearHighlights();
+            if(currentIdx === sentences.length - 1) {
+                await showFinal();
+                return;
+            }
+            await showCongrats();
+            currentIdx++;
+            displaySentence(currentIdx);
+        }
+
+        // ---------- 事件 ----------
+        function bindEvents() {
+            listDiv.addEventListener('click', e => {
+                const icon = e.target.closest('[data-action]');
+                if(!icon) return;
+                const action = icon.dataset.action;
+                const id = icon.dataset.id;
+                const art = articles.find(a => a.id === id);
+                if(!art) return;
+                if(action === 'practice') startPractice(art);
+                else if(action === 'edit') editArticle(art);
+                else if(action === 'delete') { if(confirm('確定刪除？')) deleteArticle(id); }
+            });
+
+            saveBtn.addEventListener('click', handleSave);
+            cancelBtn.addEventListener('click', resetForm);
+            newBtn.addEventListener('click', resetForm);
+            backBtn.addEventListener('click', () => {
+                stopSpeaking();
+                practiceView.classList.add('hide');
+                managerView.classList.remove('hide');
+                clearHighlights();
+            });
+
+            speakCantoBtn.addEventListener('click', () => {
+                if(sentences.length) speakWithVoiceType(sentences[currentIdx], 'cantonese');
+            });
+            speakMandarinBtn.addEventListener('click', () => {
+                if(sentences.length) speakWithVoiceType(sentences[currentIdx], 'mandarin');
+            });
+            nextBtn.addEventListener('click', handleNext);
+        }
+
+        function init() {
+            loadArticles();
+            renderList();
+            resetForm();
+            bindEvents();
+            if(!window.speechSynthesis) alert('瀏覽器不支援語音');
+        }
+        init();
+    })();
+</script>
+</body>
+</html>
