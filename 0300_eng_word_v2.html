@@ -403,6 +403,7 @@
                 <div style="display: flex; gap: 8px;">
                     <button id="exportDataBtn" class="icon-btn" style="background:#c5e1a5; border-radius:30px; padding:6px 14px;"><i class="fas fa-download"></i> 匯出JSON</button>
                     <button id="importDataBtn" class="icon-btn" style="background:#c5e1a5; border-radius:30px; padding:6px 14px;"><i class="fas fa-upload"></i> 匯入JSON</button>
+                    <button id="sortGroupsBtn" class="icon-btn" style="background:#e2f0d9; border-radius:30px; padding:6px 14px;"><i class="fas fa-sort-alpha-down"></i> 排序</button>
                     <button id="resetDefaultGroupsBtn" class="icon-btn" style="background:#e2f0d9; border-radius:30px; padding:6px 14px;"><i class="fas fa-undo-alt"></i> 重置預設</button>
                 </div>
             </div>
@@ -561,6 +562,15 @@
             alert("已重置預設句子組 🌿");
         }
 
+        // 🆕 按名称排序
+        function sortGroupsByName() {
+            const sortedKeys = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+            const newGroups = {};
+            sortedKeys.forEach(key => { newGroups[key] = groups[key]; });
+            groups = newGroups;
+            saveGroups();
+        }
+
         // 🆕 导出为 JSON 文件 (下载)
         function exportGroupsData() {
             const jsonStr = JSON.stringify(groups, null, 2);
@@ -578,7 +588,6 @@
         // 🆕 导入：通过文件选择器读取 JSON 文件
         function importGroupsData() {
             const fileInput = document.getElementById('fileInput');
-            // 清除之前的事件，避免重复绑定
             fileInput.onchange = null;
             fileInput.value = '';
             
@@ -592,7 +601,6 @@
                         const content = e.target.result;
                         const imported = JSON.parse(content);
                         
-                        // 验证格式
                         if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error('JSON 根必須是物件');
                         for (let key in imported) {
                             if (!Array.isArray(imported[key])) throw new Error(`組「${key}」不是陣列`);
@@ -615,7 +623,6 @@
                     } catch(err) {
                         alert('❌ 匯入失敗：' + err.message);
                     }
-                    // 清空input，允许再次选择同一文件
                     fileInput.value = '';
                 };
                 reader.readAsText(file);
@@ -920,6 +927,7 @@
             document.getElementById('resetDefaultGroupsBtn').addEventListener('click', resetToDefaultGroups);
             document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
             document.getElementById('importDataBtn').addEventListener('click', importGroupsData);
+            document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName); // 新增排序按钮
             document.getElementById('repeatSoundBtn').addEventListener('click', repeatCurrentPronunciation);
             document.getElementById('nextWordBtn').addEventListener('click', () => {
                 if (trainingView.style.display === 'block' && !isProcessingNext && trainingWords.length) proceedToNextWord();

@@ -332,9 +332,10 @@
         </div>
         <div style="margin: 10px 0; text-align: left; font-weight: bold;">📂 我的詞語組：</div>
         <div id="groupsList" class="groups-container"></div>
-        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
             <button id="addGroupBtn" class="secondary">➕ 新增分組</button>
-            <span style="font-size: 0.85rem; color: gray;">💡 點擊分組名稱載入詞語｜可編輯/刪除</span>
+            <button id="sortGroupsBtn" class="secondary" style="background:#6f9e7c; color:white;">🔤 按名稱排序</button>
+            <span style="font-size: 0.85rem; color: gray;">💡 點擊分組名稱載入詞語｜可編輯/刪除｜一鍵排序</span>
         </div>
         <!-- 匯入 / 匯出 資料按鈕區域 -->
         <div class="import-export-area">
@@ -436,7 +437,7 @@
         }
     }
     
-    // ---------- 筆順渲染 (每個漢字卡片加入粵語發音、暫停/播放、重播按鈕) ----------
+    // ---------- 筆順渲染 ----------
     async function renderStrokeForWord(word) {
         const container = document.getElementById('strokeContainer');
         if(!container) return;
@@ -693,11 +694,18 @@
         renderGroupsList();
     }
     
+    // 新增：一鍵按名稱排序
+    function sortGroupsByName() {
+        groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+        saveGroupsToLocal();
+        renderGroupsList();
+    }
+    
     function renderGroupsList() {
         const container = document.getElementById('groupsList');
         if(!container) return;
         container.innerHTML = '';
-        groups.forEach(group => {
+        groups.forEach((group) => {
             const btnWrap = document.createElement('div');
             btnWrap.className = 'group-btn';
             const nameSpan = document.createElement('span');
@@ -745,6 +753,8 @@
                     renderGroupsList();
                 }
             });
+            // 不再添加單獨的上下移動按鈕
+            
             btnWrap.appendChild(nameSpan);
             btnWrap.appendChild(editWordsBtn);
             btnWrap.appendChild(editBtn);
@@ -789,14 +799,12 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    // 簡單驗證結構
                     const isValid = imported.every(item => item.name && typeof item.wordsStr === 'string');
                     if (!isValid) {
                         alert('匯入的資料格式不正確，請確認是之前匯出的備份檔案。');
                         return;
                     }
                     groups = imported;
-                    // 確保每個分組都有id
                     groups.forEach(g => { if(!g.id) g.id = Date.now() + Math.random(); });
                     saveGroupsToLocal();
                     renderGroupsList();
@@ -833,11 +841,12 @@
         document.getElementById('pronounceWordBtn').addEventListener('click', speakCurrentWord);
         document.getElementById('completeWordBtn').addEventListener('click', completeCurrentWordAndNext);
         document.getElementById('addGroupBtn').addEventListener('click', addNewGroup);
+        document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName);
         
         // 匯出按鈕
         document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
         
-        // 匯入按鈕：觸發隱藏的 file input
+        // 匯入按鈕
         const importFileInput = document.getElementById('importFileInput');
         document.getElementById('importDataBtn').addEventListener('click', () => {
             importFileInput.click();
@@ -846,7 +855,7 @@
             const file = e.target.files[0];
             if (file) {
                 importGroupsData(file);
-                importFileInput.value = ''; // 清空，允許再次選取相同檔案
+                importFileInput.value = '';
             }
         });
         
@@ -854,7 +863,6 @@
         loadGroupsFromLocal();
     }
     
-    // 初始化語音 voices
     if (window.speechSynthesis) {
         window.speechSynthesis.getVoices();
     }
