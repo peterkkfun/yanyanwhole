@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
+  <title>數字小火車 🔟 拖放填數字</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Noto Sans TC', 'PingFang HK', sans-serif;
+      background: linear-gradient(180deg, #a8d8ea 0%, #c9e8f5 35%, #d4f1c5 70%, #b8e6b8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      margin: 0;
+      position: relative;
+      overflow-x: hidden;
+      touch-action: pan-x pan-y;
+    }
+    .sky-decor { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index:0; }
+    .cloud { position: absolute; background: white; border-radius: 50%; opacity: 0.7; animation: floatCloud linear infinite; }
+    .cloud::before, .cloud::after { content: ''; background: white; border-radius: 50%; position: absolute; }
+    .cloud1 { width: 90px; height: 50px; top: 5%; left: 5%; border-radius: 40px; animation-duration: 28s; }
+    .cloud1::before { width: 50px; height: 50px; top: -24px; left: 18px; }
+    .cloud1::after { width: 65px; height: 40px; top: -12px; left: 38px; border-radius: 40px; }
+    .cloud2 { width: 110px; height: 55px; top: 12%; right: 8%; border-radius: 45px; animation-duration: 34s; animation-delay: -8s; }
+    .cloud2::before { width: 55px; height: 55px; top: -28px; left: 22px; }
+    .cloud2::after { width: 70px; height: 44px; top: -14px; left: 48px; border-radius: 44px; }
+    .cloud3 { width: 80px; height: 42px; top: 20%; left: 55%; border-radius: 36px; animation-duration: 31s; animation-delay: -14s; }
+    .cloud3::before { width: 42px; height: 42px; top: -20px; left: 14px; }
+    .cloud3::after { width: 55px; height: 34px; top: -10px; left: 32px; border-radius: 34px; }
+    @keyframes floatCloud { 0% { transform: translateX(0); } 100% { transform: translateX(60px); } }
+    .sun { position: absolute; top:3%; right:6%; width:60px; height:60px; background:#ffe066; border-radius:50%; box-shadow:0 0 35px #ffeaa7,0 0 70px #ffd32a; animation:pulseSun 3s infinite; }
+    @keyframes pulseSun { 0%,100%{ box-shadow:0 0 35px #ffeaa7,0 0 70px #ffd32a; } 50%{ box-shadow:0 0 55px #ffeaa7,0 0 100px #ffd32a; } }
+
+    .game-container {
+      position: relative; z-index:2;
+      background: rgba(255,255,255,0.95); border-radius: 40px; padding: 16px 14px 14px;
+      max-width: 780px; width: 100%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15); text-align: center;
+      border: 4px dashed #ffb3b3; transition: border-color 0.3s;
+    }
+    .game-container.correct-flash { border-color: #2ed573; border-style: solid; }
+    .game-container.wrong-flash { border-color: #ff4757; animation: shakeBorder 0.5s; }
+    @keyframes shakeBorder { 0%,100%{ transform: translateX(0); } 20%{ transform: translateX(-6px); } 40%{ transform: translateX(6px); } 60%{ transform: translateX(-4px); } 80%{ transform: translateX(4px); } }
+
+    .title { font-size: 2rem; font-weight: 800; color: #e55a5a; letter-spacing: 2px; text-shadow: 2px 2px 0 #ffe0e0; }
+    .subtitle { font-size: 0.9rem; color: #666; margin-top: 2px; }
+    .stats-bar { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 6px 0 10px; font-weight: 600; }
+    .stat-item { background: #fef9e7; border-radius: 20px; padding: 6px 16px; border: 2px solid #ffeaa7; display: flex; align-items: center; gap: 6px; }
+    .stat-value { color: #e17055; font-weight: 800; }
+
+    .train-area { position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 2px; margin: 12px 0 6px; padding: 8px 5px 25px; min-height: 120px; }
+    .train-track { position: absolute; bottom: 14px; left: 2%; right: 2%; height: 6px; background: #8b6f47; border-radius: 4px; z-index: 0; }
+    .train-track::after { content: ''; position: absolute; bottom: 6px; left: 1%; right: 1%; height: 3px; background: repeating-linear-gradient(90deg, #6b5030 0px, #6b5030 12px, transparent 12px, transparent 20px); }
+
+    .carriage-wrapper { display: flex; align-items: flex-end; z-index: 2; }
+    .carriage {
+      position: relative; width: 56px; height: 68px; border-radius: 12px 12px 6px 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 800; color: #fff;
+      text-shadow: 1px 2px 2px rgba(0,0,0,0.2);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.15); transition: all 0.2s;
+      user-select: none; background: #ff9f43;
+    }
+    .carriage-color-0 { background: #ff6b6b; } .carriage-color-1 { background: #ff9f43; }
+    .carriage-color-2 { background: #feca57; color: #5a4a1a; text-shadow: 1px 2px 1px rgba(255,255,255,0.4); }
+    .carriage-color-3 { background: #54a0ff; } .carriage-color-4 { background: #5f27cd; }
+    .carriage-color-5 { background: #01a3a4; } .carriage-color-6 { background: #ff6348; }
+    .carriage-color-7 { background: #7bed9f; color: #2d3436; } .carriage-color-8 { background: #e056a0; }
+    .carriage-color-9 { background: #3dc1d3; }
+
+    .carriage.missing {
+      background: #ffeaa7 !important; color: #d63031;
+      border: 3px dashed #e17055; cursor: pointer;
+      animation: gentlePulse 2s infinite;
+    }
+    .carriage.missing.drop-target {
+      border-color: #0984e3; background: #dfe6e9 !important;
+      transform: scale(1.05); box-shadow: 0 0 18px #74b9ff;
+    }
+    .carriage.correct-reveal { background: #2ed573 !important; border-color: #1db954 !important; color: white !important; }
+    .carriage.wrong-flash { animation: shakeCarriage 0.5s; background: #ff7675 !important; }
+    @keyframes gentlePulse { 0%,100%{ box-shadow: 0 5px 12px rgba(0,0,0,0.1); } 50%{ box-shadow: 0 8px 20px rgba(231,76,60,0.4); } }
+    @keyframes shakeCarriage { 0%,100%{ transform: translateX(0); } 25%{ transform: translateX(-5px); } 75%{ transform: translateX(5px); } }
+
+    .carriage::before, .carriage::after {
+      content: ''; position: absolute; bottom: -10px; width: 14px; height: 14px;
+      background: #4a4a4a; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 2px solid #666;
+    }
+    .carriage::before { left: 8px; } .carriage::after { right: 8px; }
+    .hook { width: 10px; height: 4px; background: #555; border-radius: 2px; align-self: center; margin-bottom: 24px; z-index: 3; }
+
+    .cards-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0 6px; }
+    .num-card {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: #fff; border: 3px solid #b2bec3;
+      font-size: 1.8rem; font-weight: 800; color: #2d3436;
+      display: flex; align-items: center; justify-content: center;
+      cursor: grab; user-select: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: all 0.15s; touch-action: none;
+    }
+    .num-card:active { cursor: grabbing; }
+    .num-card.used { opacity: 0.3; pointer-events: none; cursor: default; border-color: #ccc; }
+    .num-card.dragging { opacity: 0.7; transform: scale(1.1); border-color: #0984e3; }
+
+    .hint-banner {
+      display: inline-block; background: #fff3cd; border: 2px solid #ffc107;
+      border-radius: 20px; padding: 6px 16px; font-weight: 700; color: #856404; margin: 4px auto;
+    }
+    .feedback-msg { font-size: 1.1rem; font-weight: 700; min-height: 26px; margin: 4px 0; }
+    .feedback-msg.correct { color: #1db954; animation: popIn 0.4s; }
+    .feedback-msg.wrong { color: #ff4757; animation: popIn 0.4s; }
+    @keyframes popIn { 0%{ transform: scale(0.5); opacity: 0; } 70%{ transform: scale(1.15); } 100%{ transform: scale(1); opacity: 1; } }
+
+    .action-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .btn {
+      padding: 10px 18px; border-radius: 30px; font-weight: 700; border: none; cursor: pointer;
+      font-family: inherit; background: #f1f2f6; color: #444; border: 2px solid #dcdde1;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .btn-hint { background: #fff3cd; border-color: #ffc107; color: #856404; }
+    .btn-hint:disabled { opacity: 0.5; pointer-events: none; }
+    .btn-reset { background: #ff6b6b; color: white; border-color: #e55a5a; }
+
+    .stars-container { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 99; }
+    .star-particle { position: absolute; font-size: 1.6rem; animation: starFall 1.5s ease-out forwards; }
+    @keyframes starFall { 0%{ opacity:1; transform: translateY(0) scale(1) rotate(0); } 100%{ opacity:0; transform: translateY(180px) scale(0.3) rotate(300deg); } }
+
+    @media (max-width: 650px) {
+      .carriage { width: 40px; height: 52px; font-size: 1rem; }
+      .num-card { width: 52px; height: 52px; font-size: 1.4rem; }
+      .title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="sky-decor">
+  <div class="cloud cloud1"></div><div class="cloud cloud2"></div><div class="cloud cloud3"></div>
+</div>
+<div class="sun"></div>
+<div class="stars-container" id="starsContainer"></div>
+
+<div class="game-container" id="gameContainer">
+  <div class="title">🚂 數字小火車 🚂</div>
+  <div class="subtitle">🔟 10卡車廂 · 將數字拉去 ❓ 車廂啦！</div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><span>⭐</span> 完成：<span class="stat-value" id="scoreDisplay">0</span> 題</div>
+    <div class="stat-item"><span>📝</span> 嘗試：<span class="stat-value" id="totalDisplay">0</span> 次</div>
+  </div>
+
+  <div id="hintBannerContainer"></div>
+
+  <div class="train-area" id="trainArea">
+    <div class="train-track"></div>
+  </div>
+
+  <div class="cards-area" id="cardsArea"></div>
+
+  <div id="feedbackMsg" class="feedback-msg"></div>
+
+  <div class="action-buttons">
+    <button class="btn btn-hint" id="btnHint">💡 提示</button>
+    <button class="btn" id="btnSkip">⏭️ 跳過</button>
+    <button class="btn btn-reset" id="btnReset">🔄 重新開始</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  const state = {
+    score: 0,
+    totalAttempts: 0,
+    numbers: [],
+    missingIndices: [],
+    userAnswers: {},
+    correctSet: new Set(),
+    cardPool: [],
+    ruleDescription: '',
+    gameCompleted: false,
+    ruleTypes: [
+      { step: 1, dir: 1,  maxS: 85, minS: 1,  label: '+1' },
+      { step: 1, dir: -1, maxS: 100, minS: 10, label: '-1' },
+      { step: 2, dir: 1,  maxS: 75, minS: 1,  label: '+2' },
+      { step: 2, dir: -1, maxS: 100, minS: 15, label: '-2' },
+      { step: 5, dir: 1,  maxS: 50, minS: 5,  label: '+5' },
+      { step: 5, dir: -1, maxS: 100, minS: 25, label: '-5' },
+      { step: 10, dir: 1, maxS: 30, minS: 10, label: '+10' },
+      { step: 10, dir: -1, maxS: 100, minS: 50, label: '-10' }
+    ]
+  };
+
+  const gameContainer = document.getElementById('gameContainer');
+  const trainArea = document.getElementById('trainArea');
+  const cardsArea = document.getElementById('cardsArea');
+  const feedbackMsg = document.getElementById('feedbackMsg');
+  const hintContainer = document.getElementById('hintBannerContainer');
+  const btnHint = document.getElementById('btnHint');
+  const btnSkip = document.getElementById('btnSkip');
+  const btnReset = document.getElementById('btnReset');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const totalDisplay = document.getElementById('totalDisplay');
+  const starsContainer = document.getElementById('starsContainer');
+
+  function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function shuffle(arr) { const a = [...arr]; for (let i=a.length-1;i>0;i--) { const j=rand(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  function speakCantonese(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-HK'; u.rate = 0.9; u.pitch = 1.2;
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  function generateQuestion() {
+    const rule = state.ruleTypes[rand(0, state.ruleTypes.length-1)];
+    let start, nums = [];
+    if (rule.dir === 1) {
+      start = rand(rule.minS, rule.maxS);
+      for (let i=0; i<10; i++) nums.push(start + i*rule.step);
+    } else {
+      start = rand(rule.minS, rule.maxS);
+      for (let i=0; i<10; i++) nums.push(start - i*rule.step);
+    }
+    if (nums.some(n => n<1 || n>100)) return generateQuestion();
+    state.numbers = nums;
+    state.ruleDescription = rule.label;
+
+    const allIdx = [0,1,2,3,4,5,6,7,8,9];
+    const shuffled = shuffle(allIdx);
+    state.missingIndices = shuffled.slice(0,5).sort((a,b)=>a-b);
+    state.userAnswers = {};
+    state.gameCompleted = false;
+
+    const correctAnswers = state.missingIndices.map(i => nums[i]);
+    state.correctSet = new Set(correctAnswers);
+
+    const distractors = [];
+    while (distractors.length < 3) {
+      const ref = correctAnswers[rand(0, correctAnswers.length-1)];
+      const offset = rand(-3, 3);
+      if (offset === 0) continue;
+      const candidate = ref + offset;
+      if (candidate >= 1 && candidate <= 100 && !state.correctSet.has(candidate) && !distractors.includes(candidate)) {
+        distractors.push(candidate);
+      }
+      if (distractors.length < 3) {
+        let fallback = rand(1, 100);
+        if (!state.correctSet.has(fallback) && !distractors.includes(fallback)) distractors.push(fallback);
+      }
+    }
+    state.cardPool = shuffle([...correctAnswers, ...distractors]);
+  }
+
+  function renderTrain() {
+    trainArea.querySelectorAll('.carriage-wrapper,.hook').forEach(e=>e.remove());
+    const track = trainArea.querySelector('.train-track');
+    if (!track) {
+      const t = document.createElement('div'); t.className='train-track'; trainArea.appendChild(t);
+    }
+
+    state.numbers.forEach((num, idx) => {
+      if (idx > 0) {
+        const hook = document.createElement('div'); hook.className='hook'; trainArea.appendChild(hook);
+      }
+      const wrapper = document.createElement('div'); wrapper.className='carriage-wrapper';
+      const carriage = document.createElement('div');
+      carriage.className = `carriage carriage-color-${idx % 10}`;
+      carriage.dataset.index = idx;
+
+      if (state.missingIndices.includes(idx)) {
+        carriage.classList.add('missing');
+        if (state.userAnswers[idx] !== undefined) {
+          carriage.textContent = state.userAnswers[idx];
+          carriage.classList.add('correct-reveal');
+          carriage.classList.remove('missing');
+        } else {
+          carriage.textContent = '❓';
+        }
+        carriage.setAttribute('data-drop-index', idx);
+        carriage.addEventListener('dragover', handleDragOver);
+        carriage.addEventListener('dragenter', handleDragEnter);
+        carriage.addEventListener('dragleave', handleDragLeave);
+        carriage.addEventListener('drop', handleDrop);
+      } else {
+        carriage.textContent = num;
+      }
+      wrapper.appendChild(carriage);
+      trainArea.appendChild(wrapper);
+    });
+    const trackEl = trainArea.querySelector('.train-track');
+    if (trackEl) trainArea.appendChild(trackEl);
+  }
+
+  function renderCards() {
+    cardsArea.innerHTML = '';
+    state.cardPool.forEach(num => {
+      const card = document.createElement('div');
+      card.className = 'num-card';
+      card.textContent = num;
+      card.draggable = true;
+      card.dataset.value = num;
+      card.addEventListener('dragstart', handleDragStart);
+      card.addEventListener('dragend', handleDragEnd);
+      card.addEventListener('touchstart', handleTouchStart, {passive: false});
+      card.addEventListener('touchmove', handleTouchMove, {passive: false});
+      card.addEventListener('touchend', handleTouchEnd);
+      card.addEventListener('touchcancel', handleTouchCancel);
+      // 如果該數字已被放置在車廂上，則標記為used
+      if (Object.values(state.userAnswers).includes(num)) {
+        card.classList.add('used');
+        card.draggable = false;
+      }
+      cardsArea.appendChild(card);
+    });
+  }
+
+  let draggedCard = null;
+  function handleDragStart(e) {
+    if (state.gameCompleted) { e.preventDefault(); return; }
+    draggedCard = this;
+    e.dataTransfer.setData('text/plain', this.dataset.value);
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    draggedCard = null;
+  }
+  function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+  function handleDragEnter(e) { e.preventDefault(); if (!state.gameCompleted) this.classList.add('drop-target'); }
+  function handleDragLeave(e) { this.classList.remove('drop-target'); }
+  function handleDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drop-target');
+    if (state.gameCompleted) return;
+    const value = parseInt(e.dataTransfer.getData('text/plain'), 10);
+    const index = parseInt(this.dataset.dropIndex, 10);
+    attemptPlace(value, index, draggedCard);
+    if (draggedCard) draggedCard.classList.remove('dragging');
+    draggedCard = null;
+  }
+
+  let touchDraggedCard = null, touchClone = null, touchStartX = 0, touchStartY = 0, touchOffsetX = 0, touchOffsetY = 0;
+  function handleTouchStart(e) {
+    if (state.gameCompleted) return;
+    e.preventDefault();
+    touchDraggedCard = this;
+    const touch = e.touches[0];
+    touchStartX = touch.clientX; touchStartY = touch.clientY;
+    const rect = this.getBoundingClientRect();
+    touchOffsetX = touch.clientX - rect.left;
+    touchOffsetY = touch.clientY - rect.top;
+    touchClone = this.cloneNode(true);
+    touchClone.classList.add('dragging');
+    touchClone.style.position = 'fixed';
+    touchClone.style.left = (touch.clientX - touchOffsetX) + 'px';
+    touchClone.style.top = (touch.clientY - touchOffsetY) + 'px';
+    touchClone.style.zIndex = '999';
+    touchClone.style.pointerEvents = 'none';
+    document.body.appendChild(touchClone);
+  }
+  function handleTouchMove(e) {
+    if (!touchDraggedCard || !touchClone) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchClone.style.left = (touch.clientX - touchOffsetX) + 'px';
+    touchClone.style.top = (touch.clientY - touchOffsetY) + 'px';
+    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    trainArea.querySelectorAll('.carriage.missing').forEach(c => c.classList.remove('drop-target'));
+    if (elemBelow && elemBelow.classList.contains('missing')) elemBelow.classList.add('drop-target');
+  }
+  function handleTouchEnd(e) {
+    if (!touchDraggedCard) return;
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    trainArea.querySelectorAll('.carriage.missing').forEach(c => c.classList.remove('drop-target'));
+    if (elemBelow && elemBelow.classList.contains('missing') && elemBelow.dataset.dropIndex) {
+      const value = parseInt(touchDraggedCard.dataset.value, 10);
+      const index = parseInt(elemBelow.dataset.dropIndex, 10);
+      attemptPlace(value, index, touchDraggedCard);
+    }
+    if (touchClone) { touchClone.remove(); touchClone = null; }
+    touchDraggedCard = null;
+  }
+  function handleTouchCancel(e) {
+    if (touchClone) { touchClone.remove(); touchClone = null; }
+    touchDraggedCard = null;
+  }
+
+  function markCardAsUsed(value) {
+    const cards = cardsArea.querySelectorAll('.num-card');
+    cards.forEach(card => {
+      if (parseInt(card.dataset.value) === value) {
+        card.classList.add('used');
+        card.draggable = false;
+      }
+    });
+  }
+
+  function attemptPlace(value, index, cardElement) {
+    if (state.userAnswers[index] !== undefined) return;
+    if (state.numbers[index] === value) {
+      state.userAnswers[index] = value;
+      state.totalAttempts++;
+      updateStats();
+      renderTrain();
+      if (cardElement) cardElement.classList.add('used');
+      markCardAsUsed(value);
+      checkCompletion();
+    } else {
+      state.totalAttempts++;
+      updateStats();
+      const carriage = trainArea.querySelector(`.carriage[data-drop-index='${index}']`);
+      if (carriage) {
+        carriage.classList.add('wrong-flash');
+        setTimeout(() => carriage.classList.remove('wrong-flash'), 500);
+      }
+      feedbackMsg.textContent = '😅 呢個數字唔啱呢個位呀，再試吓！';
+      feedbackMsg.className = 'feedback-msg wrong';
+      gameContainer.classList.add('wrong-flash');
+      setTimeout(() => gameContainer.classList.remove('wrong-flash'), 500);
+    }
+  }
+
+  function checkCompletion() {
+    if (state.missingIndices.every(i => state.userAnswers[i] !== undefined)) {
+      state.gameCompleted = true;
+      state.score++;
+      updateStats();
+      feedbackMsg.textContent = '🎉 欣欣叻叻！全部啱晒！ ✨';
+      feedbackMsg.className = 'feedback-msg correct';
+      speakCantonese('欣欣叻叻');
+      gameContainer.classList.add('correct-flash');
+      btnHint.disabled = true;
+      spawnStars();
+      document.querySelectorAll('.num-card').forEach(c => c.draggable = false);
+      setTimeout(() => nextQuestion(), 2500);
+    }
+  }
+
+  function showHint() {
+    if (state.gameCompleted) return;
+    // 找出第一個尚未填寫的缺失索引
+    const unfilled = state.missingIndices.find(idx => state.userAnswers[idx] === undefined);
+    if (unfilled === undefined) return; // 全部已填（理論上不會）
+
+    const correctAnswer = state.numbers[unfilled];
+    state.userAnswers[unfilled] = correctAnswer;
+    state.totalAttempts++;
+    updateStats();
+    renderTrain();
+    markCardAsUsed(correctAnswer);
+    feedbackMsg.textContent = `💡 提示：其中一格係 ${correctAnswer} 呀！繼續加油！`;
+    feedbackMsg.className = 'feedback-msg';
+    hintContainer.innerHTML = '';
+
+    // 如果提示後全部空格都填完，當作完成（不加分？依然計入完成題目）
+    if (state.missingIndices.every(i => state.userAnswers[i] !== undefined)) {
+      state.gameCompleted = true;
+      state.score++;
+      updateStats();
+      feedbackMsg.textContent = '🎉 欣欣叻叻！全部啱晒！ ✨';
+      feedbackMsg.className = 'feedback-msg correct';
+      speakCantonese('欣欣叻叻');
+      gameContainer.classList.add('correct-flash');
+      btnHint.disabled = true;
+      spawnStars();
+      document.querySelectorAll('.num-card').forEach(c => c.draggable = false);
+      setTimeout(() => nextQuestion(), 2500);
+    }
+  }
+
+  function skipQuestion() {
+    if (state.gameCompleted) { nextQuestion(); return; }
+    state.totalAttempts++;
+    updateStats();
+    state.gameCompleted = true;
+    state.missingIndices.forEach(i => { state.userAnswers[i] = state.numbers[i]; });
+    renderTrain();
+    document.querySelectorAll('.num-card').forEach(c => c.classList.add('used'));
+    feedbackMsg.textContent = '⏭️ 跳過咗，答案已經顯示晒啦！';
+    feedbackMsg.className = 'feedback-msg';
+    hintContainer.innerHTML = '';
+    btnHint.disabled = true;
+    setTimeout(() => nextQuestion(), 2200);
+  }
+
+  function nextQuestion() {
+    gameContainer.classList.remove('correct-flash','wrong-flash');
+    feedbackMsg.textContent = '';
+    feedbackMsg.className = 'feedback-msg';
+    hintContainer.innerHTML = '';
+    btnHint.disabled = false;
+    generateQuestion();
+    renderTrain();
+    renderCards();
+  }
+
+  function resetGame() {
+    state.score = 0;
+    state.totalAttempts = 0;
+    updateStats();
+    gameContainer.classList.remove('correct-flash','wrong-flash');
+    feedbackMsg.textContent = '';
+    feedbackMsg.className = 'feedback-msg';
+    hintContainer.innerHTML = '';
+    btnHint.disabled = false;
+    generateQuestion();
+    renderTrain();
+    renderCards();
+  }
+
+  function updateStats() {
+    scoreDisplay.textContent = state.score;
+    totalDisplay.textContent = state.totalAttempts;
+  }
+
+  function spawnStars() {
+    const emojis = ['⭐','🌟','✨','💫','🎉','💖'];
+    for (let i=0; i<20; i++) {
+      const star = document.createElement('span');
+      star.className = 'star-particle';
+      star.textContent = emojis[rand(0, emojis.length-1)];
+      const rect = gameContainer.getBoundingClientRect();
+      star.style.left = (rect.left + rect.width/2 + rand(-200,200)) + 'px';
+      star.style.top = (rect.top + rand(20,100)) + 'px';
+      star.style.animationDuration = (1.2 + Math.random()*1.5) + 's';
+      starsContainer.appendChild(star);
+      setTimeout(() => { if(star.parentNode) star.remove(); }, 2000);
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'h' || e.key === 'H') showHint();
+    if (e.key === 's' || e.key === 'S') skipQuestion();
+  });
+
+  btnHint.addEventListener('click', showHint);
+  btnSkip.addEventListener('click', skipQuestion);
+  btnReset.addEventListener('click', resetGame);
+
+  generateQuestion();
+  renderTrain();
+  renderCards();
+  updateStats();
+})();
+</script>
+</body>
+</html>

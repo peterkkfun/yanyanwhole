@@ -1,287 +1,256 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>欣欣學習樂園 · 遊戲大廳</title>
-  <!-- 使用可爱的系统字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>欣欣學習樂園 · 遊戲目錄</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      background: linear-gradient(145deg, #fef7e9 0%, #fff2db 100%);
-      min-height: 100vh;
-      font-family: 'Quicksand', 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', sans-serif;
-      padding: 24px 16px 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        body {
+            background: linear-gradient(145deg, #e0f2e0 0%, #c8e6c9 40%, #fef9e6 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Quicksand', 'PingFang HK', 'Microsoft JhengHei', sans-serif;
+            padding: 20px;
+            color: #2d3e2d;
+        }
 
-    .header {
-      max-width: 1000px;
-      width: 100%;
-      text-align: center;
-      margin-bottom: 30px;
-    }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 56px 56px 40px 40px;
+            box-shadow: 0 25px 50px rgba(40, 80, 40, 0.2), 0 8px 20px rgba(0,0,0,0.08);
+            padding: 30px 24px 40px;
+            border: 3px solid #b8d9b8;
+            text-align: center;
+        }
 
-    h1 {
-      font-size: 3.2rem;
-      font-weight: 800;
-      color: #a5550e;
-      text-shadow: 4px 4px 0 #ffe5b4;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1e5a3c;
+            text-shadow: 4px 4px 0 #d0f0d0;
+            margin: 10px 0 5px;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 .emoji {
+            font-size: 2.8rem;
+        }
 
-    h1 i {
-      font-size: 2.8rem;
-      background: #ffcf8a;
-      border-radius: 60px;
-      padding: 8px 18px;
-      color: #5d3a1a;
-      text-shadow: none;
-      box-shadow: 0 5px 0 #b77c3c;
-    }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #3b6e4a;
+            margin-bottom: 25px;
+            background: #e2f3e2;
+            display: inline-block;
+            padding: 8px 28px;
+            border-radius: 40px;
+            border: 2px dashed #9bc0a8;
+            font-weight: 600;
+        }
 
-    .subhead {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #7b4a2a;
-      background: #ffeac2;
-      display: inline-block;
-      padding: 10px 30px;
-      border-radius: 60px;
-      box-shadow: inset 0 2px 5px #fff6e0, 0 6px 0 #d49b5f;
-      border: 2px solid #ffd58c;
-      margin-top: 5px;
-    }
+        .section {
+            margin: 30px 0 20px;
+            background: #f1fcf1;
+            border-radius: 48px;
+            padding: 24px 20px;
+            box-shadow: inset 0 2px 8px #d0efd0, 0 8px 18px rgba(50, 100, 50, 0.1);
+            border: 2px solid #b8e0b8;
+        }
 
-    .game-grid {
-      max-width: 1100px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 22px;
-      margin: 20px 0 30px;
-    }
+        .section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2f6e3f;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-    .game-card {
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 40px;
-      padding: 22px 18px 20px;
-      box-shadow: 0 15px 0 #b28142, 0 10px 20px rgba(0,0,0,0.1);
-      border: 3px solid #ffdfb3;
-      transition: transform 0.1s, box-shadow 0.1s;
-      display: flex;
-      flex-direction: column;
-      text-decoration: none;
-      color: inherit;
-      cursor: pointer;
-      /* 保证卡片可点击 */
-    }
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: center;
+        }
 
-    .game-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 18px 0 #b28142, 0 15px 25px rgba(0,0,0,0.15);
-    }
+        .card {
+            background: white;
+            border-radius: 32px;
+            padding: 20px 18px;
+            width: 260px;
+            box-shadow: 0 10px 18px rgba(30, 60, 30, 0.1);
+            border: 2px solid #c8e8c8;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: #2d4a2d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 25px rgba(30, 100, 30, 0.2);
+            border-color: #8fc99c;
+            background: #fdfff5;
+        }
+        .card:active {
+            transform: translateY(2px);
+            box-shadow: 0 6px 12px rgba(30, 60, 30, 0.15);
+        }
 
-    .game-card:active {
-      transform: translateY(6px);
-      box-shadow: 0 9px 0 #b28142, 0 8px 15px rgba(0,0,0,0.1);
-    }
+        .card .icon {
+            font-size: 2.6rem;
+            margin-bottom: 6px;
+        }
+        .card .title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            line-height: 1.3;
+        }
+        .card .filename {
+            font-size: 0.75rem;
+            background: #e2f3e2;
+            padding: 4px 14px;
+            border-radius: 20px;
+            color: #245e31;
+            font-weight: 500;
+            margin-top: 4px;
+            word-break: break-all;
+        }
 
-    .card-emoji {
-      font-size: 3.8rem;
-      line-height: 1.2;
-      margin-bottom: 6px;
-    }
+        .footer-note {
+            margin-top: 30px;
+            color: #3f6e3f;
+            font-weight: 600;
+            font-size: 1rem;
+        }
 
-    .card-title {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #5d3413;
-      text-shadow: 2px 2px 0 #ffddaa;
-      margin-bottom: 8px;
-      letter-spacing: 0.5px;
-    }
-
-    .card-desc {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #7b4f26;
-      background: #fff1db;
-      padding: 6px 12px;
-      border-radius: 30px;
-      margin-top: 6px;
-      border: 1.5px solid #edc48b;
-    }
-
-    .banner-love {
-      max-width: 800px;
-      width: 100%;
-      background: #ffb347;
-      background-image: radial-gradient(circle at 30% 20%, #ffdb8a, #ffa52f);
-      border-radius: 70px;
-      padding: 20px 25px;
-      text-align: center;
-      box-shadow: 0 12px 0 #b35e00, 0 8px 20px rgba(180, 100, 20, 0.3);
-      border: 4px solid #ffefc0;
-      margin-top: 30px;
-    }
-
-    .banner-love p {
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: #3b250a;
-      text-shadow: 3px 3px 0 #ffd58c;
-      letter-spacing: 3px;
-    }
-
-    .banner-love small {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #5c3b14;
-    }
-
-    .footer-note {
-      margin-top: 25px;
-      color: #b27a40;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    /* 移动端调整 */
-    @media (max-width: 600px) {
-      h1 { font-size: 2.4rem; }
-      .subhead { font-size: 1.2rem; }
-      .game-grid { gap: 16px; }
-      .card-title { font-size: 1.6rem; }
-      .banner-love p { font-size: 1.8rem; }
-    }
-
-    @media (max-width: 400px) {
-      .game-card { padding: 18px 12px; }
-    }
-
-    /* 为了适配可能缺少的 Font Awesome，我们用纯文本 emoji，不用图标库 */
-  </style>
+        @media (max-width: 600px) {
+            .container { padding: 20px 12px 30px; border-radius: 40px; }
+            h1 { font-size: 2.2rem; }
+            .card { width: 90%; max-width: 300px; }
+            .section { padding: 18px 12px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="header">
+<div class="container">
     <h1>
-      <span>🌸 欣欣學習樂園</span>
-      <span style="font-size: 2rem;">🧸</span>
+        <span class="emoji">📚</span> 欣欣學習樂園 <span class="emoji">🌟</span>
     </h1>
-    <div class="subhead">✨ 揀一個遊戲開始玩啦 ✨</div>
-  </div>
+    <div class="subtitle">✨ 點擊卡片進入遊戲 · 爸爸媽媽哥哥愛欣欣 ✨</div>
 
-  <div class="game-grid">
-    <!-- 1. 時鐘遊戲 -->
-    <a href="0010_clock.html" class="game-card">
-      <div class="card-emoji">🕒⏰</div>
-      <div class="card-title">睇鐘學時間</div>
-      <div class="card-desc">認鐘 · 粵語 + 英式英語</div>
-    </a>
+    <!-- 數學遊戲 -->
+    <div class="section">
+        <h2><span>🧮</span> 數學 · 邏輯 <span>🔢</span></h2>
+        <div class="grid">
+            <a href="0010_clock.html" class="card">
+                <span class="icon">🕒</span>
+                <span class="title">睇鐘學時間</span>
+                <span class="filename">0010_clock.html</span>
+            </a>
+            <a href="0100%20odd%20even%20v3_andriod.html" class="card">
+                <span class="icon">🔢</span>
+                <span class="title">奇偶小偵探 · 單雙數</span>
+                <span class="filename">0100 odd even v3_andriod.html</span>
+            </a>
+            <a href="0120%20addition%20less%2020%20substraction%20less%2010.html" class="card">
+                <span class="icon">🎈</span>
+                <span class="title">學加減數 (≤20/≤10)</span>
+                <span class="filename">0120_addition_less_20_substraction_less_10.html</span>
+            </a>
+            <a href="0120_sorting_numbers.html" class="card">
+                <span class="icon">🧸</span>
+                <span class="title">數字排排樂 (0-100)</span>
+                <span class="filename">0120_sorting_numbers.html</span>
+            </a>
+            <a href="0130_plus_or_minus.html" class="card">
+                <span class="icon">➕➖</span>
+                <span class="title">數學加減遊戲 (揀符號)</span>
+                <span class="filename">0130_plus_or_minus.html</span>
+            </a>
+            <a href="0131_5_cars_1_missing.html" class="card">
+                <span class="icon">🚂</span>
+                <span class="title">數字小火車 (5卡 · 1個缺)</span>
+                <span class="filename">0131_5_cars_1_missing.html</span>
+            </a>
+            <a href="0132_10_cars_5_missing.html" class="card">
+                <span class="icon">🚂</span>
+                <span class="title">數字小火車 (10卡 · 5個缺)</span>
+                <span class="filename">0132_10_cars_5_missing.html</span>
+            </a>
+            <a href="0135_雪糕規律.html" class="card">
+                <span class="icon">🍦</span>
+                <span class="title">冰淇淋規律大挑戰</span>
+                <span class="filename">0135_雪糕規律.html</span>
+            </a>
+        </div>
+    </div>
 
-    <!-- 2. 左右辨別 -->
-    <a href="0020_lift_right_iphone.html" class="game-card">
-      <div class="card-emoji">⬅️➡️🧭</div>
-      <div class="card-title">左定右？</div>
-      <div class="card-desc">Left or Right · 箭頭挑戰</div>
-    </a>
+    <!-- 中文遊戲 -->
+    <div class="section">
+        <h2><span>🀄️</span> 中文 · 粵語 <span>📖</span></h2>
+        <div class="grid">
+            <a href="0210_繁體中文%20·%20筆順動畫_android.html" class="card">
+                <span class="icon">✍️</span>
+                <span class="title">繁體中文筆順動畫</span>
+                <span class="filename">0210_繁體中文 · 筆順動畫_android.html</span>
+            </a>
+            <a href="0220_article_Chinese_reading.html" class="card">
+                <span class="icon">📖</span>
+                <span class="title">粵普朗讀 · 句子閱讀</span>
+                <span class="filename">0220_article_Chinese_reading.html</span>
+            </a>
+            <a href="0020_lift_right_iphone.html" class="card">
+                <span class="icon">⇦⇨</span>
+                <span class="title">左定右？Left or Right?</span>
+                <span class="filename">0020_lift_right_iphone.html</span>
+            </a>
+            <!-- 左右遊戲也歸在中文/認知類別 -->
+        </div>
+    </div>
 
-    <!-- 3. 奇偶數 (單雙數) -->
-    <a href="0100%20odd%20even%20v3_andriod.html" class="game-card">
-      <div class="card-emoji">🔢🕵️</div>
-      <div class="card-title">奇偶小偵探</div>
-      <div class="card-desc">單數 Odd · 雙數 Even</div>
-    </a>
+    <!-- 英文遊戲 -->
+    <div class="section">
+        <h2><span>🌿</span> 英文 · Phonics <span>🇬🇧</span></h2>
+        <div class="grid">
+            <a href="0300_eng_word_v2.html" class="card">
+                <span class="icon">📗</span>
+                <span class="title">學英文句子 + Phonics</span>
+                <span class="filename">0300_eng_word_v2.html</span>
+            </a>
+            <a href="0310_eng_fill_in.html" class="card">
+                <span class="icon">🔤</span>
+                <span class="title">字母填空樂園 (2-3格)</span>
+                <span class="filename">0310_eng_fill_in.html</span>
+            </a>
+            <a href="0320_eng_article.html" class="card">
+                <span class="icon">📰</span>
+                <span class="title">英文文章閱讀 (翻譯+朗讀)</span>
+                <span class="filename">0320_eng_article.html</span>
+            </a>
+        </div>
+    </div>
 
-    <!-- 4. 加減法 (≤20, ≤10) -->
-    <a href="0120%20addition%20less%2020%20substraction%20less%2010.html" class="game-card">
-      <div class="card-emoji">➕➖🧮</div>
-      <div class="card-title">欣欣學加減數</div>
-      <div class="card-desc">加法≤20 · 減法≤10</div>
-    </a>
-
-    <!-- 5. 數字排序 -->
-    <a href="0120_sorting_numbers.html" class="game-card">
-      <div class="card-emoji">🔢📈</div>
-      <div class="card-title">數字排排樂</div>
-      <div class="card-desc">由小到大 / 由大至小</div>
-    </a>
-
-    <!-- 6. 繁體中文筆順動畫 -->
-    <a href="0210_繁體中文%20·%20筆順動畫_android.html" class="game-card">
-      <div class="card-emoji">✍️📖</div>
-      <div class="card-title">中文筆順樂園</div>
-      <div class="card-desc">粵語發音 · 筆順動畫</div>
-    </a>
-
-    <!-- 7. 中文文章閱讀 (粵普) -->
-    <a href="0220_article_Chinese_reading.html" class="game-card">
-      <div class="card-emoji">📚🗣️</div>
-      <div class="card-title">欣欣學中文 · 文章</div>
-      <div class="card-desc">粵語 / 普通話朗讀</div>
-    </a>
-
-    <!-- 8. 英文單詞句子 (拼讀) -->
-    <a href="0300_eng_word_v2.html" class="game-card">
-      <div class="card-emoji">🌿🇬🇧</div>
-      <div class="card-title">開心學英文</div>
-      <div class="card-desc">句子 + Phonics 拼讀</div>
-    </a>
-
-    <!-- 9. 英文填空 (2-3字母) -->
-    <a href="0310_eng_fill_in.html" class="game-card">
-      <div class="card-emoji">🔤🧩</div>
-      <div class="card-title">字母填空樂園</div>
-      <div class="card-desc">英式英語 + 粵語解釋</div>
-    </a>
-
-    <!-- 10. 英文文章閱讀 -->
-    <a href="0320_eng_article.html" class="game-card">
-      <div class="card-emoji">📰🌱</div>
-      <div class="card-title">英文文章 · 雙語</div>
-      <div class="card-desc">英式英文 + 粵語翻譯</div>
-    </a>
-  </div>
-
-  <div class="banner-love">
-    <p>🌈 欣欣叻叻！ 🌈</p>
-    <small>❤️ 爸爸 媽媽 哥哥 愛欣欣 ❤️</small>
-  </div>
-
-  <div class="footer-note">
-    ⭐ 㩒任何卡片開始玩 · 所有進度會自動保存 ⭐
-  </div>
-
-  <!-- 一个小提示：如果链接有空格，浏览器会自动处理，上面的href已经进行了URL编码 -->
-  <script>
-    (function(){
-      // 确保所有卡片链接在新页面打开（可选，这里就在当前页打开，保持简单）
-      // 也可以添加一些可爱的控制台问候
-      console.log("🎈 欣欣學習樂園 · 每日學一點，快樂成長！");
-      
-      // 处理可能的文件名错误（如果用户上传时文件名空格被转义，这里不做额外操作，相信href）
-      // 但我们可以加一个fallback：如果某些浏览器对中文文件名支持不佳，可提醒。
-      // 实际上现代浏览器都支持UTF-8文件名。
-    })();
-  </script>
+    <div class="footer-note">
+        💚 全部遊戲都有粵語發音 · 點擊即可玩 💚
+    </div>
+</div>
 </body>
 </html>

@@ -168,6 +168,20 @@
             font-size: 1rem;
         }
 
+        /* 新增：组内内容预览样式 */
+        .group-preview {
+            font-size: 0.8rem;
+            color: #2e5a2e;
+            margin-left: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 180px;
+            display: inline-block;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+
         .icon-btn {
             background: #def3d9;
             border: none;
@@ -509,11 +523,18 @@
                 return;
             }
             groupNames.forEach(gName => {
-                const wordCount = groups[gName].length;
+                const words = groups[gName];
+                const wordCount = words.length;
+                // 生成预览内容：取前3个，超过则加省略号
+                const maxPreview = 3;
+                const previewWords = words.slice(0, maxPreview).join(', ');
+                const previewText = words.length > maxPreview ? previewWords + '…' : previewWords;
+                
                 const groupDiv = document.createElement("div");
                 groupDiv.className = "group-badge";
                 groupDiv.innerHTML = `
                     <span class="group-name"><i class="fas fa-tag"></i> ${gName} (${wordCount})</span>
+                    <span class="group-preview" title="${words.join(', ')}">${previewText}</span>
                     <button class="icon-btn load-group" data-group="${gName.replace(/"/g, '&quot;')}" title="載入句子到輸入框"><i class="fas fa-download"></i> 載入</button>
                     <button class="icon-btn edit-words-group" data-group="${gName.replace(/"/g, '&quot;')}" title="直接編輯句子列表"><i class="fas fa-edit"></i> 編輯</button>
                     <button class="icon-btn rename-group" data-group="${gName.replace(/"/g, '&quot;')}" title="重新命名組別"><i class="fas fa-i-cursor"></i> 改名</button>
@@ -562,7 +583,7 @@
             alert("已重置預設句子組 🌿");
         }
 
-        // 🆕 按名称排序
+        // 按名称排序
         function sortGroupsByName() {
             const sortedKeys = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
             const newGroups = {};
@@ -571,7 +592,7 @@
             saveGroups();
         }
 
-        // 🆕 导出为 JSON 文件 (下载)
+        // 导出为 JSON 文件 (下载)
         function exportGroupsData() {
             const jsonStr = JSON.stringify(groups, null, 2);
             const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -585,7 +606,7 @@
             URL.revokeObjectURL(url);
         }
 
-        // 🆕 导入：通过文件选择器读取 JSON 文件
+        // 导入：通过文件选择器读取 JSON 文件
         function importGroupsData() {
             const fileInput = document.getElementById('fileInput');
             fileInput.onchange = null;
@@ -927,7 +948,7 @@
             document.getElementById('resetDefaultGroupsBtn').addEventListener('click', resetToDefaultGroups);
             document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
             document.getElementById('importDataBtn').addEventListener('click', importGroupsData);
-            document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName); // 新增排序按钮
+            document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName);
             document.getElementById('repeatSoundBtn').addEventListener('click', repeatCurrentPronunciation);
             document.getElementById('nextWordBtn').addEventListener('click', () => {
                 if (trainingView.style.display === 'block' && !isProcessingNext && trainingWords.length) proceedToNextWord();
