@@ -296,7 +296,6 @@
                     <button id="sortArticlesBtn" class="secondary" title="排序文章"><i class="fas fa-sort-amount-down"></i> 時間順序</button>
                 </div>
                 <div id="articleListContainer" class="article-list"></div>
-                <!-- 匯入 / 匯出按鈕區域 -->
                 <div class="import-export-row">
                     <button id="exportJsonBtn" class="import-export" title="匯出文章庫為 JSON 檔案">
                         <i class="fas fa-file-export"></i> 匯出 JSON
@@ -342,7 +341,8 @@
             "use strict";
 
             // ---------- 常數設定 ----------
-            const SPEECH_RATE = 0.65; // 朗讀速度 (0.1~10)，小朋友適合 0.6~0.7
+            // ★ 已將語速從 0.65 調慢至 0.5，小朋友更容易跟上。如仍太快，可再降低（例如 0.4）。
+            const SPEECH_RATE = 0.5;  // 原為 0.65，現改為 0.5
 
             // ---------- 數據 ----------
             let articles = [];
@@ -356,7 +356,7 @@
             let mandarinVoice = null;
             let cantoneseVoice = null;
 
-            // 排序狀態：'default' (時間順序), 'nameAsc' (標題 A-Z), 'nameDesc' (標題 Z-A)
+            // 排序狀態
             let currentSort = 'default';
 
             // DOM
@@ -406,7 +406,6 @@
                 } else if (currentSort === 'nameDesc') {
                     articles.sort((a, b) => b.name.localeCompare(a.name, 'zh-HK'));
                 } else {
-                    // default: sort by id ascending (creation time)
                     articles.sort((a, b) => parseInt(a.id) - parseInt(b.id));
                 }
             }
@@ -429,7 +428,7 @@
             }
 
             function renderList() {
-                applyCurrentSort(); // 根據當前排序狀態排列文章
+                applyCurrentSort();
                 if (!articles.length) {
                     listDiv.innerHTML = '<div style="padding:20px;">✨ 按「新文章」加入繁體故事 ✨</div>';
                     return;
@@ -514,7 +513,6 @@
                 const url = URL.createObjectURL(blob);
                 const today = new Date().toISOString().slice(0, 10);
                 const filename = `欣欣文章_backup_${today}.json`;
-
                 const downloadLink = document.createElement('a');
                 downloadLink.href = url;
                 downloadLink.download = filename;
@@ -522,7 +520,6 @@
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
                 URL.revokeObjectURL(url);
-
                 const toast = document.createElement('div');
                 toast.style.cssText = `
                     position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
@@ -551,7 +548,6 @@
                         importFileInput.value = '';
                         return;
                     }
-
                     const validArticles = [];
                     const skippedItems = [];
                     importedData.forEach((item, index) => {
@@ -572,7 +568,6 @@
                             skippedItems.push(`第 ${index + 1} 篇（缺少 name 或 content 欄位）`);
                         }
                     });
-
                     if (validArticles.length === 0) {
                         let msg = '❌ 沒有可匯入的有效文章。';
                         if (skippedItems.length > 0) {
@@ -582,12 +577,10 @@
                         importFileInput.value = '';
                         return;
                     }
-
                     let skipInfo = '';
                     if (skippedItems.length > 0) {
                         skipInfo = '\n⚠️ 有 ' + skippedItems.length + ' 筆資料格式不符，將自動跳過。';
                     }
-
                     const modeConfirm = confirm(
                         `📥 找到 ${validArticles.length} 篇有效文章。${skipInfo}\n\n` +
                         `請選擇匯入模式：\n\n` +
@@ -595,7 +588,6 @@
                         `❌ 【取消】= 完全替換（清除原有文章，僅保留匯入資料）\n\n` +
                         `（按「取消」可放棄匯入）`
                     );
-
                     if (modeConfirm === true) {
                         const mergedMap = new Map();
                         articles.forEach(a => mergedMap.set(a.id, { ...a }));
@@ -626,7 +618,6 @@
                     }
                     importFileInput.value = '';
                 };
-
                 reader.onerror = function() {
                     alert('❌ 讀取檔案時發生錯誤，請再試一次。');
                     importFileInput.value = '';
@@ -639,7 +630,7 @@
                 importFileInput.click();
             }
 
-            // ---------- 嚴格語音篩選 ----------
+            // ---------- 語音 ----------
             function loadVoices() {
                 voiceList = speechSynth.getVoices();
                 if (voiceList.length === 0) {
@@ -652,7 +643,6 @@
 
             function selectVoicesStrict() {
                 voiceList = speechSynth.getVoices();
-
                 mandarinVoice = voiceList.find(v => {
                     const name = v.name.toLowerCase();
                     const lang = v.lang.toLowerCase();
@@ -664,17 +654,13 @@
                         'hong kong'));
                     return isMandarin && isNotCantonese;
                 });
-
                 cantoneseVoice = voiceList.find(v => {
                     const name = v.name.toLowerCase();
                     const lang = v.lang.toLowerCase();
                     return (lang.includes('zh-hk') || lang.includes('yue') || name.includes('粤') || name.includes(
                         '廣東') || name.includes('cantonese') || name.includes('hong kong'));
                 });
-
                 updateVoiceStatus();
-                console.log('✅ 普通話語音:', mandarinVoice?.name || '未找到', '| 粵語語音:', cantoneseVoice?.name ||
-                    '未找到');
             }
 
             function updateVoiceStatus() {
@@ -742,13 +728,10 @@
             function speakWithVoiceType(text, type) {
                 stopSpeaking();
                 clearHighlights();
-
                 voiceList = speechSynth.getVoices();
                 selectVoicesStrict();
-
                 const utterance = new SpeechSynthesisUtterance(text);
                 let selectedVoice = null;
-
                 if (type === 'mandarin') {
                     if (!mandarinVoice) {
                         alert('❌ 找不到普通話語音！\n請安裝普通話語音包（如 Google 普通話）或使用 Chrome 瀏覽器。');
@@ -764,10 +747,8 @@
                     selectedVoice = cantoneseVoice;
                     utterance.lang = 'zh-HK';
                 }
-
                 utterance.voice = selectedVoice;
-                utterance.rate = SPEECH_RATE; // 使用慢速
-
+                utterance.rate = SPEECH_RATE;
                 utterance.onboundary = (e) => {
                     if (e.name === 'word' || e.name === 'sentence') {
                         highlightByCharIndex(e.charIndex);
@@ -775,7 +756,6 @@
                 };
                 utterance.onend = () => clearHighlights();
                 utterance.onerror = () => clearHighlights();
-
                 speechSynth.speak(utterance);
             }
 
@@ -785,7 +765,7 @@
                     const u = new SpeechSynthesisUtterance(phrase);
                     if (cantoneseVoice) u.voice = cantoneseVoice;
                     u.lang = cantoneseVoice ? cantoneseVoice.lang : 'zh-HK';
-                    u.rate = SPEECH_RATE; // 使用慢速
+                    u.rate = SPEECH_RATE;
                     u.onend = resolve;
                     u.onerror = resolve;
                     speechSynth.speak(u);
@@ -838,7 +818,6 @@
                     else if (action === 'edit') editArticle(art);
                     else if (action === 'delete') { if (confirm('確定刪除？')) deleteArticle(id); }
                 });
-
                 saveBtn.addEventListener('click', handleSave);
                 cancelBtn.addEventListener('click', resetForm);
                 newBtn.addEventListener('click', resetForm);
@@ -848,7 +827,6 @@
                     managerView.classList.remove('hide');
                     clearHighlights();
                 });
-
                 exportBtn.addEventListener('click', exportArticlesToJson);
                 importBtn.addEventListener('click', triggerImportDialog);
                 importFileInput.addEventListener('change', (e) => {
@@ -861,7 +839,6 @@
                     }
                     importArticlesFromJson(file);
                 });
-
                 speakCantoBtn.addEventListener('click', () => {
                     if (sentences.length) speakWithVoiceType(sentences[currentIdx], 'cantonese');
                 });
@@ -869,8 +846,6 @@
                     if (sentences.length) speakWithVoiceType(sentences[currentIdx], 'mandarin');
                 });
                 nextBtn.addEventListener('click', handleNext);
-
-                // 排序按鈕
                 sortBtn.addEventListener('click', () => {
                     if (currentSort === 'default') {
                         currentSort = 'nameAsc';
@@ -880,8 +855,8 @@
                         currentSort = 'default';
                     }
                     updateSortButton();
-                    saveArticles(); // 儲存當前排序後的順序
-                    renderList();   // 重新渲染列表
+                    saveArticles();
+                    renderList();
                 });
             }
 
@@ -889,7 +864,7 @@
                 loadArticles();
                 renderList();
                 resetForm();
-                updateSortButton(); // 設定排序按鈕初始狀態
+                updateSortButton();
                 bindEvents();
                 if (!window.speechSynthesis) alert('瀏覽器不支援語音');
             }
