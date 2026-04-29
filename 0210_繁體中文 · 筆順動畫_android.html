@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>欣欣學中文 | 粵語筆順教學 (每個漢字獨立發音)</title>
+    <title>欣欣學中文 | 慢速筆順·粵語教學 (適合兒童)</title>
     <!-- Hanzi Writer 核心庫 -->
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <style>
@@ -292,12 +292,65 @@
             padding: 5px 16px;
             border-radius: 40px;
         }
+        /* 速度控制条样式 */
+        .speed-control {
+            background: #f3f7ef;
+            border-radius: 60px;
+            padding: 12px 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #cfdec4;
+        }
+        .speed-label {
+            font-weight: bold;
+            color: #2d5a2c;
+            background: #e3f0dc;
+            padding: 6px 16px;
+            border-radius: 32px;
+            font-size: 0.9rem;
+        }
+        input#strokeSpeedSlider {
+            flex: 2;
+            min-width: 180px;
+            height: 8px;
+            border-radius: 10px;
+            background: #d9e0d4;
+            -webkit-appearance: none;
+        }
+        input#strokeSpeedSlider:focus {
+            outline: none;
+        }
+        input#strokeSpeedSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b6e3f;
+            cursor: pointer;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+            border: none;
+        }
+        .speed-value {
+            background: white;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #5a7a4a;
+            min-width: 80px;
+            text-align: center;
+            font-size: 1rem;
+        }
         @media (max-width: 560px) {
             .current-word { font-size: 2.5rem; letter-spacing: 4px; }
             .banner { font-size: 1.2rem; padding: 16px 24px; white-space: normal; width: 80%; text-align: center; }
             .big-btn { padding: 10px 20px; font-size: 1rem; }
+            .speed-control { flex-direction: column; align-items: stretch; }
         }
-        /* 导入导出按钮样式 */
         .import-export-area {
             display: flex;
             gap: 15px;
@@ -319,6 +372,15 @@
             background: #c2d9c2;
             transform: scale(0.96);
         }
+        .slow-tip {
+            background: #fff0c0;
+            color: #b45f06;
+            font-size: 0.75rem;
+            border-radius: 50px;
+            padding: 4px 12px;
+            display: inline-block;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -328,7 +390,7 @@
         <h2>📚 欣欣中文詞庫管理 ✍️</h2>
         <div class="word-input-area">
             <input type="text" id="wordsInput" placeholder="輸入詞語，用逗號分隔，例如：蘋果,香蕉,車站" value="蘋果,香蕉,快樂">
-            <button id="startTeachingBtn" class="primary">🎓 開始教學</button>
+            <button id="startTeachingBtn" class="primary">🎓 開始教學（慢速筆順）</button>
         </div>
         <div style="margin: 10px 0; text-align: left; font-weight: bold;">📂 我的詞語組：</div>
         <div id="groupsList" class="groups-container"></div>
@@ -337,13 +399,12 @@
             <button id="sortGroupsBtn" class="secondary" style="background:#6f9e7c; color:white;">🔤 按名稱排序</button>
             <span style="font-size: 0.85rem; color: gray;">💡 點擊分組名稱載入詞語｜可編輯/刪除｜一鍵排序</span>
         </div>
-        <!-- 匯入 / 匯出 資料按鈕區域 -->
         <div class="import-export-area">
             <button id="exportDataBtn" class="import-export-btn">📤 匯出分組資料</button>
             <button id="importDataBtn" class="import-export-btn">📥 匯入分組資料</button>
             <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
         </div>
-        <footer>✨ 按下「開始教學」後，按空白鍵或「讀出詞語」播放粵語發音，按「完成此詞」出現鼓勵語音及橫幅。<br>✍️ 每個漢字下方有【粵語發音】【暫停/播放】【重播】大按鈕，點擊卡片也可重播筆順。</footer>
+        <footer>✨ 按下「開始教學」後，按空白鍵或「讀出詞語」播放粵語發音。<br>🐢 筆順動畫已調慢 (可拖曳速度條調整)，每個漢字下方有發音/暫停/重播。</footer>
     </div>
 
     <!-- 教學面板 -->
@@ -358,9 +419,18 @@
             <button id="completeWordBtn" class="big-btn next-btn">⭐ 完成此詞｜欣欣叻叻</button>
         </div>
         <div class="speak-hint">💡 提示：按鍵盤【空格鍵】也可讀出當前詞語發音</div>
-        <div style="margin-top: 15px; font-weight: bold;">✍️ 筆順練習 (每個漢字有獨立發音、暫停/播放及重播):</div>
+        
+        <!-- 慢速筆順控制區 ＋ 速度調節條 -->
+        <div class="speed-control">
+            <span class="speed-label">🐢 筆順動畫速度 (越慢越易跟寫)</span>
+            <input type="range" id="strokeSpeedSlider" min="0.12" max="0.8" step="0.01" value="0.28">
+            <span class="speed-value" id="speedValueDisplay">0.28 倍速</span>
+            <span class="slow-tip">⭐ 適合幼兒/初學者 ⭐</span>
+        </div>
+        
+        <div style="margin-top: 5px; font-weight: bold;">✍️ 慢速筆順練習 (每個漢字獨立發音/暫停/重播):</div>
         <div id="strokeContainer" class="stroke-area"></div>
-        <div style="font-size:0.85rem; margin-top:10px;">✅ 點擊「完成此詞」會彈出「欣欣叻叻 + 詞語」橫幅並播放粵語，之後自動進入下一詞。</div>
+        <div style="font-size:0.85rem; margin-top:10px;">✅ 點擊「完成此詞」會彈出「欣欣叻叻 + 詞語」橫幅並播放粵語，之後自動進入下一詞。<br>🎨 拖曳上方速度條可即時調整筆順動畫速度，讓小朋友慢慢模仿。</div>
     </div>
 </div>
 
@@ -373,6 +443,10 @@
     let allowNext = true;       
     let currentWordWriters = []; 
     
+    // 筆順速度參數 (慢速預設 0.28, 並搭配較長筆畫間隔)
+    let currentStrokeSpeed = 0.28;        // 動畫繪製速度 (數值越小越慢)
+    const STROKE_DELAY_BETWEEN = 850;     // 每筆之間延遲(ms) 拉長方便小朋友對照
+    
     // 粵語語音函式 (通用)
     function speakCantonese(text, onEnd = null) {
         if (!window.speechSynthesis) {
@@ -383,7 +457,7 @@
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'zh-HK';
-        utterance.rate = 0.9;
+        utterance.rate = 0.85;
         utterance.pitch = 1.1;
         let voices = window.speechSynthesis.getVoices();
         const cantoneseVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'zh-Hant-HK' || v.lang.includes('HK'));
@@ -437,11 +511,12 @@
         }
     }
     
-    // ---------- 筆順渲染 ----------
+    // ---------- 核心筆順渲染 (套用慢速 & 全局速度變數) ----------
     async function renderStrokeForWord(word) {
         const container = document.getElementById('strokeContainer');
         if(!container) return;
-        container.innerHTML = '<div style="padding:20px;">⏳ 載入筆順資料中...</div>';
+        container.innerHTML = '<div style="padding:20px;">⏳ 載入慢速筆順資料中...</div>';
+        // 銷毀舊writer實例
         if(currentWordWriters) {
             currentWordWriters.forEach(item => { if(item.writer && item.writer._destroy) item.writer._destroy(); });
             currentWordWriters = [];
@@ -507,11 +582,12 @@
                     let isPaused = false;
                     let animationFinished = false;
                     
+                    // 建立 writer 時套用當前慢速參數
                     const writer = HanziWriter.create(canvasDiv, ch, {
                         width: 150, height: 150, padding: 5,
                         showOutline: true,
-                        strokeAnimationSpeed: 1,
-                        delayBetweenStrokes: 200,
+                        strokeAnimationSpeed: currentStrokeSpeed,   // 核心慢速參數
+                        delayBetweenStrokes: STROKE_DELAY_BETWEEN,  // 筆畫之間等待更久，方便觀察
                         characterData: strokeJson,
                         radicalColor: '#d9b48b',
                         onComplete: () => {
@@ -574,6 +650,7 @@
                         pausePlayBtn.innerHTML = '⏸️ 暫停';
                     });
                     
+                    // 自動啟動動畫 (慢速)
                     writer.animateCharacter();
                 } else {
                     canvasDiv.innerHTML = `<div style="text-align:center; padding-top:40px;">❌ 無筆順資料</div>`;
@@ -590,6 +667,34 @@
                 });
             }
         }
+    }
+    
+    // 重新刷新當前詞的筆順 (速度改變時調用，讓小朋友即時體驗快慢)
+    async function reloadCurrentWordStroke() {
+        if(!isTeaching || !currentTeachingList.length || currentIndex >= currentTeachingList.length) return;
+        const currentWord = currentTeachingList[currentIndex];
+        if(currentWord) {
+            await renderStrokeForWord(currentWord);
+        }
+    }
+    
+    // 速度滑塊 UI 更新 & 即時重繪筆順
+    function initSpeedControl() {
+        const slider = document.getElementById('strokeSpeedSlider');
+        const speedDisplay = document.getElementById('speedValueDisplay');
+        if(!slider) return;
+        // 設定初始值
+        slider.value = currentStrokeSpeed;
+        speedDisplay.innerText = `${currentStrokeSpeed.toFixed(2)} 倍速`;
+        slider.addEventListener('input', (e) => {
+            const newSpeed = parseFloat(e.target.value);
+            currentStrokeSpeed = newSpeed;
+            speedDisplay.innerText = `${newSpeed.toFixed(2)} 倍速`;
+            // 即時重新載入當前詞的筆順動畫 (刷新所有writer)
+            if(isTeaching && document.getElementById('teachingPanel') && !document.getElementById('teachingPanel').classList.contains('hide')) {
+                reloadCurrentWordStroke().catch(err => console.warn("重載筆順錯誤", err));
+            }
+        });
     }
     
     function speakCurrentWord() {
@@ -694,7 +799,6 @@
         renderGroupsList();
     }
     
-    // 新增：一鍵按名稱排序
     function sortGroupsByName() {
         groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
         saveGroupsToLocal();
@@ -753,8 +857,6 @@
                     renderGroupsList();
                 }
             });
-            // 不再添加單獨的上下移動按鈕
-            
             btnWrap.appendChild(nameSpan);
             btnWrap.appendChild(editWordsBtn);
             btnWrap.appendChild(editBtn);
@@ -779,7 +881,7 @@
         renderGroupsList();
     }
     
-    // ---------- 匯出 / 匯入 功能 ----------
+    // 匯出/匯入
     function exportGroupsData() {
         const dataStr = JSON.stringify(groups, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
@@ -819,7 +921,6 @@
         reader.readAsText(file);
     }
     
-    // 鍵盤空格監聽
     function handleKeydown(e) {
         if(e.code === 'Space') {
             e.preventDefault();
@@ -842,11 +943,7 @@
         document.getElementById('completeWordBtn').addEventListener('click', completeCurrentWordAndNext);
         document.getElementById('addGroupBtn').addEventListener('click', addNewGroup);
         document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName);
-        
-        // 匯出按鈕
         document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
-        
-        // 匯入按鈕
         const importFileInput = document.getElementById('importFileInput');
         document.getElementById('importDataBtn').addEventListener('click', () => {
             importFileInput.click();
@@ -858,9 +955,9 @@
                 importFileInput.value = '';
             }
         });
-        
         window.addEventListener('keydown', handleKeydown);
         loadGroupsFromLocal();
+        initSpeedControl();   // 初始化速度條，預設慢速
     }
     
     if (window.speechSynthesis) {
