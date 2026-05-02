@@ -3,54 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>🌿 馮樂欣學英文 🌿 | 開心記句子 + Phonics拼讀 (雲端共享版)</title>
+    <title>🌿 馮樂欣學英文 🌿 | 開心記句子 + Phonics拼讀</title>
     <!-- Google Font & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Firebase SDKs (v9 模組化) -->
-    <script type="module">
-        // 將 Firebase 初始化及核心邏輯以模組方式導入，並掛載到 window 上供內聯腳本使用
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // ========== 🔥 請在此處填入您的 Firebase 專案設定 ==========
-        // 步驟：1. 前往 https://console.firebase.google.com/ 建立專案
-        //       2. 新增 Web App，複製下方的 firebaseConfig
-        //       3. 啟用 Firestore 資料庫 (測試模式即可)
-        //       4. 將以下 config 內容取代為您的專案設定
-        const firebaseConfig = {
-            apiKey: "請填寫您的API_KEY",
-            authDomain: "請填寫您的PROJECT_ID.firebaseapp.com",
-            projectId: "請填寫您的PROJECT_ID",
-            storageBucket: "請填寫您的PROJECT_ID.appspot.com",
-            messagingSenderId: "請填寫您的SENDER_ID",
-            appId: "請填寫您的APP_ID"
-        };
-        // ========================================================
-
-        // 初始化 Firebase (僅初始化一次)
-        let app, db;
-        let firebaseReady = false;
-        let initError = null;
-
-        try {
-            if (firebaseConfig.apiKey !== "請填寫您的API_KEY") {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                firebaseReady = true;
-                console.log("✅ Firebase 已連線，雲端同步功能運作中");
-            } else {
-                initError = "未設定 Firebase 設定檔。請依照說明填入 firebaseConfig 以啟用雲端共享功能。若不設定，將僅使用本機儲存。";
-                console.warn(initError);
-            }
-        } catch (e) {
-            initError = "Firebase 初始化失敗: " + e.message;
-            console.error(initError);
-        }
-
-        // 將關鍵物件暴露給全域，讓傳統腳本可以使用
-        window.__firebase = { firebaseReady, db, doc, getDoc, setDoc, initError };
-    </script>
     <style>
         * {
             margin: 0;
@@ -109,19 +65,6 @@
             color: #1e5631;
             margin-top: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-
-        .sync-status {
-            background: #d4e2c9;
-            font-size: 0.75rem;
-            border-radius: 30px;
-            padding: 4px 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            color: #1f5430;
-            font-weight: 600;
         }
 
         .main-view {
@@ -225,6 +168,7 @@
             font-size: 1rem;
         }
 
+        /* 新增：组内内容预览样式 */
         .group-preview {
             font-size: 0.8rem;
             color: #2e5a2e;
@@ -440,12 +384,6 @@
             font-weight: 600;
         }
 
-        .loading-overlay {
-            display: inline-block;
-            margin-left: 12px;
-            font-size: 0.8rem;
-        }
-
         @media (max-width: 480px) {
             .game-container { border-radius: 40px; }
             .english-word { font-size: 2.2rem; }
@@ -459,9 +397,6 @@
     <div class="header">
         <h1><i class="fas fa-leaf"></i> 馮樂欣學英文 <i class="fas fa-seedling"></i></h1>
         <p>🌱 欣欣學句子 + 拼讀小幫手 🌱</p>
-        <div class="sync-status" id="syncStatusDisplay">
-            <i class="fas fa-cloud-upload-alt"></i> <span id="syncText">雲端同步: 準備中</span>
-        </div>
     </div>
 
     <!-- 输入模式 -->
@@ -478,17 +413,17 @@
 
         <div class="group-buttons-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
-                <span style="font-weight:800; color:#1f662f;"><i class="fas fa-layer-group"></i> 📚 我的句子組 (雲端共享)</span>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span style="font-weight:800; color:#1f662f;"><i class="fas fa-layer-group"></i> 📚 我的句子組 (可編輯)</span>
+                <div style="display: flex; gap: 8px;">
                     <button id="exportDataBtn" class="icon-btn" style="background:#c5e1a5; border-radius:30px; padding:6px 14px;"><i class="fas fa-download"></i> 匯出JSON</button>
-                    <button id="importDataBtn" class="icon-btn" style="background:#c5e1a5; border-radius:30px; padding:6px 14px;"><i class="fas fa-upload"></i> 匯入JSON (並同步雲端)</button>
+                    <button id="importDataBtn" class="icon-btn" style="background:#c5e1a5; border-radius:30px; padding:6px 14px;"><i class="fas fa-upload"></i> 匯入JSON</button>
                     <button id="sortGroupsBtn" class="icon-btn" style="background:#e2f0d9; border-radius:30px; padding:6px 14px;"><i class="fas fa-sort-alpha-down"></i> 排序</button>
                     <button id="resetDefaultGroupsBtn" class="icon-btn" style="background:#e2f0d9; border-radius:30px; padding:6px 14px;"><i class="fas fa-undo-alt"></i> 重置預設</button>
                 </div>
             </div>
             <div id="groupsContainer" class="group-manager" style="margin-top: 12px;"></div>
             <div style="margin-top: 12px; font-size: 13px; color:#1f6020; background:#e2f0da; border-radius:30px; padding:6px 12px;">
-                💡 每個項目可以是單詞、短語或完整句子 (英文) &nbsp;|&nbsp; ☁️ 所有修改自動同步至雲端，每台電腦打開皆為相同資料
+                💡 每個項目可以是單詞、短語或完整句子 (英文) &nbsp;|&nbsp; 📁 匯出/匯入JSON檔案，輕鬆備份
             </div>
         </div>
     </div>
@@ -499,11 +434,13 @@
             <div class="progress" id="progressIndicator">第1 / 3 句</div>
             <div class="flashcard">
                 <div class="english-word" id="currentEnglish">Hello</div>
+                
                 <div class="phonics-area" id="phonicsArea">
                     <span class="phonics-label"><i class="fas fa-puzzle-piece"></i> 拼讀拆解 Phonics</span>
                     <div id="phonicsDisplay" class="phonics-blocks"></div>
                     <div class="tip-phonics">✨ 每個色塊是一個發音小單元，試著拼拼看！</div>
                 </div>
+
                 <div class="chinese-trans" id="currentChinese">你好</div>
             </div>
             <div class="footer-actions">
@@ -517,127 +454,65 @@
         </div>
     </div>
 </div>
+
+<!-- 隐藏的文件选择器，用于导入JSON -->
 <input type="file" id="fileInput" accept=".json,application/json" style="display: none;">
 
 <script>
     (function(){
-        // ---------- 全域變數 ----------
-        let groups = {};               // 記憶體中的資料
-        let isCloudReady = false;     // Firebase 是否可用
-        let saveInProgress = false;   
-        const STORAGE_DOC = "yanyan_word_groups";  // Firestore 文件ID
-        let dbApi = null, docRefFunc = null, getDocFunc = null, setDocFunc = null;
-        
-        // 預設組別
+        // ---------- 全局变量 ----------
+        let groups = {};
+        const STORAGE_KEY = "YanYanWordGroups";
+
         const DEFAULT_GROUPS = {
             "🐶 可愛動物": ["dog", "cat", "rabbit", "butterfly"],
             "💬 日常句子": ["Hello", "How are you?", "I love you", "Good night"],
             "🎉 開心短語": ["Good job", "Well done", "See you later", "Have a nice day"]
         };
 
-        // 同步狀態 UI
-        const syncTextSpan = document.getElementById('syncText');
-        function updateSyncUI(loading = false, msg = null) {
-            if (syncTextSpan) {
-                if (msg) syncTextSpan.innerText = msg;
-                else if (loading) syncTextSpan.innerText = "☁️ 同步中...";
-                else if (isCloudReady) syncTextSpan.innerText = "☁️ 雲端已連線 (自動同步)";
-                else syncTextSpan.innerText = "⚠️ 本機模式 (未設定雲端)";
-            }
-        }
-
-        // 偵測 Firebase 是否已正確初始化 (從 module 注入)
-        function initFirebaseFromWindow() {
-            const fb = window.__firebase;
-            if (fb && fb.firebaseReady && fb.db) {
-                isCloudReady = true;
-                dbApi = fb.db;
-                docRefFunc = fb.doc;
-                getDocFunc = fb.getDoc;
-                setDocFunc = fb.setDoc;
-                updateSyncUI(false, "☁️ 雲端已連線 (自動同步)");
-                return true;
+        // ---------- 数据加载/保存 ----------
+        function loadGroups() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try { groups = JSON.parse(stored); } catch(e){ groups = {...DEFAULT_GROUPS}; }
             } else {
-                isCloudReady = false;
-                let errMsg = (fb && fb.initError) ? fb.initError : "未設定 Firebase";
-                console.warn("雲端功能未啟動:", errMsg);
-                updateSyncUI(false, "⚠️ 本機模式 (未設定雲端)");
-                return false;
+                groups = { ...DEFAULT_GROUPS };
             }
-        }
-
-        // 儲存 groups 到 Firestore (雲端) ＋ 本地備份 (不作 localStorage，完全以雲端為主)
-        async function saveGroupsToCloud() {
-            if (!isCloudReady || !dbApi) {
-                // 沒有雲端就用 localStorage 作為模擬持久（但跨電腦無法共享，維持原先體驗）
-                try { localStorage.setItem("YanYanWordGroups_backup", JSON.stringify(groups)); } catch(e) {}
-                return;
-            }
-            if (saveInProgress) return;
-            saveInProgress = true;
-            updateSyncUI(true);
-            try {
-                const docRef = docRefFunc(dbApi, "sharedData", STORAGE_DOC);
-                await setDocFunc(docRef, { data: groups, lastUpdated: new Date().toISOString() });
-                console.log("☁️ 已同步至雲端");
-                updateSyncUI(false, "☁️ 已同步");
-                setTimeout(() => { if(syncTextSpan && syncTextSpan.innerText === "☁️ 已同步") updateSyncUI(false); }, 1500);
-            } catch (err) {
-                console.error("雲端儲存失敗:", err);
-                updateSyncUI(false, "⚠️ 同步失敗，請檢查網路/Firebase權限");
-            } finally {
-                saveInProgress = false;
-            }
-        }
-
-        // 從雲端載入 groups，若無則使用預設
-        async function loadGroupsFromCloud() {
-            if (!isCloudReady || !dbApi) {
-                // 降級模式：從 localStorage 讀取或預設
-                const stored = localStorage.getItem("YanYanWordGroups_backup");
-                if (stored) {
-                    try { groups = JSON.parse(stored); } catch(e){ groups = {...DEFAULT_GROUPS}; }
-                } else {
-                    groups = {...DEFAULT_GROUPS};
-                }
-                renderGroupButtons();
-                updateSyncUI(false, "⚠️ 本機模式 (無雲端共享)");
-                return;
-            }
-            updateSyncUI(true, "☁️ 載入雲端資料...");
-            try {
-                const docRef = docRefFunc(dbApi, "sharedData", STORAGE_DOC);
-                const docSnap = await getDocFunc(docRef);
-                if (docSnap.exists()) {
-                    const cloudData = docSnap.data().data;
-                    if (cloudData && typeof cloudData === 'object' && Object.keys(cloudData).length > 0) {
-                        groups = cloudData;
-                        console.log("✅ 從雲端載入成功");
-                    } else {
-                        groups = {...DEFAULT_GROUPS};
-                        await saveGroupsToCloud(); // 初始化雲端
-                    }
-                } else {
-                    groups = {...DEFAULT_GROUPS};
-                    await saveGroupsToCloud(); // 上傳預設
-                }
-                renderGroupButtons();
-                updateSyncUI(false, "☁️ 雲端已同步");
-            } catch (err) {
-                console.error("載入雲端失敗，使用預設資料:", err);
-                groups = {...DEFAULT_GROUPS};
-                renderGroupButtons();
-                updateSyncUI(false, "⚠️ 連線雲端失敗，資料僅顯示本地");
-            }
-        }
-
-        // 任何 groups 變動後呼叫 (同步畫面 + 雲端)
-        function syncAfterDataChange() {
             renderGroupButtons();
-            saveGroupsToCloud();   // 自動推送至 Firebase
         }
 
-        // 儲存群組按鈕渲染 (與原版類似但使用 syncAfterDataChange)
+        function saveGroups() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(groups));
+            renderGroupButtons();
+        }
+
+        // 校验英文句子
+        function isValidEnglishSentence(text) {
+            return /^[a-zA-Z\s\-'\.!\?;:]+$/.test(text) && text.trim().length > 0;
+        }
+
+        function parseWordInput(str) {
+            let items = str.split(',').map(item => item.trim());
+            return items.filter(item => item.length > 0 && isValidEnglishSentence(item));
+        }
+
+        function editGroupWords(groupName) {
+            const currentWords = groups[groupName];
+            if (!currentWords) return;
+            const currentStr = currentWords.join(", ");
+            const newWordsStr = prompt(`編輯組別「${groupName}」的英文內容 (用英文逗號分隔):\n可輸入句子如 "How are you?", "I love you"`, currentStr);
+            if (newWordsStr !== null) {
+                let newWords = newWordsStr.split(',').map(w => w.trim()).filter(w => w.length > 0 && isValidEnglishSentence(w));
+                if (newWords.length === 0) {
+                    alert("至少需要一個有效英文句子/單詞！修改無效。");
+                    return;
+                }
+                groups[groupName] = newWords;
+                saveGroups();
+                alert(`✅ 已更新「${groupName}」的內容！`);
+            }
+        }
+
         function renderGroupButtons() {
             const container = document.getElementById("groupsContainer");
             if (!container) return;
@@ -650,111 +525,424 @@
             groupNames.forEach(gName => {
                 const words = groups[gName];
                 const wordCount = words.length;
+                // 生成预览内容：取前3个，超过则加省略号
                 const maxPreview = 3;
                 const previewWords = words.slice(0, maxPreview).join(', ');
                 const previewText = words.length > maxPreview ? previewWords + '…' : previewWords;
+                
                 const groupDiv = document.createElement("div");
                 groupDiv.className = "group-badge";
                 groupDiv.innerHTML = `
-                    <span class="group-name"><i class="fas fa-tag"></i> ${escapeHtml(gName)} (${wordCount})</span>
-                    <span class="group-preview" title="${escapeHtml(words.join(', '))}">${escapeHtml(previewText)}</span>
-                    <button class="icon-btn load-group" data-group="${escapeAttr(gName)}" title="載入句子到輸入框"><i class="fas fa-download"></i> 載入</button>
-                    <button class="icon-btn edit-words-group" data-group="${escapeAttr(gName)}" title="直接編輯句子列表"><i class="fas fa-edit"></i> 編輯</button>
-                    <button class="icon-btn rename-group" data-group="${escapeAttr(gName)}" title="重新命名組別"><i class="fas fa-i-cursor"></i> 改名</button>
-                    <button class="icon-btn delete-group" data-group="${escapeAttr(gName)}" title="刪除整個組別"><i class="fas fa-trash-alt"></i> 刪除</button>
+                    <span class="group-name"><i class="fas fa-tag"></i> ${gName} (${wordCount})</span>
+                    <span class="group-preview" title="${words.join(', ')}">${previewText}</span>
+                    <button class="icon-btn load-group" data-group="${gName.replace(/"/g, '&quot;')}" title="載入句子到輸入框"><i class="fas fa-download"></i> 載入</button>
+                    <button class="icon-btn edit-words-group" data-group="${gName.replace(/"/g, '&quot;')}" title="直接編輯句子列表"><i class="fas fa-edit"></i> 編輯</button>
+                    <button class="icon-btn rename-group" data-group="${gName.replace(/"/g, '&quot;')}" title="重新命名組別"><i class="fas fa-i-cursor"></i> 改名</button>
+                    <button class="icon-btn delete-group" data-group="${gName.replace(/"/g, '&quot;')}" title="刪除整個組別"><i class="fas fa-trash-alt"></i> 刪除</button>
                 `;
                 container.appendChild(groupDiv);
             });
-            attachGroupEvents();
-        }
 
-        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-        function escapeAttr(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-
-        function attachGroupEvents() {
             document.querySelectorAll('.load-group').forEach(btn => {
-                btn.removeEventListener('click', loadGroupHandler);
-                btn.addEventListener('click', loadGroupHandler);
+                btn.addEventListener('click', () => {
+                    const groupName = btn.getAttribute('data-group');
+                    if (groups[groupName]) {
+                        document.getElementById('wordInput').value = groups[groupName].join(', ');
+                    }
+                });
             });
             document.querySelectorAll('.edit-words-group').forEach(btn => {
-                btn.removeEventListener('click', editGroupHandler);
-                btn.addEventListener('click', editGroupHandler);
+                btn.addEventListener('click', () => editGroupWords(btn.getAttribute('data-group')));
             });
             document.querySelectorAll('.rename-group').forEach(btn => {
-                btn.removeEventListener('click', renameGroupHandler);
-                btn.addEventListener('click', renameGroupHandler);
+                btn.addEventListener('click', () => {
+                    const oldName = btn.getAttribute('data-group');
+                    const newName = prompt("輸入新組別名稱", oldName);
+                    if (newName && newName !== oldName && !groups[newName]) {
+                        groups[newName] = groups[oldName];
+                        delete groups[oldName];
+                        saveGroups();
+                    } else if (newName === oldName) { }
+                    else if (groups[newName]) { alert("名稱已存在，請用另一個名字～"); }
+                });
             });
             document.querySelectorAll('.delete-group').forEach(btn => {
-                btn.removeEventListener('click', deleteGroupHandler);
-                btn.addEventListener('click', deleteGroupHandler);
+                btn.addEventListener('click', () => {
+                    const groupName = btn.getAttribute('data-group');
+                    if (confirm(`確定要刪除「${groupName}」組別嗎？`)) {
+                        delete groups[groupName];
+                        saveGroups();
+                    }
+                });
             });
         }
-        function loadGroupHandler(e) { const groupName = e.currentTarget.getAttribute('data-group'); if(groups[groupName]) document.getElementById('wordInput').value = groups[groupName].join(', '); }
-        function editGroupHandler(e) { const groupName = e.currentTarget.getAttribute('data-group'); editGroupWords(groupName); }
-        function renameGroupHandler(e) { const oldName = e.currentTarget.getAttribute('data-group'); const newName = prompt("輸入新組別名稱", oldName); if(newName && newName !== oldName && !groups[newName]) { groups[newName] = groups[oldName]; delete groups[oldName]; syncAfterDataChange(); } else if(groups[newName]) alert("名稱已存在"); }
-        function deleteGroupHandler(e) { const groupName = e.currentTarget.getAttribute('data-group'); if(confirm(`確定要刪除「${groupName}」組別嗎？`)) { delete groups[groupName]; syncAfterDataChange(); } }
 
-        function editGroupWords(groupName) {
-            const currentWords = groups[groupName];
-            if (!currentWords) return;
-            const newWordsStr = prompt(`編輯組別「${groupName}」的英文內容 (用英文逗號分隔):\n可輸入句子如 "How are you?", "I love you"`, currentWords.join(", "));
-            if (newWordsStr !== null) {
-                let newWords = newWordsStr.split(',').map(w => w.trim()).filter(w => w.length > 0 && isValidEnglishSentence(w));
-                if (newWords.length === 0) { alert("至少需要一個有效英文句子/單詞！修改無效。"); return; }
-                groups[groupName] = newWords;
-                syncAfterDataChange();
-                alert(`✅ 已更新「${groupName}」的內容！`);
-            }
+        function resetToDefaultGroups() {
+            groups = { ...DEFAULT_GROUPS };
+            saveGroups();
+            alert("已重置預設句子組 🌿");
         }
 
-        function isValidEnglishSentence(text) { return /^[a-zA-Z\s\-'\.!\?;:]+$/.test(text) && text.trim().length > 0; }
-        function parseWordInput(str) { return str.split(',').map(item => item.trim()).filter(item => item.length > 0 && isValidEnglishSentence(item)); }
+        // 按名称排序
+        function sortGroupsByName() {
+            const sortedKeys = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+            const newGroups = {};
+            sortedKeys.forEach(key => { newGroups[key] = groups[key]; });
+            groups = newGroups;
+            saveGroups();
+        }
+
+        // 导出为 JSON 文件 (下载)
+        function exportGroupsData() {
+            const jsonStr = JSON.stringify(groups, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `yanyan_words_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 导入：通过文件选择器读取 JSON 文件
+        function importGroupsData() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.onchange = null;
+            fileInput.value = '';
+            
+            fileInput.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        const imported = JSON.parse(content);
+                        
+                        if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error('JSON 根必須是物件');
+                        for (let key in imported) {
+                            if (!Array.isArray(imported[key])) throw new Error(`組「${key}」不是陣列`);
+                            for (let item of imported[key]) {
+                                if (typeof item !== 'string' || !isValidEnglishSentence(item)) {
+                                    throw new Error(`「${key}」內含無效英文: ${item}`);
+                                }
+                            }
+                        }
+                        if (Object.keys(imported).length === 0) {
+                            alert('匯入的檔案沒有組別。');
+                            return;
+                        }
+                        
+                        if (confirm(`即將覆蓋現有 ${Object.keys(groups).length} 個組別，確定匯入嗎？`)) {
+                            groups = imported;
+                            saveGroups();
+                            alert('✅ 匯入成功！所有詞組已更新。');
+                        }
+                    } catch(err) {
+                        alert('❌ 匯入失敗：' + err.message);
+                    }
+                    fileInput.value = '';
+                };
+                reader.readAsText(file);
+            };
+            
+            fileInput.click();
+        }
 
         function addCurrentWordsAsGroup() {
             let rawWords = document.getElementById('wordInput').value;
             let wordsArray = parseWordInput(rawWords);
-            if (wordsArray.length === 0) { alert("請至少輸入一個英文句子/單詞～ (用逗號分隔)"); return; }
+            if (wordsArray.length === 0) {
+                alert("請至少輸入一個英文句子/單詞～ (用逗號分隔)");
+                return;
+            }
             let groupName = prompt("請輸入新組別名稱", "欣欣組");
             if (groupName) {
-                if (groups[groupName] && !confirm("組別名稱已存在，是否覆蓋？")) return;
-                groups[groupName] = wordsArray;
-                syncAfterDataChange();
+                if (groups[groupName]) {
+                    if (confirm("組別名稱已存在，是否覆蓋？")) {
+                        groups[groupName] = wordsArray;
+                        saveGroups();
+                    }
+                } else {
+                    groups[groupName] = wordsArray;
+                    saveGroups();
+                }
             }
         }
 
-        function resetToDefaultGroups() { groups = { ...DEFAULT_GROUPS }; syncAfterDataChange(); alert("已重置預設句子組 🌿"); }
-        function sortGroupsByName() { const sortedKeys = Object.keys(groups).sort((a,b)=>a.localeCompare(b,'zh-Hant')); const newGroups={}; sortedKeys.forEach(k=>{newGroups[k]=groups[k];}); groups=newGroups; syncAfterDataChange(); }
-        function exportGroupsData() { const jsonStr = JSON.stringify(groups, null, 2); const blob = new Blob([jsonStr], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `yanyan_words_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); }
-        function importGroupsData() { const fileInput = document.getElementById('fileInput'); fileInput.onchange = null; fileInput.value=''; fileInput.onchange = function(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const imported = JSON.parse(e.target.result); if(typeof imported !== 'object' || Array.isArray(imported)) throw new Error('需為物件格式'); for(let key in imported) if(!Array.isArray(imported[key])) throw new Error(`組「${key}」格式錯誤`); if(Object.keys(imported).length===0) alert('無內容'); else { groups = imported; syncAfterDataChange(); alert('✅ 匯入成功並同步至雲端！'); } } catch(err){ alert('匯入失敗:'+err.message); } }; reader.readAsText(file); }; fileInput.click(); }
+        // ---------- 翻译 API ----------
+        async function translateToTraditional(sentence) {
+            try {
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=en|zh-TW`;
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data?.responseData?.translatedText) {
+                    let translation = data.responseData.translatedText;
+                    if (translation.toLowerCase() === sentence.toLowerCase()) return sentence;
+                    return translation;
+                }
+                return sentence;
+            } catch { return sentence; }
+        }
 
-        // ----------------- 翻譯 & 語音 & 訓練邏輯 (保持原樣) -----------------
-        async function translateToTraditional(sentence) { try { const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=en|zh-TW`; const resp = await fetch(url); const data = await resp.json(); if(data?.responseData?.translatedText) { let t = data.responseData.translatedText; if(t.toLowerCase()===sentence.toLowerCase()) return sentence; return t; } return sentence; } catch { return sentence; } }
-        async function batchTranslate(wordsArray) { return await Promise.all(wordsArray.map(async eng => ({ eng, chinese: await translateToTraditional(eng) }))); }
-        const phonicsPatterns = ['igh','ough','eigh','au','aw','ea','ee','oa','oo','ou','ow','oy','oi','ai','ay','ey','ie','ue','ui','ch','sh','th','wh','ph','ng','ck','dge','tch','kn','wr','mb','gn','qu','ar','er','ir','or','ur'].sort((a,b)=>b.length-a.length);
-        function splitWordToPhonics(word){ if(!word) return []; let lower=word.toLowerCase(), chunks=[], i=0; while(i<lower.length){ let matched=false; for(let p of phonicsPatterns){ if(lower.substr(i,p.length)===p){ chunks.push(word.substr(i,p.length)); i+=p.length; matched=true; break; } } if(!matched){ chunks.push(word.charAt(i)); i++; } } return chunks; }
-        function tokenizeSentence(sentence){ const regex=/([a-zA-Z]+(?:'[a-zA-Z]+)?)|([.,!?;:])|(\s+)/g; let tokens=[], match; while((match=regex.exec(sentence))!==null){ if(match[1]) tokens.push({type:'word', text:match[1]}); else if(match[2]) tokens.push({type:'punct', text:match[2]}); else if(match[3]) tokens.push({type:'space', text:match[3]}); } return tokens; }
-        function renderPhonicsForSentence(englishSentence){ const div=document.getElementById('phonicsDisplay'); if(!div) return; div.innerHTML=''; const tokens=tokenizeSentence(englishSentence); tokens.forEach(token=>{ if(token.type==='word'){ const groupSpan=document.createElement('span'); groupSpan.className='word-phonics-group'; splitWordToPhonics(token.text).forEach(chunk=>{ const cs=document.createElement('span'); cs.className='phonics-chunk'; cs.textContent=chunk; groupSpan.appendChild(cs); }); div.appendChild(groupSpan); } else if(token.type==='punct'){ const ps=document.createElement('span'); ps.className='punc-space'; ps.textContent=token.text; div.appendChild(ps); } else if(token.type==='space'){ const sp=document.createElement('span'); sp.style.width='10px'; sp.style.display='inline-block'; div.appendChild(sp); } }); if(div.children.length===0) div.innerHTML='<span>✨ 試試看拼讀吧 ✨</span>'; }
-        let speechSynth=window.speechSynthesis, currentUtterance=null; function stopSpeaking(){ if(speechSynth.speaking||speechSynth.pending) speechSynth.cancel(); }
-        function speakEnglish(text){ return new Promise((resolve)=>{ stopSpeaking(); const u=new SpeechSynthesisUtterance(text); u.lang='en-GB'; u.rate=0.9; u.onend=resolve; u.onerror=resolve; speechSynth.speak(u); currentUtterance=u; }); }
-        function speakCantonese(text){ return new Promise((resolve)=>{ const u=new SpeechSynthesisUtterance(text); u.lang='zh-HK'; u.rate=0.9; u.onend=resolve; u.onerror=resolve; speechSynth.speak(u); currentUtterance=u; }); }
-        async function speakEnglishThenCantonese(eng,chi){ stopSpeaking(); await speakEnglish(eng); await new Promise(r=>setTimeout(r,250)); await speakCantonese(chi); }
-        async function speakEncouragement(){ stopSpeaking(); await speakCantonese("欣欣叻叻"); }
-        async function speakFinalPraise(){ stopSpeaking(); await speakCantonese("欣欣好叻，爸爸媽媽哥哥愛欣欣!"); }
-        let trainingWords=[], currentWordIndex=0, isProcessingNext=false, originalInputText="";
-        const inputView=document.getElementById('inputView'), trainingView=document.getElementById('trainingView'), wordInputArea=document.getElementById('wordInput'), currentEnglishSpan=document.getElementById('currentEnglish'), currentChineseSpan=document.getElementById('currentChinese'), progressIndicator=document.getElementById('progressIndicator');
-        function showEncouragementBanner(eng){ const old=document.querySelector('.popup-banner'); if(old) old.remove(); const banner=document.createElement('div'); banner.className='popup-banner'; banner.innerHTML=`<span>🎉 欣欣叻叻 🎉</span><span style="font-size:1.6rem;">✨ ${eng} ✨</span>`; document.body.appendChild(banner); setTimeout(()=>{ if(banner) banner.remove(); },2500); return banner; }
-        function showRainbowBannerAndFinish(){ const old=document.querySelector('.popup-banner'); if(old) old.remove(); const rainbowDiv=document.createElement('div'); rainbowDiv.className='popup-banner rainbow-banner'; rainbowDiv.innerHTML=`<span>🌈 欣欣好叻 🌈</span><span>❤️ 爸爸媽媽哥哥愛欣欣 ❤️</span>`; document.body.appendChild(rainbowDiv); speakFinalPraise().finally(()=>{ setTimeout(()=>{ if(rainbowDiv) rainbowDiv.remove(); exitToInputMode(); },1000); }); }
-        function exitToInputMode(){ stopSpeaking(); trainingView.style.display='none'; inputView.style.display='block'; if(originalInputText!==undefined) wordInputArea.value=originalInputText; isProcessingNext=false; currentWordIndex=0; trainingWords=[]; document.querySelectorAll('.popup-banner').forEach(b=>b.remove()); }
-        function loadCurrentCard(){ if(!trainingWords.length) return; const word=trainingWords[currentWordIndex]; currentEnglishSpan.innerText=word.eng; currentChineseSpan.innerText=word.chinese; progressIndicator.innerText=`第 ${currentWordIndex+1} / ${trainingWords.length} 句 🌟`; renderPhonicsForSentence(word.eng); }
-        async function proceedToNextWord(){ if(isProcessingNext||!trainingWords.length) return; const banner=showEncouragementBanner(trainingWords[currentWordIndex].eng); isProcessingNext=true; try{ await speakEncouragement(); }catch(e){} await new Promise(r=>setTimeout(r,400)); if(banner) banner.remove(); if(currentWordIndex+1>=trainingWords.length){ await new Promise(r=>setTimeout(r,100)); showRainbowBannerAndFinish(); isProcessingNext=false; }else{ currentWordIndex++; loadCurrentCard(); isProcessingNext=false; } }
-        async function startTraining(){ const raw=wordInputArea.value.trim(); if(!raw){ alert("請輸入英文句子～"); return; } const wordsEng=parseWordInput(raw); if(wordsEng.length===0){ alert("請輸入有效英文句子"); return; } originalInputText=raw; const startBtn=document.getElementById('startTrainBtn'); startBtn.disabled=true; startBtn.innerText="✨ 翻譯中 ✨"; let translatedList; try{ translatedList=await batchTranslate(wordsEng); }catch{ translatedList=wordsEng.map(w=>({eng:w, chinese:w})); } trainingWords=translatedList; currentWordIndex=0; inputView.style.display='none'; trainingView.style.display='block'; loadCurrentCard(); startBtn.disabled=false; startBtn.innerText="開始學習 ✨"; isProcessingNext=false; }
-        async function repeatCurrentPronunciation(){ if(trainingWords.length) await speakEnglishThenCantonese(trainingWords[currentWordIndex].eng, trainingWords[currentWordIndex].chinese); }
-        function onSpacePress(e){ if(e.code==='Space' && trainingView.style.display==='block'){ e.preventDefault(); repeatCurrentPronunciation(); } }
+        async function batchTranslate(wordsArray) {
+            const translationPromises = wordsArray.map(async (eng) => {
+                const chinese = await translateToTraditional(eng);
+                return { eng, chinese };
+            });
+            return await Promise.all(translationPromises);
+        }
 
-        // 主入口
-        window.addEventListener('DOMContentLoaded', async () => {
-            initFirebaseFromWindow();
-            await loadGroupsFromCloud();   // 從雲端或本地載入
+        // ---------- PHONICS 拆分 ----------
+        const phonicsPatterns = [
+            'igh', 'ough', 'eigh', 'au', 'aw', 'ea', 'ee', 'oa', 'oo', 'ou', 'ow', 'oy', 'oi',
+            'ai', 'ay', 'ey', 'ie', 'ue', 'ui', 'ch', 'sh', 'th', 'wh', 'ph', 'ng', 'ck', 'dge',
+            'tch', 'kn', 'wr', 'mb', 'gn', 'qu', 'ar', 'er', 'ir', 'or', 'ur'
+        ].sort((a,b) => b.length - a.length);
+
+        function splitWordToPhonics(word) {
+            if (!word) return [];
+            let lower = word.toLowerCase();
+            let chunks = [];
+            let i = 0;
+            while (i < lower.length) {
+                let matched = false;
+                for (let pattern of phonicsPatterns) {
+                    if (lower.substr(i, pattern.length) === pattern) {
+                        chunks.push(word.substr(i, pattern.length));
+                        i += pattern.length;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    chunks.push(word.charAt(i));
+                    i++;
+                }
+            }
+            return chunks;
+        }
+
+        function tokenizeSentence(sentence) {
+            const regex = /([a-zA-Z]+(?:'[a-zA-Z]+)?)|([.,!?;:])|(\s+)/g;
+            let tokens = [];
+            let match;
+            while ((match = regex.exec(sentence)) !== null) {
+                if (match[1]) tokens.push({ type: 'word', text: match[1] });
+                else if (match[2]) tokens.push({ type: 'punct', text: match[2] });
+                else if (match[3]) tokens.push({ type: 'space', text: match[3] });
+            }
+            return tokens;
+        }
+
+        function renderPhonicsForSentence(englishSentence) {
+            const displayDiv = document.getElementById('phonicsDisplay');
+            if (!displayDiv) return;
+            displayDiv.innerHTML = '';
+            const tokens = tokenizeSentence(englishSentence);
+            tokens.forEach(token => {
+                if (token.type === 'word') {
+                    const chunks = splitWordToPhonics(token.text);
+                    const groupSpan = document.createElement('span');
+                    groupSpan.className = 'word-phonics-group';
+                    chunks.forEach(chunk => {
+                        const chunkSpan = document.createElement('span');
+                        chunkSpan.className = 'phonics-chunk';
+                        chunkSpan.textContent = chunk;
+                        groupSpan.appendChild(chunkSpan);
+                    });
+                    displayDiv.appendChild(groupSpan);
+                } else if (token.type === 'punct') {
+                    const punctSpan = document.createElement('span');
+                    punctSpan.className = 'punc-space';
+                    punctSpan.textContent = token.text;
+                    punctSpan.style.fontSize = '2rem';
+                    displayDiv.appendChild(punctSpan);
+                } else if (token.type === 'space') {
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.style.width = '10px';
+                    spaceSpan.style.display = 'inline-block';
+                    displayDiv.appendChild(spaceSpan);
+                }
+            });
+            if (displayDiv.children.length === 0) {
+                displayDiv.innerHTML = '<span style="color:#2e6b2e;">✨ 試試看拼讀吧 ✨</span>';
+            }
+        }
+
+        // ---------- 语音 ----------
+        let speechSynth = window.speechSynthesis;
+        let currentUtterance = null;
+
+        function stopSpeaking() {
+            if (speechSynth.speaking || speechSynth.pending) speechSynth.cancel();
+        }
+
+        function speakEnglish(text) {
+            return new Promise((resolve) => {
+                stopSpeaking();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-GB';
+                utterance.rate = 0.9;
+                utterance.onend = resolve;
+                utterance.onerror = resolve;
+                speechSynth.speak(utterance);
+                currentUtterance = utterance;
+            });
+        }
+
+        function speakCantonese(text) {
+            return new Promise((resolve) => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-HK';
+                utterance.rate = 0.9;
+                utterance.onend = resolve;
+                utterance.onerror = resolve;
+                speechSynth.speak(utterance);
+                currentUtterance = utterance;
+            });
+        }
+
+        async function speakEnglishThenCantonese(eng, chi) {
+            stopSpeaking();
+            await speakEnglish(eng);
+            await new Promise(r => setTimeout(r, 250));
+            await speakCantonese(chi);
+        }
+
+        async function speakEncouragement() {
+            stopSpeaking();
+            await speakCantonese("欣欣叻叻");
+        }
+
+        async function speakFinalPraise() {
+            stopSpeaking();
+            await speakCantonese("欣欣好叻，爸爸媽媽哥哥愛欣欣!");
+        }
+
+        // 训练状态
+        let trainingWords = [];
+        let currentWordIndex = 0;
+        let isProcessingNext = false;
+        let originalInputText = "";
+
+        const inputView = document.getElementById('inputView');
+        const trainingView = document.getElementById('trainingView');
+        const wordInputArea = document.getElementById('wordInput');
+        const currentEnglishSpan = document.getElementById('currentEnglish');
+        const currentChineseSpan = document.getElementById('currentChinese');
+        const progressIndicator = document.getElementById('progressIndicator');
+
+        function showEncouragementBanner(englishWord) {
+            const oldBanner = document.querySelector('.popup-banner');
+            if(oldBanner) oldBanner.remove();
+            const banner = document.createElement('div');
+            banner.className = 'popup-banner';
+            banner.innerHTML = `<span>🎉 欣欣叻叻 🎉</span><span style="font-size:1.6rem;">✨ ${englishWord} ✨</span>`;
+            document.body.appendChild(banner);
+            setTimeout(() => { if(banner) banner.remove(); }, 2500);
+            return banner;
+        }
+
+        function showRainbowBannerAndFinish() {
+            const oldBanner = document.querySelector('.popup-banner');
+            if(oldBanner) oldBanner.remove();
+            const rainbowDiv = document.createElement('div');
+            rainbowDiv.className = 'popup-banner rainbow-banner';
+            rainbowDiv.innerHTML = `<span>🌈 欣欣好叻 🌈</span><span>❤️ 爸爸媽媽哥哥愛欣欣 ❤️</span>`;
+            document.body.appendChild(rainbowDiv);
+            speakFinalPraise().finally(() => {
+                setTimeout(() => {
+                    if(rainbowDiv) rainbowDiv.remove();
+                    exitToInputMode();
+                }, 1000);
+            });
+        }
+
+        function exitToInputMode() {
+            stopSpeaking();
+            trainingView.style.display = 'none';
+            inputView.style.display = 'block';
+            if (originalInputText !== undefined) wordInputArea.value = originalInputText;
+            isProcessingNext = false;
+            currentWordIndex = 0;
+            trainingWords = [];
+            document.querySelectorAll('.popup-banner').forEach(b => b.remove());
+        }
+
+        function loadCurrentCard() {
+            if (!trainingWords.length) return;
+            const word = trainingWords[currentWordIndex];
+            currentEnglishSpan.innerText = word.eng;
+            currentChineseSpan.innerText = word.chinese;
+            progressIndicator.innerText = `第 ${currentWordIndex+1} / ${trainingWords.length} 句 🌟`;
+            renderPhonicsForSentence(word.eng);
+        }
+
+        async function proceedToNextWord() {
+            if (isProcessingNext) return;
+            if (!trainingWords.length) return;
+            const currentWordObj = trainingWords[currentWordIndex];
+            const banner = showEncouragementBanner(currentWordObj.eng);
+            isProcessingNext = true;
+            try { await speakEncouragement(); } catch(e) {}
+            await new Promise(r => setTimeout(r, 400));
+            if(banner) banner.remove();
+            const isLast = (currentWordIndex + 1 >= trainingWords.length);
+            if (isLast) {
+                await new Promise(r => setTimeout(r, 100));
+                showRainbowBannerAndFinish();
+                isProcessingNext = false;
+                return;
+            } else {
+                currentWordIndex++;
+                loadCurrentCard();
+                isProcessingNext = false;
+            }
+        }
+
+        async function startTraining() {
+            const rawInput = wordInputArea.value.trim();
+            if (!rawInput) { alert("請輸入英文句子（用逗號分隔）或點選組別～ 💖"); return; }
+            const wordsEng = parseWordInput(rawInput);
+            if (wordsEng.length === 0) { alert("請輸入有效英文句子"); return; }
+            originalInputText = rawInput;
+            const startBtn = document.getElementById('startTrainBtn');
+            startBtn.disabled = true;
+            startBtn.innerText = "✨ 翻譯中 ✨";
+            let translatedList = [];
+            try { translatedList = await batchTranslate(wordsEng); } 
+            catch { translatedList = wordsEng.map(w => ({ eng: w, chinese: w })); }
+            trainingWords = translatedList;
+            currentWordIndex = 0;
+            inputView.style.display = 'none';
+            trainingView.style.display = 'block';
+            loadCurrentCard();
+            startBtn.disabled = false;
+            startBtn.innerText = "開始學習 ✨";
+            isProcessingNext = false;
+        }
+
+        async function repeatCurrentPronunciation() {
+            if (!trainingWords.length) return;
+            const word = trainingWords[currentWordIndex];
+            await speakEnglishThenCantonese(word.eng, word.chinese);
+        }
+
+        function onSpacePress(e) {
+            if (e.code === 'Space' && trainingView.style.display === 'block') {
+                e.preventDefault();
+                repeatCurrentPronunciation();
+            }
+        }
+
+        // ----- 绑定事件 & 初始化 -----
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGroups();
+
             document.getElementById('startTrainBtn').addEventListener('click', startTraining);
             document.getElementById('saveGroupBtn').addEventListener('click', addCurrentWordsAsGroup);
             document.getElementById('resetDefaultGroupsBtn').addEventListener('click', resetToDefaultGroups);
@@ -762,10 +950,14 @@
             document.getElementById('importDataBtn').addEventListener('click', importGroupsData);
             document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName);
             document.getElementById('repeatSoundBtn').addEventListener('click', repeatCurrentPronunciation);
-            document.getElementById('nextWordBtn').addEventListener('click', ()=>{ if(trainingView.style.display==='block' && !isProcessingNext && trainingWords.length) proceedToNextWord(); });
-            document.getElementById('backToListBtn').addEventListener('click', ()=>{ if(trainingView.style.display==='block' && confirm("返回會中斷學習")) exitToInputMode(); });
+            document.getElementById('nextWordBtn').addEventListener('click', () => {
+                if (trainingView.style.display === 'block' && !isProcessingNext && trainingWords.length) proceedToNextWord();
+            });
+            document.getElementById('backToListBtn').addEventListener('click', () => {
+                if (trainingView.style.display === 'block' && confirm("返回會中斷學習，確定嗎？")) exitToInputMode();
+            });
             window.addEventListener('keydown', onSpacePress);
-            window.addEventListener('beforeunload', ()=>{ if(speechSynth) speechSynth.cancel(); });
+            window.addEventListener('beforeunload', () => { if(speechSynth) speechSynth.cancel(); });
         });
     })();
 </script>
