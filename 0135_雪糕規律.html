@@ -24,6 +24,11 @@
             box-shadow: inset -3px -3px rgba(0,0,0,0.1), 2px 2px 5px rgba(0,0,0,0.05);
         }
 
+        /* 為白色球加邊框，提升可見度 */
+        .scoop-white {
+            border: 2px solid #d0d0d0;
+        }
+
         .cone {
             width: 0;
             height: 0;
@@ -168,25 +173,24 @@
     </div>
 
     <script>
+        // 僅使用紅、黃、黑、白四色，提升螢幕對比度
         const colors = {
-            red: '#ff6b6b',    // 草莓
-            yellow: '#ffd43b', // 芒果 (加深一點點)
-            brown: '#8b4513',  // 巧克力
-            pink: '#ffacb7',   // 櫻桃 (更鮮艷)
-            green: '#40c057',  // 薄荷 (更鮮艷)
-            orange: '#fd7e14', // 橘子
-            purple: '#7950f2'  // 葡萄 (更明顯)
+            red: '#ff4444',
+            yellow: '#ffcc00',
+            black: '#222222',
+            white: '#ffffff'
         };
 
+        // 關卡設計：全部採用上述四種顏色，保持原有的單球／雙球結構
         const levels = [
-            { sequence: ['red', 'yellow', 'red', 'yellow', 'red', 'yellow', 'red', 'yellow'], answer: 'red', options: ['red', 'yellow', 'brown'] },
-            { sequence: ['brown', 'pink', 'brown', 'pink', 'brown', 'pink', 'brown', 'pink'], answer: 'brown', options: ['pink', 'brown', 'green'] },
-            { sequence: ['green', 'pink', 'pink', 'green', 'pink', 'pink', 'green', 'pink'], answer: 'pink', options: ['green', 'pink', 'red'] },
-            { sequence: ['red', 'yellow', 'brown', 'red', 'yellow', 'brown', 'red', 'yellow'], answer: 'brown', options: ['red', 'yellow', 'brown'] },
-            { sequence: ['orange', 'orange', 'purple', 'orange', 'orange', 'purple', 'orange', 'orange'], answer: 'purple', options: ['orange', 'purple', 'pink'] },
-            { sequence: ['purple', 'green', 'pink', 'purple', 'green', 'pink', 'purple', 'green'], answer: 'pink', options: ['purple', 'green', 'pink'] },
-            { isDouble: true, sequence: [['red', 'yellow'], ['pink', 'pink'], ['red', 'yellow'], ['pink', 'pink'], ['red', 'yellow'], ['pink', 'pink'], ['red', 'yellow'], ['pink', 'pink']], answer: ['red', 'yellow'], options: [['red', 'yellow'], ['pink', 'pink'], ['yellow', 'red']] },
-            { isDouble: true, sequence: [['brown', 'red'], ['orange', 'yellow'], ['brown', 'red'], ['orange', 'yellow'], ['brown', 'red'], ['orange', 'yellow'], ['brown', 'red'], ['orange', 'yellow']], answer: ['brown', 'red'], options: [['brown', 'red'], ['orange', 'yellow'], ['red', 'brown']] }
+            { sequence: ['red', 'yellow', 'red', 'yellow', 'red', 'yellow', 'red', 'yellow'], answer: 'red', options: ['red', 'yellow', 'black'] },
+            { sequence: ['black', 'white', 'black', 'white', 'black', 'white', 'black', 'white'], answer: 'black', options: ['white', 'black', 'red'] },
+            { sequence: ['red', 'yellow', 'black', 'red', 'yellow', 'black', 'red', 'yellow'], answer: 'black', options: ['red', 'yellow', 'black'] },
+            { sequence: ['red', 'red', 'yellow', 'red', 'red', 'yellow', 'red', 'red'], answer: 'yellow', options: ['red', 'yellow', 'black'] },
+            { sequence: ['white', 'white', 'black', 'white', 'white', 'black', 'white', 'white'], answer: 'black', options: ['white', 'black', 'yellow'] },
+            { isDouble: true, sequence: [['red', 'yellow'], ['black', 'white'], ['red', 'yellow'], ['black', 'white'], ['red', 'yellow'], ['black', 'white'], ['red', 'yellow'], ['black', 'white']], answer: ['red', 'yellow'], options: [['red', 'yellow'], ['black', 'white'], ['yellow', 'red']] },
+            { isDouble: true, sequence: [['black', 'red'], ['white', 'yellow'], ['black', 'red'], ['white', 'yellow'], ['black', 'red'], ['white', 'yellow'], ['black', 'red'], ['white', 'yellow']], answer: ['black', 'red'], options: [['black', 'red'], ['white', 'yellow'], ['red', 'black']] },
+            { sequence: ['yellow', 'yellow', 'red', 'yellow', 'yellow', 'red', 'yellow', 'yellow'], answer: 'red', options: ['yellow', 'red', 'white'] }
         ];
 
         let currentLevelIndex = 0;
@@ -231,6 +235,7 @@
                 colorData.forEach((c, index) => {
                     const scoop = document.createElement('div');
                     scoop.className = 'ice-cream-scoop';
+                    if (c === 'white') scoop.classList.add('scoop-white');
                     scoop.style.backgroundColor = colors[c] || c;
                     scoop.style.zIndex = 10 - index;
                     if (index > 0) scoop.style.marginTop = '-32px'; // 配合加大尺寸的重疊
@@ -239,6 +244,7 @@
             } else {
                 const scoop = document.createElement('div');
                 scoop.className = 'ice-cream-scoop';
+                if (colorData === 'white') scoop.classList.add('scoop-white');
                 scoop.style.backgroundColor = colors[colorData] || colorData;
                 container.appendChild(scoop);
             }

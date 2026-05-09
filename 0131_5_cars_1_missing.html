@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
-  <title>數字小火車 🚂 5卡 · 拖放填數字</title>
+  <title>數字小火車 🚂 5卡 · 點擊填數字</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -71,12 +71,8 @@
 
     .carriage.missing {
       background: #ffeaa7 !important; color: #d63031;
-      border: 3px dashed #e17055; cursor: pointer;
+      border: 3px dashed #e17055;
       animation: gentlePulse 2s infinite;
-    }
-    .carriage.missing.drop-target {
-      border-color: #0984e3; background: #dfe6e9 !important;
-      transform: scale(1.05); box-shadow: 0 0 18px #74b9ff;
     }
     .carriage.correct-reveal { background: #2ed573 !important; border-color: #1db954 !important; color: white !important; }
     .carriage.wrong-flash { animation: shakeCarriage 0.5s; background: #ff7675 !important; }
@@ -96,13 +92,12 @@
       background: #fff; border: 3px solid #b2bec3;
       font-size: 2rem; font-weight: 800; color: #2d3436;
       display: flex; align-items: center; justify-content: center;
-      cursor: grab; user-select: none;
+      cursor: pointer; user-select: none;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: all 0.15s; touch-action: none;
+      transition: all 0.15s;
     }
-    .num-card:active { cursor: grabbing; }
+    .num-card:active { transform: scale(0.95); }
     .num-card.used { opacity: 0.3; pointer-events: none; cursor: default; border-color: #ccc; }
-    .num-card.dragging { opacity: 0.7; transform: scale(1.1); border-color: #0984e3; }
 
     .hint-banner {
       display: inline-block; background: #fff3cd; border: 2px solid #ffc107;
@@ -143,7 +138,7 @@
 
 <div class="game-container" id="gameContainer">
   <div class="title">🚂 數字小火車 🚂</div>
-  <div class="subtitle">5卡車廂 · 將數字拉去 ❓ 車廂啦！</div>
+  <div class="subtitle">5卡車廂 · 點擊數字卡片填落 ❓ 車廂啦！</div>
 
   <div class="stats-bar">
     <div class="stat-item"><span>⭐</span> 完成：<span class="stat-value" id="scoreDisplay">0</span> 題</div>
@@ -172,11 +167,11 @@
   const state = {
     score: 0,
     totalAttempts: 0,
-    numbers: [],           // 完整5個數字
-    missingIndices: [],    // 只有1個缺失位置
-    userAnswers: {},       // { index: value }
-    correctSet: new Set(), // 正確答案集合（只有1個）
-    cardPool: [],          // 當前可拖放的數字（1個正確 + 2~3個干擾）
+    numbers: [],
+    missingIndices: [],
+    userAnswers: {},
+    correctSet: new Set(),
+    cardPool: [],
     ruleDescription: '',
     gameCompleted: false,
     ruleTypes: [
@@ -229,7 +224,6 @@
     state.numbers = nums;
     state.ruleDescription = rule.label;
 
-    // 只有一個缺失數字
     const missingIdx = rand(0, 4);
     state.missingIndices = [missingIdx];
     state.userAnswers = {};
@@ -238,7 +232,6 @@
     const correctAnswer = nums[missingIdx];
     state.correctSet = new Set([correctAnswer]);
 
-    // 生成2~3個干擾數字
     const distractors = [];
     while (distractors.length < 3) {
       const offset = rand(-4, 4);
@@ -248,7 +241,6 @@
         distractors.push(candidate);
       }
     }
-    // 如果怎樣都湊不齊，用fallback
     while (distractors.length < 3) {
       let fb = rand(1, 100);
       if (!state.correctSet.has(fb) && !distractors.includes(fb)) distractors.push(fb);
@@ -259,8 +251,7 @@
 
   function renderTrain() {
     trainArea.querySelectorAll('.carriage-wrapper,.hook').forEach(e=>e.remove());
-    const track = trainArea.querySelector('.train-track');
-    if (!track) {
+    if (!trainArea.querySelector('.train-track')) {
       const t = document.createElement('div'); t.className='train-track'; trainArea.appendChild(t);
     }
 
@@ -282,19 +273,12 @@
         } else {
           carriage.textContent = '❓';
         }
-        carriage.setAttribute('data-drop-index', idx);
-        carriage.addEventListener('dragover', handleDragOver);
-        carriage.addEventListener('dragenter', handleDragEnter);
-        carriage.addEventListener('dragleave', handleDragLeave);
-        carriage.addEventListener('drop', handleDrop);
       } else {
         carriage.textContent = num;
       }
       wrapper.appendChild(carriage);
       trainArea.appendChild(wrapper);
     });
-    const trackEl = trainArea.querySelector('.train-track');
-    if (trackEl) trainArea.appendChild(trackEl);
   }
 
   function renderCards() {
@@ -303,95 +287,22 @@
       const card = document.createElement('div');
       card.className = 'num-card';
       card.textContent = num;
-      card.draggable = true;
       card.dataset.value = num;
-      card.addEventListener('dragstart', handleDragStart);
-      card.addEventListener('dragend', handleDragEnd);
-      card.addEventListener('touchstart', handleTouchStart, {passive: false});
-      card.addEventListener('touchmove', handleTouchMove, {passive: false});
-      card.addEventListener('touchend', handleTouchEnd);
-      card.addEventListener('touchcancel', handleTouchCancel);
-      // 如果該數字已被使用，標記
+      card.addEventListener('click', handleCardClick);
       if (Object.values(state.userAnswers).includes(num)) {
         card.classList.add('used');
-        card.draggable = false;
       }
       cardsArea.appendChild(card);
     });
   }
 
-  let draggedCard = null;
-  function handleDragStart(e) {
-    if (state.gameCompleted) { e.preventDefault(); return; }
-    draggedCard = this;
-    e.dataTransfer.setData('text/plain', this.dataset.value);
-    this.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-  }
-  function handleDragEnd(e) {
-    this.classList.remove('dragging');
-    draggedCard = null;
-  }
-  function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-  function handleDragEnter(e) { e.preventDefault(); if (!state.gameCompleted) this.classList.add('drop-target'); }
-  function handleDragLeave(e) { this.classList.remove('drop-target'); }
-  function handleDrop(e) {
-    e.preventDefault();
-    this.classList.remove('drop-target');
+  function handleCardClick(e) {
     if (state.gameCompleted) return;
-    const value = parseInt(e.dataTransfer.getData('text/plain'), 10);
-    const index = parseInt(this.dataset.dropIndex, 10);
-    attemptPlace(value, index, draggedCard);
-    if (draggedCard) draggedCard.classList.remove('dragging');
-    draggedCard = null;
-  }
-
-  let touchDraggedCard = null, touchClone = null, touchStartX = 0, touchStartY = 0, touchOffsetX = 0, touchOffsetY = 0;
-  function handleTouchStart(e) {
-    if (state.gameCompleted) return;
-    e.preventDefault();
-    touchDraggedCard = this;
-    const touch = e.touches[0];
-    touchStartX = touch.clientX; touchStartY = touch.clientY;
-    const rect = this.getBoundingClientRect();
-    touchOffsetX = touch.clientX - rect.left;
-    touchOffsetY = touch.clientY - rect.top;
-    touchClone = this.cloneNode(true);
-    touchClone.classList.add('dragging');
-    touchClone.style.position = 'fixed';
-    touchClone.style.left = (touch.clientX - touchOffsetX) + 'px';
-    touchClone.style.top = (touch.clientY - touchOffsetY) + 'px';
-    touchClone.style.zIndex = '999';
-    touchClone.style.pointerEvents = 'none';
-    document.body.appendChild(touchClone);
-  }
-  function handleTouchMove(e) {
-    if (!touchDraggedCard || !touchClone) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    touchClone.style.left = (touch.clientX - touchOffsetX) + 'px';
-    touchClone.style.top = (touch.clientY - touchOffsetY) + 'px';
-    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-    trainArea.querySelectorAll('.carriage.missing').forEach(c => c.classList.remove('drop-target'));
-    if (elemBelow && elemBelow.classList.contains('missing')) elemBelow.classList.add('drop-target');
-  }
-  function handleTouchEnd(e) {
-    if (!touchDraggedCard) return;
-    e.preventDefault();
-    const touch = e.changedTouches[0];
-    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-    trainArea.querySelectorAll('.carriage.missing').forEach(c => c.classList.remove('drop-target'));
-    if (elemBelow && elemBelow.classList.contains('missing') && elemBelow.dataset.dropIndex) {
-      const value = parseInt(touchDraggedCard.dataset.value, 10);
-      const index = parseInt(elemBelow.dataset.dropIndex, 10);
-      attemptPlace(value, index, touchDraggedCard);
-    }
-    if (touchClone) { touchClone.remove(); touchClone = null; }
-    touchDraggedCard = null;
-  }
-  function handleTouchCancel(e) {
-    if (touchClone) { touchClone.remove(); touchClone = null; }
-    touchDraggedCard = null;
+    const card = e.currentTarget;
+    if (card.classList.contains('used')) return;
+    const value = parseInt(card.dataset.value, 10);
+    const index = state.missingIndices[0]; // 只有一個缺失位置
+    attemptPlace(value, index, card);
   }
 
   function markCardAsUsed(value) {
@@ -399,7 +310,6 @@
     cards.forEach(card => {
       if (parseInt(card.dataset.value) === value) {
         card.classList.add('used');
-        card.draggable = false;
       }
     });
   }
@@ -417,7 +327,7 @@
     } else {
       state.totalAttempts++;
       updateStats();
-      const carriage = trainArea.querySelector(`.carriage[data-drop-index='${index}']`);
+      const carriage = trainArea.querySelector(`.carriage[data-index='${index}']`);
       if (carriage) {
         carriage.classList.add('wrong-flash');
         setTimeout(() => carriage.classList.remove('wrong-flash'), 500);
@@ -440,7 +350,7 @@
       gameContainer.classList.add('correct-flash');
       btnHint.disabled = true;
       spawnStars();
-      document.querySelectorAll('.num-card').forEach(c => c.draggable = false);
+      document.querySelectorAll('.num-card').forEach(c => c.style.pointerEvents = 'none');
       setTimeout(() => nextQuestion(), 2200);
     }
   }
@@ -458,10 +368,9 @@
     feedbackMsg.textContent = `💡 提示：唔見咗嘅數字係 ${correctAnswer} 呀！`;
     feedbackMsg.className = 'feedback-msg';
     hintContainer.innerHTML = '';
-    // 提示不計分，直接完成並跳下一題
     state.gameCompleted = true;
     btnHint.disabled = true;
-    document.querySelectorAll('.num-card').forEach(c => c.draggable = false);
+    document.querySelectorAll('.num-card').forEach(c => c.style.pointerEvents = 'none');
     setTimeout(() => nextQuestion(), 2000);
   }
 

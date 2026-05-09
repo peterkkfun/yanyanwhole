@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>🌿 馮樂欣學英文 🌿 | 開心記句子 + Phonics拼讀</title>
-    <!-- Google Font & Font Awesome -->
+    <title>🌿 馮樂欣學英文 🌿 | 開心記句子 + Phonics拼讀 + 聽音遊戲</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -105,12 +104,28 @@
             transform: translateY(3px);
             box-shadow: 0 2px 0 #1e5f22;
         }
+        
+        .btn-game {
+            background: #ffa726;
+            color: white;
+            box-shadow: 0 5px 0 #e65100;
+            border: none;
+        }
+        .btn-game:hover {
+            background: #ffb74d;
+            box-shadow: 0 6px 8px rgba(230, 81, 0, 0.3);
+        }
+        .btn-game:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #e65100;
+        }
 
         .btn-outline-pink {
             background: transparent;
             border: 2.5px solid #388e3c;
             color: #1d6b23;
             font-weight: 700;
+            box-shadow: none;
         }
 
         .word-input-area {
@@ -168,7 +183,6 @@
             font-size: 1rem;
         }
 
-        /* 新增：组内内容预览样式 */
         .group-preview {
             font-size: 0.8rem;
             color: #2e5a2e;
@@ -383,12 +397,44 @@
             margin-top: 8px;
             font-weight: 600;
         }
+        
+        /* 遊戲專屬樣式 */
+        .big-play-btn {
+            font-size: 5rem; width: 140px; height: 140px; border-radius: 50%;
+            background: #ffb74d; border: 5px solid #f57c00; color: white;
+            cursor: pointer; margin: 15px auto; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.15); transition: 0.2s;
+        }
+        .big-play-btn:hover { transform: scale(1.05); background: #ffcc80; }
+        .big-play-btn:active { transform: scale(0.95); }
+
+        .game-options-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;
+            max-width: 800px; margin-left: auto; margin-right: auto;
+        }
+        .game-option-btn {
+            background: white; border: 3px solid #81c784; border-radius: 25px;
+            padding: 25px 15px; font-size: 2.2rem; font-weight: bold; color: #1b5e20;
+            cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            word-break: break-word; line-height: 1.2; font-family: 'Quicksand', sans-serif;
+        }
+        .game-option-btn:hover { background: #f1f8e9; border-color: #4caf50; transform: translateY(-5px); }
+        .game-option-btn.correct { background: #c8e6c9; border-color: #388e3c; color: #1b5e20; }
+        .game-option-btn.wrong { background: #ffcdd2; border-color: #d32f2f; color: #b71c1c; animation: shake 0.5s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
 
         @media (max-width: 480px) {
             .game-container { border-radius: 40px; }
             .english-word { font-size: 2.2rem; }
             .chinese-trans { font-size: 1.6rem; }
             .btn-pink { padding: 8px 16px; }
+            .game-options-grid { grid-template-columns: 1fr; }
+            .game-option-btn { font-size: 1.8rem; padding: 20px 10px; }
         }
     </style>
 </head>
@@ -399,7 +445,6 @@
         <p>🌱 欣欣學句子 + 拼讀小幫手 🌱</p>
     </div>
 
-    <!-- 输入模式 -->
     <div id="inputView" class="main-view">
         <div class="word-input-area">
             <label style="font-weight: 800; color:#1e5c27; font-size:1.1rem;"><i class="fas fa-pen-fancy"></i> 輸入英文句子 (用逗號分隔)</label>
@@ -407,6 +452,7 @@
             <div style="font-size: 13px; margin-top: 8px; color:#266d33; font-weight:500;">💡 每個句子內請不要使用逗號，只用逗號分隔不同句子</div>
             <div style="display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap;">
                 <button id="startTrainBtn" class="btn-pink btn-primary"><i class="fas fa-play"></i> 開始學習 ✨</button>
+                <button id="startGameBtn" class="btn-pink btn-game"><i class="fas fa-gamepad"></i> 聽音小遊戲 🎧</button>
                 <button id="saveGroupBtn" class="btn-pink"><i class="fas fa-save"></i> 儲存為新組別</button>
             </div>
         </div>
@@ -428,7 +474,6 @@
         </div>
     </div>
 
-    <!-- 训练模式 -->
     <div id="trainingView" class="main-view" style="display: none;">
         <div style="text-align: center;">
             <div class="progress" id="progressIndicator">第1 / 3 句</div>
@@ -453,9 +498,29 @@
             </div>
         </div>
     </div>
+
+    <div id="gameView" class="main-view" style="display: none;">
+        <div style="text-align: center;">
+            <div class="progress" id="gameProgressIndicator" style="background: #ffe0b2; color: #e65100; border-color: #ff9800;">第1 / 5 題 🎮</div>
+            
+            <h2 style="color: #2e7d5e; font-size: 1.8rem; margin-top: 15px;">🎧 聽一聽，選出正確的英文！</h2>
+            
+            <button id="playGameAudioBtn" class="big-play-btn" title="播放讀音"><i class="fas fa-volume-up"></i></button>
+            <div style="color: #4caf50; font-weight: 600; margin-bottom: 10px;">（點擊喇叭可以再聽一次）</div>
+
+            <div class="game-options-grid" id="gameOptionsContainer">
+                </div>
+
+            <div class="footer-actions">
+                <button id="exitGameBtn" class="btn-pink btn-outline-pink"><i class="fas fa-home"></i> 結束遊戲返回</button>
+            </div>
+            <div style="margin-top: 20px; font-size: 14px; background:#dcedc8; border-radius:40px; padding:10px 18px; width:fit-content; margin-left:auto; margin-right:auto; font-weight:600; color:#145214;">
+                🎤 按【空白鍵】重聽英文發音
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- 隐藏的文件选择器，用于导入JSON -->
 <input type="file" id="fileInput" accept=".json,application/json" style="display: none;">
 
 <script>
@@ -525,7 +590,6 @@
             groupNames.forEach(gName => {
                 const words = groups[gName];
                 const wordCount = words.length;
-                // 生成预览内容：取前3个，超过则加省略号
                 const maxPreview = 3;
                 const previewWords = words.slice(0, maxPreview).join(', ');
                 const previewText = words.length > maxPreview ? previewWords + '…' : previewWords;
@@ -583,7 +647,6 @@
             alert("已重置預設句子組 🌿");
         }
 
-        // 按名称排序
         function sortGroupsByName() {
             const sortedKeys = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
             const newGroups = {};
@@ -592,7 +655,6 @@
             saveGroups();
         }
 
-        // 导出为 JSON 文件 (下载)
         function exportGroupsData() {
             const jsonStr = JSON.stringify(groups, null, 2);
             const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -606,7 +668,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // 导入：通过文件选择器读取 JSON 文件
         function importGroupsData() {
             const fileInput = document.getElementById('fileInput');
             fileInput.onchange = null;
@@ -786,7 +847,7 @@
                 stopSpeaking();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-GB';
-                utterance.rate = 0.9;
+                utterance.rate = 0.85; // 放慢一點讓小朋友聽得清楚
                 utterance.onend = resolve;
                 utterance.onerror = resolve;
                 speechSynth.speak(utterance);
@@ -815,27 +876,39 @@
 
         async function speakEncouragement() {
             stopSpeaking();
-            await speakCantonese("欣欣叻叻");
+            await speakCantonese("答對啦！欣欣叻叻");
         }
 
         async function speakFinalPraise() {
             stopSpeaking();
-            await speakCantonese("欣欣好叻，爸爸媽媽哥哥愛欣欣!");
+            await speakCantonese("遊戲完成，欣欣好叻，爸爸媽媽哥哥愛欣欣!");
         }
 
-        // 训练状态
+        // ---------- 状态管理 ----------
+        const inputView = document.getElementById('inputView');
+        const trainingView = document.getElementById('trainingView');
+        const gameView = document.getElementById('gameView');
+        const wordInputArea = document.getElementById('wordInput');
+        
+        let originalInputText = "";
+
+        // ----- 訓練模式變數 -----
         let trainingWords = [];
         let currentWordIndex = 0;
         let isProcessingNext = false;
-        let originalInputText = "";
-
-        const inputView = document.getElementById('inputView');
-        const trainingView = document.getElementById('trainingView');
-        const wordInputArea = document.getElementById('wordInput');
         const currentEnglishSpan = document.getElementById('currentEnglish');
         const currentChineseSpan = document.getElementById('currentChinese');
         const progressIndicator = document.getElementById('progressIndicator');
 
+        // ----- 遊戲模式變數 -----
+        let currentGameList = [];
+        let currentGameIndex = 0;
+        let gameTargetWord = "";
+        let isGaming = false;
+        let isGameChecking = false;
+        const fallbackEnglishWords = ["apple", "banana", "cat", "dog", "sun", "moon", "happy", "water"];
+
+        // ---------- UI 輔助 ----------
         function showEncouragementBanner(englishWord) {
             const oldBanner = document.querySelector('.popup-banner');
             if(oldBanner) oldBanner.remove();
@@ -858,21 +931,30 @@
                 setTimeout(() => {
                     if(rainbowDiv) rainbowDiv.remove();
                     exitToInputMode();
-                }, 1000);
+                }, 1500);
             });
         }
 
         function exitToInputMode() {
             stopSpeaking();
             trainingView.style.display = 'none';
+            gameView.style.display = 'none';
             inputView.style.display = 'block';
             if (originalInputText !== undefined) wordInputArea.value = originalInputText;
+            
             isProcessingNext = false;
             currentWordIndex = 0;
             trainingWords = [];
+            
+            isGaming = false;
+            currentGameList = [];
+            
             document.querySelectorAll('.popup-banner').forEach(b => b.remove());
         }
 
+        // ==========================================
+        //               訓練模式邏輯
+        // ==========================================
         function loadCurrentCard() {
             if (!trainingWords.length) return;
             const word = trainingWords[currentWordIndex];
@@ -922,7 +1004,7 @@
             trainingView.style.display = 'block';
             loadCurrentCard();
             startBtn.disabled = false;
-            startBtn.innerText = "開始學習 ✨";
+            startBtn.innerHTML = "<i class='fas fa-play'></i> 開始學習 ✨";
             isProcessingNext = false;
         }
 
@@ -932,23 +1014,132 @@
             await speakEnglishThenCantonese(word.eng, word.chinese);
         }
 
-        function onSpacePress(e) {
-            if (e.code === 'Space' && trainingView.style.display === 'block') {
-                e.preventDefault();
-                repeatCurrentPronunciation();
+        // ==========================================
+        //               聽音遊戲邏輯
+        // ==========================================
+        function startGame() {
+            const rawInput = wordInputArea.value.trim();
+            const wordsArray = parseWordInput(rawInput);
+            
+            if (wordsArray.length < 2) {
+                alert("⚠️ 遊戲模式需要至少 2 個句子/單詞哦！請多輸入幾個。");
+                return;
+            }
+            
+            originalInputText = rawInput;
+            
+            // 洗牌打亂題目順序
+            currentGameList = [...wordsArray].sort(() => Math.random() - 0.5);
+            currentGameIndex = 0;
+            isGaming = true;
+            
+            inputView.style.display = 'none';
+            trainingView.style.display = 'none';
+            gameView.style.display = 'block';
+            
+            loadGameQuestion();
+        }
+
+        function loadGameQuestion() {
+            isGameChecking = false;
+            gameTargetWord = currentGameList[currentGameIndex];
+            document.getElementById('gameProgressIndicator').innerText = `第 ${currentGameIndex + 1} / ${currentGameList.length} 題 🎮`;
+            
+            // 只從同組提取錯誤選項
+            let options = [gameTargetWord];
+            let sameGroupWords = currentGameList.filter(w => w !== gameTargetWord);
+            
+            // 隨機打亂同組詞語
+            sameGroupWords.sort(() => Math.random() - 0.5);
+            
+            // 取出最多 3 個干擾選項加進去
+            options.push(...sameGroupWords.slice(0, 3));
+            
+            // 如果這組詞語真的太少(不到4個)，加入預設英文單字補足4個選項
+            if (options.length < 4) {
+                let pools = fallbackEnglishWords.filter(w => w !== gameTargetWord && !options.includes(w));
+                pools.sort(() => Math.random() - 0.5);
+                while(options.length < 4 && pools.length > 0) {
+                    options.push(pools.pop());
+                }
+            }
+            
+            // 再次洗牌，讓正確答案出現在隨機位置
+            options.sort(() => Math.random() - 0.5);
+            
+            const container = document.getElementById('gameOptionsContainer');
+            container.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'game-option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkGameAnswer(opt, btn);
+                container.appendChild(btn);
+            });
+            
+            // 自動播放英文讀音
+            setTimeout(() => speakEnglish(gameTargetWord), 600);
+        }
+
+        async function checkGameAnswer(selected, btnElement) {
+            if (isGameChecking) return;
+            
+            if (selected === gameTargetWord) {
+                isGameChecking = true;
+                btnElement.classList.add('correct');
+                
+                const banner = showEncouragementBanner("Good Job!");
+                
+                await speakEncouragement(); // 講「答對啦！欣欣叻叻」
+                
+                setTimeout(() => {
+                    if(banner) banner.remove();
+                    currentGameIndex++;
+                    if (currentGameIndex < currentGameList.length) {
+                        loadGameQuestion();
+                    } else {
+                        showRainbowBannerAndFinish(); // 結束並返回
+                    }
+                }, 1500);
+                
+            } else {
+                btnElement.classList.add('wrong');
+                await speakCantonese("唔係呢個，再試下");
+                setTimeout(() => btnElement.classList.remove('wrong'), 800);
             }
         }
 
-        // ----- 绑定事件 & 初始化 -----
+        // ==========================================
+        //               全域事件綁定
+        // ==========================================
+        function onSpacePress(e) {
+            if (e.code === 'Space') {
+                if (trainingView.style.display === 'block') {
+                    e.preventDefault();
+                    repeatCurrentPronunciation();
+                } else if (gameView.style.display === 'block' && isGaming) {
+                    e.preventDefault();
+                    speakEnglish(gameTargetWord);
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             loadGroups();
 
+            // 輸入介面按鈕
             document.getElementById('startTrainBtn').addEventListener('click', startTraining);
+            document.getElementById('startGameBtn').addEventListener('click', startGame);
             document.getElementById('saveGroupBtn').addEventListener('click', addCurrentWordsAsGroup);
+            
+            // 組別管理按鈕
             document.getElementById('resetDefaultGroupsBtn').addEventListener('click', resetToDefaultGroups);
             document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
             document.getElementById('importDataBtn').addEventListener('click', importGroupsData);
             document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName);
+            
+            // 學習模式按鈕
             document.getElementById('repeatSoundBtn').addEventListener('click', repeatCurrentPronunciation);
             document.getElementById('nextWordBtn').addEventListener('click', () => {
                 if (trainingView.style.display === 'block' && !isProcessingNext && trainingWords.length) proceedToNextWord();
@@ -956,6 +1147,16 @@
             document.getElementById('backToListBtn').addEventListener('click', () => {
                 if (trainingView.style.display === 'block' && confirm("返回會中斷學習，確定嗎？")) exitToInputMode();
             });
+
+            // 遊戲模式按鈕
+            document.getElementById('playGameAudioBtn').addEventListener('click', () => {
+                if(isGaming) speakEnglish(gameTargetWord);
+            });
+            document.getElementById('exitGameBtn').addEventListener('click', () => {
+                if (gameView.style.display === 'block' && confirm("返回會中斷遊戲，確定嗎？")) exitToInputMode();
+            });
+
+            // 鍵盤與系統事件
             window.addEventListener('keydown', onSpacePress);
             window.addEventListener('beforeunload', () => { if(speechSynth) speechSynth.cancel(); });
         });

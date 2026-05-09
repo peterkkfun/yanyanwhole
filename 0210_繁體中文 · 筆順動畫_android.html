@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>欣欣學中文 | 慢速筆順·粵語教學 (適合兒童)</title>
-    <!-- Hanzi Writer 核心庫 -->
+    <title>欣欣學中文 | 慢速筆順與聽音遊戲</title>
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <style>
         * {
@@ -29,19 +28,15 @@
             box-shadow: 0 12px 28px rgba(0,0,0,0.1);
             transition: all 0.2s;
         }
-        .manager-panel.hide {
-            display: none;
-        }
-        .teaching-panel {
+        .manager-panel.hide { display: none; }
+        .teaching-panel, .game-panel {
             background: white;
             border-radius: 2rem;
             padding: 1.5rem;
             box-shadow: 0 20px 35px rgba(0,0,0,0.2);
             position: relative;
         }
-        .teaching-panel.hide {
-            display: none;
-        }
+        .teaching-panel.hide, .game-panel.hide { display: none; }
         h2 {
             color: #2c3e2f;
             display: flex;
@@ -83,6 +78,18 @@
             transition: 0.2s;
         }
         button.primary:hover { background: #2b542e; transform: scale(0.97);}
+        button.game-btn-primary {
+            background: #e7b42c;
+            color: #3d2b00;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            border-radius: 48px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button.game-btn-primary:hover { background: #d3a11b; transform: scale(0.97);}
         button.secondary {
             background: #e7b42c;
             color: #3d2b00;
@@ -113,305 +120,180 @@
             align-items: center;
             font-size: 0.9rem;
         }
-        .group-btn span {
-            cursor: pointer;
-        }
+        .group-btn span { cursor: pointer; }
         .icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.1rem;
-            opacity: 0.7;
-            padding: 4px;
+            background: none; border: none; cursor: pointer;
+            font-size: 1.1rem; opacity: 0.7; padding: 4px;
         }
         .icon-btn:hover { opacity: 1; }
         .current-word {
-            font-size: 4rem;
-            font-weight: bold;
-            text-align: center;
-            background: #fef3cf;
-            border-radius: 48px;
-            padding: 20px;
-            margin: 20px 0;
-            letter-spacing: 8px;
-            color: #3b5c2e;
+            font-size: 4rem; font-weight: bold; text-align: center;
+            background: #fef3cf; border-radius: 48px; padding: 20px;
+            margin: 20px 0; letter-spacing: 8px; color: #3b5c2e;
         }
         .stroke-area {
-            background: #faf9ff;
-            border-radius: 32px;
-            padding: 20px;
-            margin: 15px 0;
-            min-height: 220px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 25px;
+            background: #faf9ff; border-radius: 32px; padding: 20px;
+            margin: 15px 0; min-height: 220px; display: flex;
+            flex-wrap: wrap; justify-content: center; gap: 25px;
         }
         .char-card {
-            background: white;
-            border-radius: 28px;
-            padding: 15px 12px 12px 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            width: 200px;
-            text-align: center;
-            transition: 0.1s;
+            background: white; border-radius: 28px; padding: 15px 12px 12px 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 200px;
+            text-align: center; transition: 0.1s;
         }
-        .char-card canvas {
-            border-radius: 16px;
-            background: #fefef7;
-        }
+        .char-card canvas { border-radius: 16px; background: #fefef7; }
         .btn-group-stroke {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 14px;
-            margin-bottom: 6px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 12px;
+            margin-top: 14px; margin-bottom: 6px; flex-wrap: wrap;
         }
         .stroke-control-btn {
-            background: #f0f4ec;
-            border: 2px solid #b9cdae;
-            border-radius: 48px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.1s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #2d4a2a;
-            min-width: 80px;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: #f0f4ec; border: 2px solid #b9cdae; border-radius: 48px;
+            padding: 10px 14px; font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; transition: 0.1s; display: inline-flex;
+            align-items: center; gap: 6px; color: #2d4a2a; min-width: 80px;
+            justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .stroke-control-btn:hover {
-            background: #e2f0da;
-            transform: scale(0.97);
-            border-color: #8bb57b;
+            background: #e2f0da; transform: scale(0.97); border-color: #8bb57b;
         }
-        .pronounce-char-btn {
-            background: #f9e0b0;
-            border-color: #e0b87a;
-            color: #9b6a1a;
+        .pronounce-char-btn { background: #f9e0b0; border-color: #e0b87a; color: #9b6a1a; }
+        .pronounce-char-btn:hover { background: #f7d99c; }
+        
+        /* 遊戲專屬樣式 */
+        .game-options-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;
+            max-width: 800px; margin-left: auto; margin-right: auto;
         }
-        .pronounce-char-btn:hover {
-            background: #f7d99c;
+        .game-option-btn {
+            background: white; border: 3px solid #cbd5cf; border-radius: 20px;
+            padding: 30px; font-size: 3rem; font-weight: bold; color: #3b5c2e;
+            cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
+        .game-option-btn:hover { background: #fef9e6; border-color: #e7b42c; transform: translateY(-5px); }
+        .game-option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .game-option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; animation: shake 0.5s; }
+        
+        .big-play-btn {
+            font-size: 5rem; width: 160px; height: 160px; border-radius: 50%;
+            background: #ffcf54; border: 5px solid #dca724; color: white;
+            cursor: pointer; margin: 20px auto; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.15); transition: 0.2s;
+        }
+        .big-play-btn:hover { transform: scale(1.1); background: #ffdf85; }
+        .big-play-btn:active { transform: scale(0.9); }
+
         @media (max-width: 640px) {
-            .stroke-control-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-                min-width: 70px;
-            }
-            .char-card {
-                width: 180px;
-            }
-            .btn-group-stroke {
-                gap: 8px;
-            }
+            .stroke-control-btn { padding: 8px 12px; font-size: 0.8rem; min-width: 70px; }
+            .char-card { width: 180px; }
+            .btn-group-stroke { gap: 8px; }
+            .game-options-grid { grid-template-columns: 1fr; }
+            .game-option-btn { font-size: 2.5rem; padding: 20px; }
         }
         .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;
         }
         .big-btn {
-            padding: 14px 32px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 60px;
-            border: none;
-            cursor: pointer;
+            padding: 14px 32px; font-size: 1.3rem; font-weight: bold;
+            border-radius: 60px; border: none; cursor: pointer;
         }
-        .pronounce-btn {
-            background: #4c7a8a;
-            color: white;
-        }
-        .next-btn {
-            background: #e9a23b;
-            color: white;
-        }
+        .pronounce-btn { background: #4c7a8a; color: white; }
+        .next-btn { background: #e9a23b; color: white; }
         .progress {
-            text-align: center;
-            font-size: 1.1rem;
-            background: #e2e8e0;
-            display: inline-block;
-            padding: 6px 18px;
-            border-radius: 40px;
-            margin-bottom: 10px;
+            text-align: center; font-size: 1.1rem; background: #e2e8e0;
+            display: inline-block; padding: 6px 18px; border-radius: 40px; margin-bottom: 10px; font-weight: bold;
         }
         .banner {
-            position: fixed;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #ffecb3;
-            border-radius: 80px;
-            padding: 24px 48px;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
-            z-index: 1000;
-            text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #d45a1e;
-            border: 3px solid gold;
-            backdrop-filter: blur(8px);
-            white-space: nowrap;
-            animation: bounce 0.3s ease;
+            position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
+            background: #ffecb3; border-radius: 80px; padding: 24px 48px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3); z-index: 1000;
+            text-align: center; font-size: 2rem; font-weight: bold;
+            color: #d45a1e; border: 3px solid gold; backdrop-filter: blur(8px);
+            white-space: nowrap; animation: bounce 0.3s ease;
         }
         .rainbow-banner {
             background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
-            color: white;
-            text-shadow: 2px 2px 0 black;
-            font-size: 2rem;
-            padding: 30px;
-            border-radius: 60px;
-            white-space: normal;
-            text-align: center;
+            color: white; text-shadow: 2px 2px 0 black; font-size: 2rem;
+            padding: 30px; border-radius: 60px; white-space: normal; text-align: center;
         }
         @keyframes bounce {
             0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
-        .hidden {
-            display: none;
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
-        footer {
-            text-align: center;
-            margin-top: 25px;
-            font-size: 0.8rem;
-        }
+        footer { text-align: center; margin-top: 25px; font-size: 0.8rem; }
         .speak-hint {
-            font-size: 0.9rem;
-            color: #6f6f4a;
-            background: #faf3df;
-            display: inline-block;
-            padding: 5px 16px;
-            border-radius: 40px;
+            font-size: 0.9rem; color: #6f6f4a; background: #faf3df;
+            display: inline-block; padding: 5px 16px; border-radius: 40px;
         }
-        /* 速度控制条样式 */
         .speed-control {
-            background: #f3f7ef;
-            border-radius: 60px;
-            padding: 12px 20px;
-            margin: 15px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-            border: 1px solid #cfdec4;
+            background: #f3f7ef; border-radius: 60px; padding: 12px 20px;
+            margin: 15px 0; display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 15px; border: 1px solid #cfdec4;
         }
         .speed-label {
-            font-weight: bold;
-            color: #2d5a2c;
-            background: #e3f0dc;
-            padding: 6px 16px;
-            border-radius: 32px;
-            font-size: 0.9rem;
+            font-weight: bold; color: #2d5a2c; background: #e3f0dc;
+            padding: 6px 16px; border-radius: 32px; font-size: 0.9rem;
         }
         input#strokeSpeedSlider {
-            flex: 2;
-            min-width: 180px;
-            height: 8px;
-            border-radius: 10px;
-            background: #d9e0d4;
-            -webkit-appearance: none;
+            flex: 2; min-width: 180px; height: 8px; border-radius: 10px;
+            background: #d9e0d4; -webkit-appearance: none;
         }
-        input#strokeSpeedSlider:focus {
-            outline: none;
-        }
+        input#strokeSpeedSlider:focus { outline: none; }
         input#strokeSpeedSlider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #3b6e3f;
-            cursor: pointer;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.2);
-            border: none;
+            -webkit-appearance: none; width: 20px; height: 20px;
+            border-radius: 50%; background: #3b6e3f; cursor: pointer;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.2); border: none;
         }
         .speed-value {
-            background: white;
-            padding: 6px 18px;
-            border-radius: 40px;
-            font-family: monospace;
-            font-weight: bold;
-            color: #5a7a4a;
-            min-width: 80px;
-            text-align: center;
-            font-size: 1rem;
-        }
-        @media (max-width: 560px) {
-            .current-word { font-size: 2.5rem; letter-spacing: 4px; }
-            .banner { font-size: 1.2rem; padding: 16px 24px; white-space: normal; width: 80%; text-align: center; }
-            .big-btn { padding: 10px 20px; font-size: 1rem; }
-            .speed-control { flex-direction: column; align-items: stretch; }
+            background: white; padding: 6px 18px; border-radius: 40px;
+            font-family: monospace; font-weight: bold; color: #5a7a4a;
+            min-width: 80px; text-align: center; font-size: 1rem;
         }
         .import-export-area {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+            display: flex; gap: 15px; margin-top: 20px; justify-content: center; flex-wrap: wrap;
         }
         .import-export-btn {
-            background: #d9e6d9;
-            border: 2px solid #6f9e7c;
-            border-radius: 40px;
-            padding: 10px 25px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 1rem;
+            background: #d9e6d9; border: 2px solid #6f9e7c; border-radius: 40px;
+            padding: 10px 25px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem;
         }
-        .import-export-btn:hover {
-            background: #c2d9c2;
-            transform: scale(0.96);
-        }
+        .import-export-btn:hover { background: #c2d9c2; transform: scale(0.96); }
         .slow-tip {
-            background: #fff0c0;
-            color: #b45f06;
-            font-size: 0.75rem;
-            border-radius: 50px;
-            padding: 4px 12px;
-            display: inline-block;
-            margin-left: 10px;
+            background: #fff0c0; color: #b45f06; font-size: 0.75rem;
+            border-radius: 50px; padding: 4px 12px; display: inline-block; margin-left: 10px;
         }
     </style>
 </head>
 <body>
 <div class="app">
-    <!-- 管理面板 -->
     <div id="managerPanel" class="manager-panel">
-        <h2>📚 欣欣中文詞庫管理 ✍️</h2>
+        <h2>📚 欣欣中文：筆順與聽音遊戲 ✍️🎧</h2>
         <div class="word-input-area">
             <input type="text" id="wordsInput" placeholder="輸入詞語，用逗號分隔，例如：蘋果,香蕉,車站" value="蘋果,香蕉,快樂">
-            <button id="startTeachingBtn" class="primary">🎓 開始教學（慢速筆順）</button>
+            <button id="startTeachingBtn" class="primary">🎓 慢速筆順教學</button>
+            <button id="startGameBtn" class="game-btn-primary">🎮 聽音認字遊戲</button>
         </div>
-        <div style="margin: 10px 0; text-align: left; font-weight: bold;">📂 我的詞語組：</div>
+        <div style="margin: 10px 0; text-align: left; font-weight: bold;">📂 我的詞語組 (點擊自動填入上方)：</div>
         <div id="groupsList" class="groups-container"></div>
         <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
             <button id="addGroupBtn" class="secondary">➕ 新增分組</button>
             <button id="sortGroupsBtn" class="secondary" style="background:#6f9e7c; color:white;">🔤 按名稱排序</button>
-            <span style="font-size: 0.85rem; color: gray;">💡 點擊分組名稱載入詞語｜可編輯/刪除｜一鍵排序</span>
         </div>
         <div class="import-export-area">
             <button id="exportDataBtn" class="import-export-btn">📤 匯出分組資料</button>
             <button id="importDataBtn" class="import-export-btn">📥 匯入分組資料</button>
             <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
         </div>
-        <footer>✨ 按下「開始教學」後，按空白鍵或「讀出詞語」播放粵語發音。<br>🐢 筆順動畫已調慢 (可拖曳速度條調整)，每個漢字下方有發音/暫停/重播。</footer>
+        <footer>✨ 按下「慢速筆順教學」學習寫字；按下「聽音認字遊戲」進行測驗！</footer>
     </div>
 
-    <!-- 教學面板 -->
     <div id="teachingPanel" class="teaching-panel hide">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <span class="progress" id="progressText">第1 / 3詞</span>
-            <button id="backToMenuBtn" class="secondary" style="background:#c0cbc0;">🏠 返回主頁</button>
+            <button class="secondary backToMenuBtn" style="background:#c0cbc0;">🏠 返回主頁</button>
         </div>
         <div class="current-word" id="currentWordDisplay">蘋果</div>
         <div class="btn-group">
@@ -420,7 +302,6 @@
         </div>
         <div class="speak-hint">💡 提示：按鍵盤【空格鍵】也可讀出當前詞語發音</div>
         
-        <!-- 慢速筆順控制區 ＋ 速度調節條 -->
         <div class="speed-control">
             <span class="speed-label">🐢 筆順動畫速度 (越慢越易跟寫)</span>
             <input type="range" id="strokeSpeedSlider" min="0.12" max="0.8" step="0.01" value="0.28">
@@ -428,26 +309,47 @@
             <span class="slow-tip">⭐ 適合幼兒/初學者 ⭐</span>
         </div>
         
-        <div style="margin-top: 5px; font-weight: bold;">✍️ 慢速筆順練習 (每個漢字獨立發音/暫停/重播):</div>
+        <div style="margin-top: 5px; font-weight: bold;">✍️ 慢速筆順練習:</div>
         <div id="strokeContainer" class="stroke-area"></div>
-        <div style="font-size:0.85rem; margin-top:10px;">✅ 點擊「完成此詞」會彈出「欣欣叻叻 + 詞語」橫幅並播放粵語，之後自動進入下一詞。<br>🎨 拖曳上方速度條可即時調整筆順動畫速度，讓小朋友慢慢模仿。</div>
+    </div>
+
+    <div id="gamePanel" class="game-panel hide">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="progress" id="gameProgressText" style="background: #fff3cd; color: #856404;">第1 / 5題</span>
+            <button class="secondary backToMenuBtn" style="background:#c0cbc0;">🏠 返回主頁</button>
+        </div>
+        
+        <h2 style="color: #4a6fa5; font-size: 2rem; margin-top: 10px;">🎧 聽一聽，這是哪個詞語？</h2>
+        
+        <button id="playGameAudioBtn" class="big-play-btn" title="播放讀音">🔊</button>
+        <div style="text-align: center; color: #666;">（點擊喇叭可以再聽一次）</div>
+
+        <div class="game-options-grid" id="gameOptionsContainer">
+            </div>
     </div>
 </div>
 
 <script>
     // ---------- 全局變量 ----------
     let groups = [];            
+    
+    // 教學模式變數
     let currentTeachingList = [];   
     let currentIndex = 0;
     let isTeaching = false;     
     let allowNext = true;       
     let currentWordWriters = []; 
+    let currentStrokeSpeed = 0.28;        
+    const STROKE_DELAY_BETWEEN = 850;     
+
+    // 遊戲模式變數
+    let currentGameList = [];
+    let currentGameIndex = 0;
+    let gameTargetWord = "";
+    let isGaming = false;
+    let isGameChecking = false;
     
-    // 筆順速度參數 (慢速預設 0.28, 並搭配較長筆畫間隔)
-    let currentStrokeSpeed = 0.28;        // 動畫繪製速度 (數值越小越慢)
-    const STROKE_DELAY_BETWEEN = 850;     // 每筆之間延遲(ms) 拉長方便小朋友對照
-    
-    // 粵語語音函式 (通用)
+    // 粵語語音函式
     function speakCantonese(text, onEnd = null) {
         if (!window.speechSynthesis) {
             console.warn("不支援語音");
@@ -483,13 +385,14 @@
         }, duration);
     }
     
-    // 判斷漢字
+    // ==========================================
+    //            教學模式 (筆順動畫)
+    // ==========================================
     function isCJK(ch) {
         const code = ch.charCodeAt(0);
         return (code >= 0x4E00 && code <= 0x9FFF) || (code >= 0x3400 && code <= 0x4DBF);
     }
     
-    // 筆順快取
     const strokeCache = new Map();
     async function fetchStrokeData(ch) {
         if(strokeCache.has(ch)) {
@@ -511,12 +414,10 @@
         }
     }
     
-    // ---------- 核心筆順渲染 (套用慢速 & 全局速度變數) ----------
     async function renderStrokeForWord(word) {
         const container = document.getElementById('strokeContainer');
         if(!container) return;
         container.innerHTML = '<div style="padding:20px;">⏳ 載入慢速筆順資料中...</div>';
-        // 銷毀舊writer實例
         if(currentWordWriters) {
             currentWordWriters.forEach(item => { if(item.writer && item.writer._destroy) item.writer._destroy(); });
             currentWordWriters = [];
@@ -524,264 +425,217 @@
         const chars = [...word];
         container.innerHTML = '';
         if(chars.length === 0) {
-            container.innerHTML = '<div>⚠️ 沒有漢字</div>';
-            return;
+            container.innerHTML = '<div>⚠️ 沒有漢字</div>'; return;
         }
         
         for(let ch of chars) {
             if(!isCJK(ch)) {
-                const card = document.createElement('div');
-                card.className = 'char-card';
-                card.innerHTML = `<div style="font-size:3rem;">${ch}</div><div style="color:gray;">非漢字 (無筆順)</div>`;
-                container.appendChild(card);
-                continue;
+                const card = document.createElement('div'); card.className = 'char-card';
+                card.innerHTML = `<div style="font-size:3rem;">${ch}</div><div style="color:gray;">非漢字</div>`;
+                container.appendChild(card); continue;
             }
             
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'char-card';
-            const canvasDiv = document.createElement('div');
-            canvasDiv.style.width = '150px';
-            canvasDiv.style.height = '150px';
-            canvasDiv.style.margin = '0 auto';
-            const label = document.createElement('div');
-            label.innerText = ch;
-            label.style.fontSize = '1.7rem';
-            label.style.fontWeight = 'bold';
-            label.style.marginTop = '8px';
-            label.style.color = '#2e5c2a';
+            const cardDiv = document.createElement('div'); cardDiv.className = 'char-card';
+            const canvasDiv = document.createElement('div'); canvasDiv.style.width = '150px'; canvasDiv.style.height = '150px'; canvasDiv.style.margin = '0 auto';
+            const label = document.createElement('div'); label.innerText = ch; label.style.fontSize = '1.7rem'; label.style.fontWeight = 'bold'; label.style.marginTop = '8px'; label.style.color = '#2e5c2a';
+            const btnWrapper = document.createElement('div'); btnWrapper.className = 'btn-group-stroke';
             
-            const btnWrapper = document.createElement('div');
-            btnWrapper.className = 'btn-group-stroke';
+            const pronounceBtn = document.createElement('button'); pronounceBtn.className = 'stroke-control-btn pronounce-char-btn'; pronounceBtn.innerHTML = '🔊 發音';
+            const pausePlayBtn = document.createElement('button'); pausePlayBtn.className = 'stroke-control-btn'; pausePlayBtn.innerHTML = '⏸️ 暫停';
+            const replayBtn = document.createElement('button'); replayBtn.className = 'stroke-control-btn'; replayBtn.innerHTML = '🔄 重播';
             
-            const pronounceBtn = document.createElement('button');
-            pronounceBtn.className = 'stroke-control-btn pronounce-char-btn';
-            pronounceBtn.innerHTML = '🔊 發音';
-            pronounceBtn.title = `聽「${ch}」粵語發音`;
-            
-            const pausePlayBtn = document.createElement('button');
-            pausePlayBtn.className = 'stroke-control-btn';
-            pausePlayBtn.innerHTML = '⏸️ 暫停';
-            
-            const replayBtn = document.createElement('button');
-            replayBtn.className = 'stroke-control-btn';
-            replayBtn.innerHTML = '🔄 重播';
-            
-            btnWrapper.appendChild(pronounceBtn);
-            btnWrapper.appendChild(pausePlayBtn);
-            btnWrapper.appendChild(replayBtn);
-            
-            cardDiv.appendChild(canvasDiv);
-            cardDiv.appendChild(label);
-            cardDiv.appendChild(btnWrapper);
-            container.appendChild(cardDiv);
+            btnWrapper.appendChild(pronounceBtn); btnWrapper.appendChild(pausePlayBtn); btnWrapper.appendChild(replayBtn);
+            cardDiv.appendChild(canvasDiv); cardDiv.appendChild(label); cardDiv.appendChild(btnWrapper); container.appendChild(cardDiv);
             
             try {
                 const strokeJson = await fetchStrokeData(ch);
                 if(strokeJson) {
-                    let isPlaying = true;
-                    let isPaused = false;
-                    let animationFinished = false;
-                    
-                    // 建立 writer 時套用當前慢速參數
+                    let isPlaying = true; let isPaused = false; let animationFinished = false;
                     const writer = HanziWriter.create(canvasDiv, ch, {
-                        width: 150, height: 150, padding: 5,
-                        showOutline: true,
-                        strokeAnimationSpeed: currentStrokeSpeed,   // 核心慢速參數
-                        delayBetweenStrokes: STROKE_DELAY_BETWEEN,  // 筆畫之間等待更久，方便觀察
-                        characterData: strokeJson,
-                        radicalColor: '#d9b48b',
-                        onComplete: () => {
-                            isPlaying = false;
-                            isPaused = false;
-                            animationFinished = true;
-                            pausePlayBtn.innerHTML = '▶️ 重播';
-                        }
+                        width: 150, height: 150, padding: 5, showOutline: true, strokeAnimationSpeed: currentStrokeSpeed, delayBetweenStrokes: STROKE_DELAY_BETWEEN, characterData: strokeJson, radicalColor: '#d9b48b',
+                        onComplete: () => { isPlaying = false; isPaused = false; animationFinished = true; pausePlayBtn.innerHTML = '▶️ 重播'; }
                     });
-                    
                     currentWordWriters.push({ writer, ch });
                     
-                    pronounceBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        speakCantonese(ch);
-                    });
-                    
+                    pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakCantonese(ch); });
                     pausePlayBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if (animationFinished) {
-                            writer.animateCharacter();
-                            animationFinished = false;
-                            isPlaying = true;
-                            isPaused = false;
-                            pausePlayBtn.innerHTML = '⏸️ 暫停';
-                        } else if (isPaused) {
-                            writer.resumeAnimation();
-                            isPaused = false;
-                            isPlaying = true;
-                            pausePlayBtn.innerHTML = '⏸️ 暫停';
-                        } else if (isPlaying) {
-                            writer.pauseAnimation();
-                            isPlaying = false;
-                            isPaused = true;
-                            pausePlayBtn.innerHTML = '▶️ 播放';
-                        } else {
-                            writer.animateCharacter();
-                            animationFinished = false;
-                            isPlaying = true;
-                            isPaused = false;
-                            pausePlayBtn.innerHTML = '⏸️ 暫停';
-                        }
+                        if (animationFinished) { writer.animateCharacter(); animationFinished = false; isPlaying = true; isPaused = false; pausePlayBtn.innerHTML = '⏸️ 暫停'; } 
+                        else if (isPaused) { writer.resumeAnimation(); isPaused = false; isPlaying = true; pausePlayBtn.innerHTML = '⏸️ 暫停'; } 
+                        else if (isPlaying) { writer.pauseAnimation(); isPlaying = false; isPaused = true; pausePlayBtn.innerHTML = '▶️ 播放'; } 
+                        else { writer.animateCharacter(); animationFinished = false; isPlaying = true; isPaused = false; pausePlayBtn.innerHTML = '⏸️ 暫停'; }
                     });
-                    
-                    replayBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        writer.animateCharacter();
-                        animationFinished = false;
-                        isPlaying = true;
-                        isPaused = false;
-                        pausePlayBtn.innerHTML = '⏸️ 暫停';
-                    });
-                    
-                    cardDiv.addEventListener('click', (e) => {
-                        if(e.target === pronounceBtn || e.target === pausePlayBtn || e.target === replayBtn || btnWrapper.contains(e.target)) return;
-                        writer.animateCharacter();
-                        animationFinished = false;
-                        isPlaying = true;
-                        isPaused = false;
-                        pausePlayBtn.innerHTML = '⏸️ 暫停';
-                    });
-                    
-                    // 自動啟動動畫 (慢速)
+                    replayBtn.addEventListener('click', (e) => { e.stopPropagation(); writer.animateCharacter(); animationFinished = false; isPlaying = true; isPaused = false; pausePlayBtn.innerHTML = '⏸️ 暫停'; });
                     writer.animateCharacter();
                 } else {
-                    canvasDiv.innerHTML = `<div style="text-align:center; padding-top:40px;">❌ 無筆順資料</div>`;
-                    pronounceBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        speakCantonese(ch);
-                    });
+                    canvasDiv.innerHTML = `<div style="text-align:center; padding-top:40px;">❌ 無筆順</div>`;
+                    pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakCantonese(ch); });
                 }
             } catch(e) {
                 canvasDiv.innerHTML = `<div style="color:red;">載入失敗</div>`;
-                pronounceBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    speakCantonese(ch);
-                });
+                pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakCantonese(ch); });
             }
         }
     }
     
-    // 重新刷新當前詞的筆順 (速度改變時調用，讓小朋友即時體驗快慢)
     async function reloadCurrentWordStroke() {
         if(!isTeaching || !currentTeachingList.length || currentIndex >= currentTeachingList.length) return;
-        const currentWord = currentTeachingList[currentIndex];
-        if(currentWord) {
-            await renderStrokeForWord(currentWord);
-        }
+        if(currentTeachingList[currentIndex]) await renderStrokeForWord(currentTeachingList[currentIndex]);
     }
     
-    // 速度滑塊 UI 更新 & 即時重繪筆順
     function initSpeedControl() {
         const slider = document.getElementById('strokeSpeedSlider');
         const speedDisplay = document.getElementById('speedValueDisplay');
         if(!slider) return;
-        // 設定初始值
-        slider.value = currentStrokeSpeed;
-        speedDisplay.innerText = `${currentStrokeSpeed.toFixed(2)} 倍速`;
+        slider.value = currentStrokeSpeed; speedDisplay.innerText = `${currentStrokeSpeed.toFixed(2)} 倍速`;
         slider.addEventListener('input', (e) => {
-            const newSpeed = parseFloat(e.target.value);
-            currentStrokeSpeed = newSpeed;
-            speedDisplay.innerText = `${newSpeed.toFixed(2)} 倍速`;
-            // 即時重新載入當前詞的筆順動畫 (刷新所有writer)
-            if(isTeaching && document.getElementById('teachingPanel') && !document.getElementById('teachingPanel').classList.contains('hide')) {
-                reloadCurrentWordStroke().catch(err => console.warn("重載筆順錯誤", err));
-            }
+            currentStrokeSpeed = parseFloat(e.target.value); speedDisplay.innerText = `${currentStrokeSpeed.toFixed(2)} 倍速`;
+            if(isTeaching) reloadCurrentWordStroke().catch(err => console.warn(err));
         });
     }
     
-    function speakCurrentWord() {
-        if(!isTeaching || !currentTeachingList.length) return;
-        const word = currentTeachingList[currentIndex];
-        if(word) speakCantonese(word);
-    }
-    
-    function completeCurrentWordAndNext() {
-        if(!isTeaching) return;
-        if(!allowNext) {
-            showBanner("⏳ 請稍後，語音播放中...", false, 1000);
-            return;
-        }
-        if(currentIndex >= currentTeachingList.length) {
-            finishAllWords();
-            return;
-        }
-        const currentWord = currentTeachingList[currentIndex];
-        const bannerMsg = `🎉 欣欣叻叻！ ${currentWord} 🎉`;
-        showBanner(bannerMsg, false, 2500);
-        allowNext = false;
-        speakCantonese("欣欣叻叻", () => {
-            allowNext = true;
-            moveToNextWord();
-        });
-    }
-    
-    function moveToNextWord() {
-        if(!isTeaching) return;
-        if(currentIndex + 1 < currentTeachingList.length) {
-            currentIndex++;
-            loadCurrentWordToUI();
-        } else {
-            finishAllWords();
-        }
+    function startTeaching() {
+        const inputVal = document.getElementById('wordsInput').value;
+        let wordsArray = inputVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        if(wordsArray.length === 0) { alert("請至少輸入一個詞語 (用逗號分隔)"); return; }
+        currentTeachingList = wordsArray; currentIndex = 0; isTeaching = true; allowNext = true;
+        document.getElementById('managerPanel').classList.add('hide');
+        document.getElementById('gamePanel').classList.add('hide');
+        document.getElementById('teachingPanel').classList.remove('hide');
+        loadCurrentWordToUI().catch(e => console.warn(e));
     }
     
     async function loadCurrentWordToUI() {
         if(!isTeaching) return;
         const word = currentTeachingList[currentIndex];
         document.getElementById('currentWordDisplay').innerText = word;
-        const progressSpan = document.getElementById('progressText');
-        progressSpan.innerText = `第 ${currentIndex+1} / ${currentTeachingList.length} 詞`;
+        document.getElementById('progressText').innerText = `第 ${currentIndex+1} / ${currentTeachingList.length} 詞`;
         await renderStrokeForWord(word);
     }
-    
+
+    function completeCurrentWordAndNext() {
+        if(!isTeaching || !allowNext) return;
+        if(currentIndex >= currentTeachingList.length) { finishAllWords(); return; }
+        const currentWord = currentTeachingList[currentIndex];
+        showBanner(`🎉 欣欣叻叻！ ${currentWord} 🎉`, false, 2500); allowNext = false;
+        speakCantonese("欣欣叻叻", () => {
+            allowNext = true; currentIndex++;
+            if(currentIndex < currentTeachingList.length) loadCurrentWordToUI(); else finishAllWords();
+        });
+    }
+
     function finishAllWords() {
         if(!isTeaching) return;
         isTeaching = false;
         showBanner("🌈 欣欣好叻，爸爸媽媽哥哥愛欣欣! 🌈", true, 4000);
         speakCantonese("欣欣好叻，爸爸媽媽哥哥愛欣欣", () => {});
-        exitTeachingMode();
+        exitMode();
     }
-    
-    function exitTeachingMode() {
+
+
+    // ==========================================
+    //            遊戲模式 (聽音認字)
+    // ==========================================
+    function startGame() {
+        const inputVal = document.getElementById('wordsInput').value;
+        let wordsArray = inputVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        if(wordsArray.length < 2) {
+            alert("⚠️ 遊戲模式需要至少 2 個詞語哦！這樣才會有錯誤選項。");
+            return;
+        }
+        
+        // 洗牌打亂題目順序
+        currentGameList = [...wordsArray].sort(() => Math.random() - 0.5);
+        currentGameIndex = 0;
+        isGaming = true;
+        
+        document.getElementById('managerPanel').classList.add('hide');
+        document.getElementById('teachingPanel').classList.add('hide');
+        document.getElementById('gamePanel').classList.remove('hide');
+        
+        loadGameQuestion();
+    }
+
+    function loadGameQuestion() {
+        isGameChecking = false;
+        gameTargetWord = currentGameList[currentGameIndex];
+        document.getElementById('gameProgressText').innerText = `第 ${currentGameIndex + 1} / ${currentGameList.length} 題`;
+        
+        // --- 核心修改：只從同組提取錯誤選項 ---
+        let options = [gameTargetWord];
+        
+        // 只過濾出「當前這組詞語」中，不等於正確答案的其他詞語
+        let sameGroupWords = currentGameList.filter(w => w !== gameTargetWord);
+        
+        // 隨機打亂這些同組詞語
+        sameGroupWords.sort(() => Math.random() - 0.5);
+        
+        // 取出最多 3 個干擾選項加進去
+        options.push(...sameGroupWords.slice(0, 3));
+        
+        // 再次洗牌，讓正確答案出現在隨機位置
+        options.sort(() => Math.random() - 0.5);
+        
+        const container = document.getElementById('gameOptionsContainer');
+        container.innerHTML = '';
+        
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'game-option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkGameAnswer(opt, btn);
+            container.appendChild(btn);
+        });
+        
+        // 自動播放讀音
+        setTimeout(() => speakCantonese(gameTargetWord), 600);
+    }
+
+    function checkGameAnswer(selected, btnElement) {
+        if (isGameChecking) return;
+        
+        if (selected === gameTargetWord) {
+            isGameChecking = true;
+            btnElement.classList.add('correct');
+            showBanner("🎉 答對啦！", false, 1500);
+            
+            speakCantonese("答對啦！" + gameTargetWord, () => {
+                currentGameIndex++;
+                if (currentGameIndex < currentGameList.length) {
+                    loadGameQuestion();
+                } else {
+                    showBanner("🌈 遊戲完成！欣欣好叻！ 🌈", true, 4000);
+                    speakCantonese("遊戲完成，欣欣好叻！", () => {
+                        setTimeout(exitMode, 2000);
+                    });
+                }
+            });
+        } else {
+            btnElement.classList.add('wrong');
+            speakCantonese("唔係呢個，再試下");
+            setTimeout(() => btnElement.classList.remove('wrong'), 800);
+        }
+    }
+
+
+    // ==========================================
+    //            分組管理與共用功能
+    // ==========================================
+    function exitMode() {
         isTeaching = false;
+        isGaming = false;
         document.getElementById('managerPanel').classList.remove('hide');
         document.getElementById('teachingPanel').classList.add('hide');
+        document.getElementById('gamePanel').classList.add('hide');
         if(currentWordWriters) {
             currentWordWriters.forEach(item => { if(item.writer && item.writer._destroy) item.writer._destroy(); });
             currentWordWriters = [];
         }
     }
     
-    function startTeaching() {
-        const inputVal = document.getElementById('wordsInput').value;
-        let wordsArray = inputVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        if(wordsArray.length === 0) {
-            alert("請至少輸入一個詞語 (用逗號分隔)");
-            return;
-        }
-        currentTeachingList = wordsArray;
-        currentIndex = 0;
-        isTeaching = true;
-        allowNext = true;
-        document.getElementById('managerPanel').classList.add('hide');
-        document.getElementById('teachingPanel').classList.remove('hide');
-        loadCurrentWordToUI().catch(e => console.warn(e));
-    }
-    
-    // ---------- 分組管理 (localStorage) ----------
     const STORAGE_KEY = 'xinxiang_groups';
     
-    function saveGroupsToLocal() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(groups));
-    }
+    function saveGroupsToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(groups)); }
     
     function loadGroupsFromLocal() {
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -801,8 +655,7 @@
     
     function sortGroupsByName() {
         groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
-        saveGroupsToLocal();
-        renderGroupsList();
+        saveGroupsToLocal(); renderGroupsList();
     }
     
     function renderGroupsList() {
@@ -810,89 +663,43 @@
         if(!container) return;
         container.innerHTML = '';
         groups.forEach((group) => {
-            const btnWrap = document.createElement('div');
-            btnWrap.className = 'group-btn';
-            const nameSpan = document.createElement('span');
-            nameSpan.innerText = `${group.name} (${group.wordsStr})`;
-            nameSpan.style.cursor = 'pointer';
-            nameSpan.style.fontWeight = 'bold';
-            nameSpan.addEventListener('click', () => {
-                document.getElementById('wordsInput').value = group.wordsStr;
-            });
-            const editWordsBtn = document.createElement('button');
-            editWordsBtn.innerText = '📝';
-            editWordsBtn.className = 'icon-btn';
-            editWordsBtn.title = '編輯詞語 (逗號分隔)';
+            const btnWrap = document.createElement('div'); btnWrap.className = 'group-btn';
+            const nameSpan = document.createElement('span'); nameSpan.innerText = `${group.name} (${group.wordsStr.split(',').length}詞)`;
+            nameSpan.style.cursor = 'pointer'; nameSpan.style.fontWeight = 'bold';
+            nameSpan.title = group.wordsStr;
+            nameSpan.addEventListener('click', () => { document.getElementById('wordsInput').value = group.wordsStr; });
+            
+            const editWordsBtn = document.createElement('button'); editWordsBtn.innerText = '📝'; editWordsBtn.className = 'icon-btn'; editWordsBtn.title = '編輯詞語';
             editWordsBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let newWords = prompt(`編輯「${group.name}」的詞語 (用逗號分隔)`, group.wordsStr);
-                if(newWords !== null) {
-                    group.wordsStr = newWords.trim();
-                    saveGroupsToLocal();
-                    renderGroupsList();
-                }
+                e.stopPropagation(); let newWords = prompt(`編輯「${group.name}」的詞語 (用逗號分隔)`, group.wordsStr);
+                if(newWords !== null) { group.wordsStr = newWords.trim(); saveGroupsToLocal(); renderGroupsList(); }
             });
-            const editBtn = document.createElement('button');
-            editBtn.innerText = '✏️';
-            editBtn.className = 'icon-btn';
-            editBtn.title = '重新命名分組';
+            const editBtn = document.createElement('button'); editBtn.innerText = '✏️'; editBtn.className = 'icon-btn'; editBtn.title = '重新命名分組';
             editBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const newName = prompt('輸入新分組名稱:', group.name);
-                if(newName && newName.trim()) {
-                    group.name = newName.trim();
-                    saveGroupsToLocal();
-                    renderGroupsList();
-                }
+                e.stopPropagation(); const newName = prompt('輸入新分組名稱:', group.name);
+                if(newName && newName.trim()) { group.name = newName.trim(); saveGroupsToLocal(); renderGroupsList(); }
             });
-            const delBtn = document.createElement('button');
-            delBtn.innerText = '🗑️';
-            delBtn.className = 'icon-btn';
-            delBtn.title = '刪除分組';
+            const delBtn = document.createElement('button'); delBtn.innerText = '🗑️'; delBtn.className = 'icon-btn'; delBtn.title = '刪除分組';
             delBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if(confirm(`確定刪除分組「${group.name}」？`)) {
-                    groups = groups.filter(g => g.id !== group.id);
-                    saveGroupsToLocal();
-                    renderGroupsList();
-                }
+                e.stopPropagation(); if(confirm(`確定刪除分組「${group.name}」？`)) { groups = groups.filter(g => g.id !== group.id); saveGroupsToLocal(); renderGroupsList(); }
             });
-            btnWrap.appendChild(nameSpan);
-            btnWrap.appendChild(editWordsBtn);
-            btnWrap.appendChild(editBtn);
-            btnWrap.appendChild(delBtn);
-            container.appendChild(btnWrap);
+            btnWrap.appendChild(nameSpan); btnWrap.appendChild(editWordsBtn); btnWrap.appendChild(editBtn); btnWrap.appendChild(delBtn); container.appendChild(btnWrap);
         });
-        if(groups.length === 0) {
-            const emptyHint = document.createElement('div');
-            emptyHint.innerText = '✨ 點擊下方「新增分組」建立詞庫 ✨';
-            container.appendChild(emptyHint);
-        }
     }
     
     function addNewGroup() {
-        const groupName = prompt('請輸入新分組名稱', '我的詞組');
-        if(!groupName) return;
-        const wordsStr = prompt('輸入詞語 (逗號分隔)', '太陽,月亮,星星');
-        if(wordsStr === null) return;
-        const newId = Date.now();
-        groups.push({ id: newId, name: groupName.trim(), wordsStr: wordsStr.trim() });
-        saveGroupsToLocal();
-        renderGroupsList();
+        const groupName = prompt('請輸入新分組名稱', '我的詞組'); if(!groupName) return;
+        const wordsStr = prompt('輸入詞語 (逗號分隔)', '太陽,月亮,星星'); if(wordsStr === null) return;
+        groups.push({ id: Date.now(), name: groupName.trim(), wordsStr: wordsStr.trim() });
+        saveGroupsToLocal(); renderGroupsList();
     }
     
-    // 匯出/匯入
     function exportGroupsData() {
         const dataStr = JSON.stringify(groups, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `欣欣詞庫備份_${new Date().toISOString().slice(0,10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const a = document.createElement('a'); a.href = url; a.download = `欣欣詞庫備份_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
     
     function importGroupsData(file) {
@@ -901,69 +708,57 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    const isValid = imported.every(item => item.name && typeof item.wordsStr === 'string');
-                    if (!isValid) {
-                        alert('匯入的資料格式不正確，請確認是之前匯出的備份檔案。');
-                        return;
-                    }
-                    groups = imported;
-                    groups.forEach(g => { if(!g.id) g.id = Date.now() + Math.random(); });
-                    saveGroupsToLocal();
-                    renderGroupsList();
-                    alert('✅ 匯入成功！分組資料已更新。');
-                } else {
-                    alert('檔案內容不是有效的分組陣列。');
-                }
-            } catch (err) {
-                alert('讀取檔案失敗：' + err.message);
-            }
+                    groups = imported; groups.forEach(g => { if(!g.id) g.id = Date.now() + Math.random(); });
+                    saveGroupsToLocal(); renderGroupsList(); alert('✅ 匯入成功！');
+                } else alert('檔案格式不正確。');
+            } catch (err) { alert('讀取失敗：' + err.message); }
         };
         reader.readAsText(file);
     }
     
-    function handleKeydown(e) {
-        if(e.code === 'Space') {
-            e.preventDefault();
-            if(isTeaching && document.getElementById('teachingPanel') && !document.getElementById('teachingPanel').classList.contains('hide')) {
-                speakCurrentWord();
-            }
-        }
-    }
-    
     function bindEvents() {
+        // 教學模式按鈕
         document.getElementById('startTeachingBtn').addEventListener('click', startTeaching);
-        document.getElementById('backToMenuBtn').addEventListener('click', () => {
-            if(isTeaching) {
-                if(confirm('返回主頁會中斷目前教學進度，確定嗎？')) {
-                    exitTeachingMode();
-                }
-            } else exitTeachingMode();
-        });
-        document.getElementById('pronounceWordBtn').addEventListener('click', speakCurrentWord);
+        document.getElementById('pronounceWordBtn').addEventListener('click', () => { if(isTeaching) speakCantonese(currentTeachingList[currentIndex]); });
         document.getElementById('completeWordBtn').addEventListener('click', completeCurrentWordAndNext);
+        
+        // 遊戲模式按鈕
+        document.getElementById('startGameBtn').addEventListener('click', startGame);
+        document.getElementById('playGameAudioBtn').addEventListener('click', () => { if(isGaming) speakCantonese(gameTargetWord); });
+        
+        // 返回按鈕
+        document.querySelectorAll('.backToMenuBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if(isTeaching || isGaming) {
+                    if(confirm('確定要中斷並返回主頁嗎？')) exitMode();
+                } else exitMode();
+            });
+        });
+        
+        // 分組管理
         document.getElementById('addGroupBtn').addEventListener('click', addNewGroup);
         document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName);
         document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
         const importFileInput = document.getElementById('importFileInput');
-        document.getElementById('importDataBtn').addEventListener('click', () => {
-            importFileInput.click();
-        });
+        document.getElementById('importDataBtn').addEventListener('click', () => importFileInput.click());
         importFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                importGroupsData(file);
-                importFileInput.value = '';
+            if (e.target.files[0]) { importGroupsData(e.target.files[0]); importFileInput.value = ''; }
+        });
+        
+        // 鍵盤支援
+        window.addEventListener('keydown', (e) => {
+            if(e.code === 'Space') {
+                e.preventDefault();
+                if(isTeaching) speakCantonese(currentTeachingList[currentIndex]);
+                if(isGaming) speakCantonese(gameTargetWord);
             }
         });
-        window.addEventListener('keydown', handleKeydown);
+        
         loadGroupsFromLocal();
-        initSpeedControl();   // 初始化速度條，預設慢速
+        initSpeedControl();
     }
     
-    if (window.speechSynthesis) {
-        window.speechSynthesis.getVoices();
-    }
-    
+    if (window.speechSynthesis) window.speechSynthesis.getVoices();
     bindEvents();
     if(groups.length) document.getElementById('wordsInput').value = groups[0].wordsStr;
 </script>

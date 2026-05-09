@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>層級疊疊樂 - 兒童認知遊戲</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0fdf4;
+            user-select: none;
+        }
+        .shape-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border: 4px dashed #86efac;
+            border-radius: 20px;
+            background-color: white;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            transition: all 0.3s ease;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .shape-circle {
+            border-radius: 50%;
+        }
+        .shape-triangle {
+            width: 0 !important;
+            height: 0 !important;
+            background-color: transparent !important;
+            border-left-style: solid;
+            border-right-style: solid;
+            border-bottom-style: solid;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            box-shadow: none;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+        }
+        .shape-star {
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        .shape-diamond {
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+        .shape-pentagon {
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+        .preview-shape {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+        }
+        .preview-triangle {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 35px solid;
+        }
+        .number-btn {
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .number-btn:active {
+            transform: scale(0.95);
+        }
+        .number-btn.selected {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #2563eb;
+        }
+        @keyframes pop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .animate-pop {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+        .animate-shake {
+            animation: shake 0.5s;
+        }
+        select {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center py-8 px-4">
+
+    <div class="max-w-3xl w-full bg-white rounded-3xl shadow-xl p-6 md:p-10 border-4 border-green-400">
+
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-green-600 mb-4 tracking-wider">形狀疊疊樂</h1>
+            <p class="text-lg md:text-xl text-gray-600 font-semibold bg-green-100 inline-block px-4 py-2 rounded-full shadow-sm">
+                請觀察上面的圖形，找出它們的順序！<br>
+                <span class="text-blue-600">1 = 最前面 (最上層)</span>，
+                <span class="text-purple-600">2 = 中間</span>，
+                <span class="text-red-600">3 = 最後面 (最底層)</span>
+            </p>
+        </header>
+
+        <div class="mb-10 relative">
+            <div id="main-shape-container" class="shape-container shadow-inner">
+            </div>
+            <div id="success-overlay" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-2xl hidden z-50 transition-opacity duration-300">
+                <div class="text-center animate-pop">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h2 class="text-4xl font-extrabold text-green-500 mb-2">答案正確！</h2>
+                    <p class="text-xl text-gray-600 font-bold">準備進入下一題...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200">
+            <div id="answer-options-container" class="grid grid-cols-3 gap-4 md:gap-8">
+            </div>
+        </div>
+
+        <div id="message-box" class="mt-6 text-center text-xl font-bold h-8 transition-opacity duration-300 opacity-0">
+        </div>
+
+    </div>
+
+    <script>
+        const shapeTypes = [
+            { type: 'circle', class: 'shape-circle' },
+            { type: 'square', class: 'shape-square' },
+            { type: 'triangle', class: 'shape-triangle' },
+            { type: 'star', class: 'shape-star' },
+            { type: 'diamond', class: 'shape-diamond' },
+            { type: 'pentagon', class: 'shape-pentagon' }
+        ];
+
+        const colors = [
+            '#ef4444',
+            '#3b82f6',
+            '#10b981',
+            '#f59e0b',
+            '#8b5cf6',
+            '#ec4899',
+            '#14b8a6',
+        ];
+
+        let currentLevelShapes = [];
+        let userAnswers = {};
+        // 用來儲存每個形狀對應的按鈕群組 (用於清除選擇時找到正確的按鈕)
+        const shapeBtnGroupMap = new Map();
+
+        const mainContainer = document.getElementById('main-shape-container');
+        const optionsContainer = document.getElementById('answer-options-container');
+        const messageBox = document.getElementById('message-box');
+        const successOverlay = document.getElementById('success-overlay');
+
+        function generateLevel() {
+            successOverlay.classList.add('hidden');
+            hideMessage();
+            mainContainer.innerHTML = '';
+            optionsContainer.innerHTML = '';
+            userAnswers = {};
+            shapeBtnGroupMap.clear();
+
+            let selectedShapes = shuffleArray([...shapeTypes]).slice(0, 3);
+            let selectedColors = shuffleArray([...colors]).slice(0, 3);
+
+            currentLevelShapes = [];
+
+            for (let i = 0; i < 3; i++) {
+                const size = Math.floor(Math.random() * 60) + 100;
+                const maxPos = 300 - size;
+                const x = Math.floor(Math.random() * (maxPos * 0.6)) + (maxPos * 0.2);
+                const y = Math.floor(Math.random() * (maxPos * 0.6)) + (maxPos * 0.2);
+
+                currentLevelShapes.push({
+                    id: `shape-${i}`,
+                    type: selectedShapes[i].type,
+                    className: selectedShapes[i].class,
+                    color: selectedColors[i],
+                    size: size,
+                    x: x,
+                    y: y,
+                    zIndex: i + 1,
+                    correctAnswer: 3 - i
+                });
+            }
+
+            let displayOrder = shuffleArray([...currentLevelShapes]);
+
+            currentLevelShapes.forEach(shapeData => {
+                const shapeEl = document.createElement('div');
+                shapeEl.classList.add('shape', shapeData.className, 'animate-pop');
+                shapeEl.style.width = `${shapeData.size}px`;
+                shapeEl.style.height = `${shapeData.size}px`;
+                shapeEl.style.left = `${shapeData.x}px`;
+                shapeEl.style.top = `${shapeData.y}px`;
+                shapeEl.style.zIndex = shapeData.zIndex;
+
+                if (shapeData.type === 'triangle') {
+                    shapeEl.style.borderLeftWidth = `${shapeData.size / 2}px`;
+                    shapeEl.style.borderRightWidth = `${shapeData.size / 2}px`;
+                    shapeEl.style.borderBottomWidth = `${shapeData.size}px`;
+                    shapeEl.style.borderBottomColor = shapeData.color;
+                    shapeEl.style.width = '0';
+                    shapeEl.style.height = '0';
+                } else {
+                    shapeEl.style.backgroundColor = shapeData.color;
+                }
+                if (shapeData.type !== 'triangle' && shapeData.type !== 'star' && shapeData.type !== 'diamond' &&
+                    shapeData.type !== 'pentagon') {
+                    shapeEl.style.border = "3px solid #333";
+                }
+
+                mainContainer.appendChild(shapeEl);
+            });
+
+            displayOrder.forEach((shapeData) => {
+                const optionCol = document.createElement('div');
+                optionCol.className =
+                    'flex flex-col items-center bg-white p-4 rounded-xl shadow-md border-2 border-gray-100';
+
+                const previewContainer = document.createElement('div');
+                previewContainer.className =
+                    'w-20 h-20 mb-4 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200';
+
+                const previewShape = document.createElement('div');
+                if (shapeData.type === 'triangle') {
+                    previewShape.className = 'preview-triangle';
+                    previewShape.style.borderBottomColor = shapeData.color;
+                    previewShape.style.borderLeftWidth = '20px';
+                    previewShape.style.borderRightWidth = '20px';
+                    previewShape.style.borderBottomWidth = '35px';
+                } else {
+                    previewShape.className = `preview-shape ${shapeData.className}`;
+                    previewShape.style.backgroundColor = shapeData.color;
+                    if (shapeData.type !== 'star' && shapeData.type !== 'diamond' && shapeData.type !== 'pentagon') {
+                        previewShape.style.border = "2px solid #333";
+                    }
+                }
+
+                previewContainer.appendChild(previewShape);
+                optionCol.appendChild(previewContainer);
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'flex gap-2';
+
+                [1, 2, 3].forEach(num => {
+                    const btn = document.createElement('button');
+                    btn.className =
+                        `number-btn w-12 h-12 rounded-full border-2 border-gray-300 text-xl font-bold text-gray-600 bg-white hover:bg-blue-50 focus:outline-none`;
+                    btn.textContent = num;
+
+                    btn.onclick = () => selectAnswer(shapeData.id, num, btnGroup);
+                    btnGroup.appendChild(btn);
+                });
+
+                optionCol.appendChild(btnGroup);
+                optionsContainer.appendChild(optionCol);
+
+                // 儲存此形狀 ID 對應的按鈕群組
+                shapeBtnGroupMap.set(shapeData.id, btnGroup);
+                userAnswers[shapeData.id] = null;
+            });
+        }
+
+        function selectAnswer(shapeId, selectedNumber, btnGroup) {
+            const buttons = btnGroup.querySelectorAll('button');
+            buttons.forEach(b => b.classList.remove('selected', 'bg-blue-500', 'text-white', 'border-blue-600'));
+
+            const clickedBtn = Array.from(buttons).find(b => parseInt(b.textContent) === selectedNumber);
+            if (clickedBtn) {
+                clickedBtn.classList.add('selected');
+            }
+
+            userAnswers[shapeId] = selectedNumber;
+
+            checkAnswersInstantly(shapeId, selectedNumber);
+        }
+
+        function checkAnswersInstantly(shapeId, selectedNumber) {
+            const shapeData = currentLevelShapes.find(s => s.id === shapeId);
+
+            if (shapeData.correctAnswer !== selectedNumber) {
+                showMessage('哎呀！這個數字不對喔，再觀察一下！', 'text-red-500');
+
+                optionsContainer.classList.remove('animate-shake');
+                void optionsContainer.offsetWidth;
+                optionsContainer.classList.add('animate-shake');
+
+                setTimeout(() => {
+                    userAnswers[shapeId] = null;
+                    // 使用 Map 取出正確的按鈕群組來清除選擇
+                    const btnGroup = shapeBtnGroupMap.get(shapeId);
+                    if (btnGroup) {
+                        const buttons = btnGroup.querySelectorAll('button');
+                        buttons.forEach(b => b.classList.remove('selected', 'bg-blue-500', 'text-white',
+                            'border-blue-600'));
+                    }
+                }, 800);
+
+                return;
+            }
+
+            const answeredCount = Object.values(userAnswers).filter(val => val !== null).length;
+            if (answeredCount === 3) {
+                const selectedNumbers = Object.values(userAnswers);
+                const uniqueNumbers = new Set(selectedNumbers);
+                if (uniqueNumbers.size < 3) {
+                    showMessage('數字不能重複喔！每個數字只能用一次。', 'text-red-500');
+                    return;
+                }
+
+                hideMessage();
+                successOverlay.classList.remove('hidden');
+                playSuccessSound();
+
+                setTimeout(() => {
+                    generateLevel();
+                }, 2000);
+
+            } else {
+                showMessage('答對了！繼續挑戰下一個！', 'text-green-500');
+            }
+        }
+
+        function showMessage(text, colorClass) {
+            messageBox.textContent = text;
+            messageBox.className =
+                `mt-6 text-center text-xl font-bold h-8 transition-opacity duration-300 opacity-100 ${colorClass}`;
+
+            clearTimeout(messageBox.timeoutId);
+            messageBox.timeoutId = setTimeout(hideMessage, 4000);
+        }
+
+        function hideMessage() {
+            messageBox.classList.remove('opacity-100');
+            messageBox.classList.add('opacity-0');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function playSuccessSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+                osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.3);
+
+                gainNode.gain.setValueAtTime(0, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.6);
+            } catch (e) {
+                console.log('音效播放失敗或不支援');
+            }
+        }
+
+        window.onload = () => {
+            generateLevel();
+        };
+    </script>
+</body>
+</html>
