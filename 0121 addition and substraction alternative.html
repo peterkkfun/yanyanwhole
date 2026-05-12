@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎈 欣欣學加減數 · 填充題 ≤20 🎈</title>
+    <title>🎈 欣欣學加減數 · 填充題 ≤10 🎈</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
-            background: linear-gradient(145deg, #fce4ec 0%, #ffe0f0 100%);
+            background: linear-gradient(145deg, #e0f7fa 0%, #b2ebf2 100%);
             color: #333;
             text-align: center;
             margin: 0;
@@ -29,45 +29,45 @@
         }
 
         #game-container {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            padding: 25px 20px 30px;
+            padding: 25px 20px 20px;
             border-radius: 48px;
             box-shadow: 0 15px 25px rgba(0,0,0,0.15);
             max-width: 550px;
             width: 90%;
             display: none;
-            border: 3px solid #ffb8c6;
+            border: 4px solid #81ecec;
         }
 
         #start-screen {
             background: white;
             padding: 40px 30px;
             border-radius: 60px;
-            box-shadow: 0 20px 30px rgba(255, 71, 87, 0.2);
-            border: 4px solid #ffa502;
+            box-shadow: 0 20px 30px rgba(0, 184, 148, 0.2);
+            border: 4px solid #00b894;
         }
 
         .progress-area {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fff0f5;
+            background: #f1f2f6;
             padding: 8px 18px;
             border-radius: 60px;
             margin: 5px 0 15px;
-            border: 2px dashed #ff9ff3;
+            border: 2px dashed #74b9ff;
             font-weight: bold;
             font-size: 1.4rem;
-            color: #c44569;
+            color: #0984e3;
         }
 
         .counter-box {
-            background: #feca57;
+            background: #ffeaa7;
             padding: 6px 18px;
             border-radius: 40px;
-            color: #2f3542;
-            box-shadow: inset 0 -3px 0 #ff9f43;
+            color: #2d3436;
+            box-shadow: inset 0 -3px 0 #fdcb6e;
         }
 
         .next-reward {
@@ -79,16 +79,110 @@
         }
 
         .question-box {
-            font-size: 5rem;
+            font-size: 4.5rem;
             font-weight: 900;
-            color: #2ed573;
+            color: #00b894;
             margin: 10px 0 15px;
-            text-shadow: 5px 5px 0 #c8f7c5;
-            letter-spacing: 6px;
+            text-shadow: 4px 4px 0 #c8f7c5;
+            letter-spacing: 4px;
             background: #f1f2f6;
-            border-radius: 70px;
-            padding: 10px 10px;
-            line-height: 1.3;
+            border-radius: 60px;
+            padding: 10px;
+            line-height: 1.2;
+        }
+
+        .controls-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .audio-btn, .hint-btn, .start-btn {
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: 0.08s;
+        }
+
+        .audio-btn {
+            background-color: #ffa502;
+            box-shadow: 0 6px 0 #e67e22;
+            border: 2px solid #fff200;
+        }
+        .audio-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #e67e22; }
+
+        .hint-btn {
+            background-color: #a29bfe;
+            box-shadow: 0 6px 0 #6c5ce7;
+            border: 2px solid #dfe6e9;
+        }
+        .hint-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #6c5ce7; }
+
+        /* 動畫提示區塊 */
+        #visual-container {
+            background: #fff9c4;
+            border: 3px dashed #f39c12;
+            border-radius: 25px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 80px;
+            display: none;
+            font-size: 2.2rem;
+            text-align: center;
+        }
+
+        .hint-text {
+            font-size: 1.3rem;
+            color: #d35400;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .icons-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            min-height: 50px;
+        }
+
+        .apple-icon {
+            display: inline-block;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transform: scale(0);
+            position: relative;
+        }
+
+        .box-icon {
+            display: inline-block;
+            color: #bdc3c7;
+            font-size: 2rem;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .cross-mark {
+            position: absolute;
+            left: -5%;
+            top: -5%;
+            font-size: 2.5rem;
+            animation: popIn 0.3s forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
 
         .options {
@@ -99,15 +193,15 @@
         }
 
         .option-btn {
-            background-color: #70a1ff;
+            background-color: #74b9ff;
             color: white;
             border: none;
             border-radius: 30px;
-            font-size: 3.5rem;
-            width: 100px;
-            height: 100px;
+            font-size: 3rem;
+            width: 90px;
+            height: 90px;
             cursor: pointer;
-            box-shadow: 0 8px 0 #1e90ff;
+            box-shadow: 0 8px 0 #0984e3;
             transition: all 0.08s;
             font-weight: bold;
             border: 3px solid white;
@@ -115,27 +209,7 @@
 
         .option-btn:active {
             transform: translateY(8px);
-            box-shadow: 0 0 0 #1e90ff;
-        }
-
-        .audio-btn, .start-btn {
-            background-color: #ffa502;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.6rem;
-            font-weight: bold;
-            padding: 12px 28px;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #e67e22;
-            margin: 5px 0;
-            border: 2px solid #fff200;
-            transition: 0.08s;
-        }
-
-        .audio-btn:active, .start-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 0 0 #e67e22;
+            box-shadow: 0 0 0 #0984e3;
         }
 
         #banner {
@@ -151,7 +225,7 @@
         }
 
         .banner-text {
-            font-size: 7rem;
+            font-size: 6rem;
             color: #ff4757;
             font-weight: bold;
             animation: bounceIn 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
@@ -177,20 +251,21 @@
         }
 
         .reward-text {
-            font-size: 5.5rem;
+            font-size: 5rem;
             font-weight: 900;
             color: #b71540;
             text-shadow: 5px 5px 0 #f8c291;
             animation: popReward 0.8s ease-out forwards;
             background: rgba(255,255,240,0.5);
-            padding: 20px 40px;
+            padding: 20px 30px;
             border-radius: 120px;
             border: 6px solid gold;
             box-shadow: 0 20px 30px rgba(0,0,0,0.2);
+            text-align: center;
         }
 
         .reward-sub {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             margin: 20px 0;
             color: #2c3e50;
             font-weight: bold;
@@ -198,9 +273,9 @@
         }
 
         .reward-stars {
-            font-size: 6rem;
+            font-size: 5rem;
             display: flex;
-            gap: 30px;
+            gap: 20px;
         }
 
         @keyframes popReward {
@@ -226,8 +301,8 @@
 
         .shake {
             animation: shake 0.3s;
-            background-color: #ff6b81 !important;
-            box-shadow: 0 8px 0 #c0392b !important;
+            background-color: #ff7675 !important;
+            box-shadow: 0 8px 0 #d63031 !important;
         }
 
         @keyframes shake {
@@ -250,8 +325,8 @@
         .start-btn {
             font-size: 2rem;
             padding: 18px 40px;
-            background: #ff9f43;
-            box-shadow: 0 9px 0 #d35400;
+            background: #00b894;
+            box-shadow: 0 9px 0 #00b894;
         }
 
         .footer-note {
@@ -266,35 +341,45 @@
     <!-- 開始畫面 -->
     <div id="start-screen">
         <h1>🧸 欣欣學加減數</h1>
-        <p style="font-size: 1.6rem; color: #6c5ce7;">➕ ➖ 填充題 · 數字 ≤ 20</p>
-        <p style="font-size: 1.4rem; color: #e84393;">⭐ 每20題有驚喜動畫 ⭐</p>
+        <p style="font-size: 1.6rem; color: #6c5ce7;">➕ ➖ 填充題 · 數字 ≤ 10</p>
+        <p style="font-size: 1.4rem; color: #e84393;">⭐ 每10題有驚喜動畫 ⭐</p>
         <button class="start-btn" onclick="startGame()">🎯 開始遊戲 🎯</button>
     </div>
 
-    <!-- 主要游戏区 -->
+    <!-- 主要遊戲區 -->
     <div id="game-container">
         <h1>✨ 欣欣學加減 ✨</h1>
         
         <div class="progress-area">
             <span class="counter-box">✅ 完成: <span id="question-counter">0</span> 題</span>
-            <span class="next-reward">🎁 下個獎勵: <span id="next-milestone">20</span></span>
+            <span class="next-reward">🎁 獎勵: <span id="next-milestone">10</span></span>
         </div>
 
-        <button class="audio-btn" onclick="speakQuestion()">🔊 聽讀音 (粵+英)</button>
+        <div class="controls-group">
+            <button class="audio-btn" onclick="speakQuestion()">🔊 聽讀音</button>
+            <button class="hint-btn" onclick="playHintAnimation()">💡 睇動畫提示</button>
+        </div>
+
+        <!-- 視覺化動畫區域 -->
+        <div id="visual-container">
+            <div class="hint-text" id="hint-text"></div>
+            <div class="icons-area" id="icons-area"></div>
+        </div>
+
         <div class="question-box" id="question-display"></div>
         <div class="options" id="options-container"></div>
         <div class="footer-note">㊗️ 撳答案啦～</div>
     </div>
 
-    <!-- 普通答对横幅 -->
+    <!-- 普通答對橫幅 -->
     <div id="banner">
         <div class="banner-text">欣欣叻叻</div>
         <div class="stars">🌟👧🏻🌟</div>
     </div>
 
-    <!-- 20题奖励专属动画横幅 -->
+    <!-- 10題獎勵專屬動畫橫幅 -->
     <div id="reward-banner">
-        <div class="reward-text">🎉 20題達成 🎉</div>
+        <div class="reward-text" id="reward-text-display">🎉 10題達成 🎉</div>
         <div class="reward-sub">欣欣好犀利呀！</div>
         <div class="reward-stars">
             <span>🏆</span><span>🌟</span><span>👑</span><span>🌟</span><span>🏆</span>
@@ -302,26 +387,37 @@
         <div style="margin-top: 30px; font-size: 2.2rem; color:#2c3e50;">繼續加油～</div>
     </div>
 
-    <!-- 彩带动画canvas -->
+    <!-- 彩帶動畫canvas -->
     <canvas id="confetti-canvas"></canvas>
 
     <script>
         (function(){
             // ---------- 遊戲狀態 ----------
-            let questionText = '';        // 顯示用算式，如 "3 + ? = 6"
-            let correctAnswer = 0;        // ? 內的正確數字
+            let questionText = '';
+            let correctAnswer = 0;
             let isProcessing = false;
-
             let correctCount = 0;
-            const MILESTONE = 20;   
+            const MILESTONE = 10;   // 為了保持小朋友興趣，降為每10題獎勵一次
+            
+            // 儲存當前題目的詳細數值供動畫使用
+            let currentQ = { type: 0, a: 0, b: 0, c: 0, ans: 0 };
+            
+            // 動畫狀態控制
+            let isAnimatingHint = false;
+            let animationSessionId = 0;
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
 
             // DOM 元素
             const startScreen = document.getElementById('start-screen');
             const gameContainer = document.getElementById('game-container');
             const questionDisplay = document.getElementById('question-display');
             const optionsContainer = document.getElementById('options-container');
+            const visualContainer = document.getElementById('visual-container');
+            const hintText = document.getElementById('hint-text');
+            const iconsArea = document.getElementById('icons-area');
             const banner = document.getElementById('banner');
             const rewardBanner = document.getElementById('reward-banner');
+            const rewardTextDisplay = document.getElementById('reward-text-display');
             const counterSpan = document.getElementById('question-counter');
             const nextMilestoneSpan = document.getElementById('next-milestone');
             const confettiCanvas = document.getElementById('confetti-canvas');
@@ -330,13 +426,14 @@
             let animationId = null;
             let particles = [];
 
-            // ---------- 更新计数器 ----------
+            // ---------- 更新計數器 ----------
             function updateCounterUI() {
                 counterSpan.textContent = correctCount;
                 let next = Math.ceil(correctCount / MILESTONE) * MILESTONE;
                 if (correctCount % MILESTONE === 0 && correctCount > 0) {
                     next = correctCount + MILESTONE;
                 }
+                if (next === 0) next = MILESTONE;
                 nextMilestoneSpan.textContent = next;
             }
 
@@ -354,35 +451,28 @@
                 nextQuestion();
             };
 
-            // ---------- 隨機生成填充題 (參考PNG格式，現在用 ? 表示空格) ----------
+            // ---------- 隨機生成填充題 (限制在 10 以內) ----------
             function nextQuestion() {
                 isProcessing = false;
+                
+                // 重置並隱藏提示動畫
+                animationSessionId++;
+                isAnimatingHint = false;
+                visualContainer.style.display = 'none';
+                iconsArea.innerHTML = '';
+                hintText.innerText = '';
 
-                // 隨機選擇題型
-                const type = Math.floor(Math.random() * 7); // 0~6
+                // 隨機選擇題型 0~6
+                const type = Math.floor(Math.random() * 7);
 
                 switch(type) {
-                    case 0: // 標準加法 a + b = ?
-                        generateStandardAddition();
-                        break;
-                    case 1: // 加法填空 ? + b = c  (第一加數未知)
-                        generateAdditionMissingFirst();
-                        break;
-                    case 2: // 加法填空 a + ? = c  (第二加數未知)
-                        generateAdditionMissingSecond();
-                        break;
-                    case 3: // 標準減法 a - b = ?
-                        generateStandardSubtraction();
-                        break;
-                    case 4: // 減法填空 ? - b = c  (被減數未知)
-                        generateSubtractionMissingMinuend();
-                        break;
-                    case 5: // 減法填空 a - ? = c  (減數未知)
-                        generateSubtractionMissingSubtrahend();
-                        break;
-                    case 6: // 三步加法 a + b + c = ?
-                        generateTripleAddition();
-                        break;
+                    case 0: generateStandardAddition(); break;
+                    case 1: generateAdditionMissingFirst(); break;
+                    case 2: generateAdditionMissingSecond(); break;
+                    case 3: generateStandardSubtraction(); break;
+                    case 4: generateSubtractionMissingMinuend(); break;
+                    case 5: generateSubtractionMissingSubtrahend(); break;
+                    case 6: generateTripleAddition(); break;
                 }
 
                 questionDisplay.innerText = questionText;
@@ -394,77 +484,76 @@
                 }, 300);
             }
 
-            // ---------- 各題型生成器 (數字均限制在0~20之間) ----------
+            // ---------- 各題型生成器 (確保所有數字及答案都不大於 10) ----------
             function generateStandardAddition() {
-                const a = Math.floor(Math.random() * 21);
-                const maxB = 20 - a;
-                const b = Math.floor(Math.random() * (maxB + 1));
-                correctAnswer = a + b;
-                questionText = `${a} + ${b} = ?`;
+                currentQ.type = 0;
+                currentQ.a = Math.floor(Math.random() * 11);
+                currentQ.b = Math.floor(Math.random() * (11 - currentQ.a));
+                currentQ.ans = currentQ.a + currentQ.b;
+                questionText = `${currentQ.a} + ${currentQ.b} = ?`;
+                correctAnswer = currentQ.ans;
             }
 
             function generateAdditionMissingFirst() {
-                // ? + b = c ，0 ≤ ? = c - b ≤ 20
-                const c = Math.floor(Math.random() * 21);   // 結果
-                const b = Math.floor(Math.random() * (c + 1)); // 第二加數 ≤ 結果
-                correctAnswer = c - b;
-                questionText = `? + ${b} = ${c}`;
+                currentQ.type = 1;
+                currentQ.ans = Math.floor(Math.random() * 11); // ? 的值
+                currentQ.b = Math.floor(Math.random() * (11 - currentQ.ans));
+                currentQ.c = currentQ.ans + currentQ.b;
+                questionText = `? + ${currentQ.b} = ${currentQ.c}`;
+                correctAnswer = currentQ.ans;
             }
 
             function generateAdditionMissingSecond() {
-                // a + ? = c
-                const c = Math.floor(Math.random() * 21);
-                const a = Math.floor(Math.random() * (c + 1));
-                correctAnswer = c - a;
-                questionText = `${a} + ? = ${c}`;
+                currentQ.type = 2;
+                currentQ.a = Math.floor(Math.random() * 11);
+                currentQ.ans = Math.floor(Math.random() * (11 - currentQ.a)); // ? 的值
+                currentQ.c = currentQ.a + currentQ.ans;
+                questionText = `${currentQ.a} + ? = ${currentQ.c}`;
+                correctAnswer = currentQ.ans;
             }
 
             function generateStandardSubtraction() {
-                // a - b = ? ，a,b在0~20且 a ≥ b
-                const a = Math.floor(Math.random() * 21);
-                const b = Math.floor(Math.random() * (a + 1));
-                correctAnswer = a - b;
-                questionText = `${a} - ${b} = ?`;
+                currentQ.type = 3;
+                currentQ.a = Math.floor(Math.random() * 11);
+                currentQ.b = Math.floor(Math.random() * (currentQ.a + 1));
+                currentQ.ans = currentQ.a - currentQ.b;
+                questionText = `${currentQ.a} - ${currentQ.b} = ?`;
+                correctAnswer = currentQ.ans;
             }
 
             function generateSubtractionMissingMinuend() {
-                // ? - b = c  => ? = b + c，需≤20
-                const b = Math.floor(Math.random() * 21);
-                const maxC = 20 - b;
-                if (maxC < 0) { 
-                    // fallback (極端情況)
-                    correctAnswer = 0;
-                    questionText = `? - 0 = 0`;
-                    return;
-                }
-                const c = Math.floor(Math.random() * (maxC + 1));
-                correctAnswer = b + c;
-                questionText = `? - ${b} = ${c}`;
+                currentQ.type = 4;
+                currentQ.ans = Math.floor(Math.random() * 11); // 原本總數 (被減數)
+                currentQ.b = Math.floor(Math.random() * (currentQ.ans + 1));
+                currentQ.c = currentQ.ans - currentQ.b;
+                questionText = `? - ${currentQ.b} = ${currentQ.c}`;
+                correctAnswer = currentQ.ans;
             }
 
             function generateSubtractionMissingSubtrahend() {
-                // a - ? = c  => ? = a - c，保證非負且 a >= c
-                const a = Math.floor(Math.random() * 21);
-                const c = Math.floor(Math.random() * (a + 1));
-                correctAnswer = a - c;
-                questionText = `${a} - ? = ${c}`;
+                currentQ.type = 5;
+                currentQ.a = Math.floor(Math.random() * 11); // 原本總數
+                currentQ.ans = Math.floor(Math.random() * (currentQ.a + 1)); // 減去的數
+                currentQ.c = currentQ.a - currentQ.ans;
+                questionText = `${currentQ.a} - ? = ${currentQ.c}`;
+                correctAnswer = currentQ.ans;
             }
 
             function generateTripleAddition() {
-                // a + b + c = ?，三個數加總 ≤ 20
-                let a = Math.floor(Math.random() * 11);      // 0~10
-                let b = Math.floor(Math.random() * (11 - a)); // 0~(10-a)
-                let remaining = 20 - a - b;
-                let c = Math.floor(Math.random() * (remaining + 1));
-                correctAnswer = a + b + c;
-                questionText = `${a} + ${b} + ${c} = ?`;
+                currentQ.type = 6;
+                currentQ.a = Math.floor(Math.random() * 11);      
+                currentQ.b = Math.floor(Math.random() * (11 - currentQ.a)); 
+                currentQ.c = Math.floor(Math.random() * (11 - currentQ.a - currentQ.b));
+                currentQ.ans = currentQ.a + currentQ.b + currentQ.c;
+                questionText = `${currentQ.a} + ${currentQ.b} + ${currentQ.c} = ?`;
+                correctAnswer = currentQ.ans;
             }
 
-            // 產生3個選項（正確答案加兩個錯誤選項，範圍0~20）
+            // 產生3個選項（正確答案加兩個錯誤選項，範圍0~10）
             function generateOptions() {
                 let options = [correctAnswer];
                 while (options.length < 3) {
-                    let wrong = Math.floor(Math.random() * 21); // 0~20
+                    let wrong = Math.floor(Math.random() * 11); // 只產生 0~10
                     if (!options.includes(wrong)) options.push(wrong);
                 }
                 options.sort(() => Math.random() - 0.5);
@@ -479,12 +568,170 @@
                 });
             }
 
+            // ---------- 視覺化動畫提示 ----------
+            window.playHintAnimation = async function() {
+                if (isAnimatingHint || isProcessing) return;
+                isAnimatingHint = true;
+                
+                let session = animationSessionId;
+                visualContainer.style.display = 'block';
+                iconsArea.innerHTML = '';
+                
+                let q = currentQ;
+                
+                try {
+                    switch(q.type) {
+                        case 0: // a + b = ans
+                            hintText.innerText = `先放 ${q.a} 個蘋果🍎`;
+                            for(let i=0; i<q.a; i++) {
+                                if (session !== animationSessionId) return;
+                                iconsArea.innerHTML += `<span class="apple-icon">🍎</span>`;
+                                await sleep(300);
+                            }
+                            if(q.b > 0) {
+                                await sleep(400);
+                                if (session !== animationSessionId) return;
+                                hintText.innerText = `再加 ${q.b} 個青蘋果🍏`;
+                                for(let i=0; i<q.b; i++) {
+                                    if (session !== animationSessionId) return;
+                                    iconsArea.innerHTML += `<span class="apple-icon">🍏</span>`;
+                                    await sleep(300);
+                                }
+                            }
+                            await sleep(400);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `一共有幾多個呢？數數看！`;
+                            break;
+                            
+                        case 3: // a - b = ans
+                            hintText.innerText = `原本有 ${q.a} 個蘋果🍎`;
+                            for(let i=0; i<q.a; i++) {
+                                if (session !== animationSessionId) return;
+                                iconsArea.innerHTML += `<span class="apple-icon" id="apple-${i}">🍎</span>`;
+                                await sleep(300);
+                            }
+                            if(q.b > 0) {
+                                await sleep(500);
+                                if (session !== animationSessionId) return;
+                                hintText.innerText = `食咗 ${q.b} 個❌`;
+                                for(let i=0; i<q.b; i++) {
+                                    if (session !== animationSessionId) return;
+                                    let idx = q.a - 1 - i;
+                                    let apple = document.getElementById(`apple-${idx}`);
+                                    if(apple) {
+                                        apple.innerHTML += `<span class="cross-mark">❌</span>`;
+                                        apple.style.opacity = '0.5';
+                                    }
+                                    await sleep(300);
+                                }
+                            }
+                            await sleep(500);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `仲剩幾多個好嘅蘋果？`;
+                            break;
+                            
+                        case 1: // ? + b = c 
+                            hintText.innerText = `目標要有 ${q.c} 個，後面已有 ${q.b} 個🍏`;
+                            for(let i=0; i<q.c; i++) {
+                                if (session !== animationSessionId) return;
+                                if(i >= q.ans) { 
+                                    iconsArea.innerHTML += `<span class="apple-icon">🍏</span>`;
+                                } else {
+                                    iconsArea.innerHTML += `<span class="box-icon">🔲</span>`;
+                                }
+                                await sleep(200);
+                            }
+                            await sleep(500);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `前面空格仲差幾多個蘋果呢？`;
+                            break;
+                            
+                        case 2: // a + ? = c
+                            hintText.innerText = `目標要有 ${q.c} 個，前面已有 ${q.a} 個🍎`;
+                            for(let i=0; i<q.c; i++) {
+                                if (session !== animationSessionId) return;
+                                if(i < q.a) { 
+                                    iconsArea.innerHTML += `<span class="apple-icon">🍎</span>`;
+                                } else {
+                                    iconsArea.innerHTML += `<span class="box-icon">🔲</span>`;
+                                }
+                                await sleep(200);
+                            }
+                            await sleep(500);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `後面空格仲差幾多個蘋果呢？`;
+                            break;
+                            
+                        case 4: // ? - b = c 
+                            hintText.innerText = `食咗 ${q.b} 個❌，仲剩 ${q.c} 個🍏`;
+                            for(let i=0; i<q.b; i++) {
+                                if (session !== animationSessionId) return;
+                                iconsArea.innerHTML += `<span class="apple-icon" style="opacity:0.5">🍎<span class="cross-mark">❌</span></span>`;
+                                await sleep(250);
+                            }
+                            for(let i=0; i<q.c; i++) {
+                                if (session !== animationSessionId) return;
+                                iconsArea.innerHTML += `<span class="apple-icon">🍏</span>`;
+                                await sleep(250);
+                            }
+                            await sleep(500);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `將全部加埋，原本一共有幾多個？`;
+                            break;
+                            
+                        case 5: // a - ? = c
+                            hintText.innerText = `原本有 ${q.a} 個蘋果🍎`;
+                            for(let i=0; i<q.a; i++) {
+                                if (session !== animationSessionId) return;
+                                iconsArea.innerHTML += `<span class="apple-icon" id="apple5-${i}">🍎</span>`;
+                                await sleep(250);
+                            }
+                            await sleep(500);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `最後淨返 ${q.c} 個好嘅，幫你圈起佢地`;
+                            for(let i=0; i<q.c; i++) {
+                                if (session !== animationSessionId) return;
+                                let apple = document.getElementById(`apple5-${i}`);
+                                if(apple) {
+                                    apple.style.borderBottom = "5px solid #2ed573";
+                                    apple.style.borderRadius = "50%";
+                                }
+                                await sleep(250);
+                            }
+                            await sleep(500);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `冇圈起嘅就係俾人食咗啦！數下有幾多個？`;
+                            break;
+                            
+                        case 6: // a + b + c = ans
+                            hintText.innerText = `先放 ${q.a} 個🍎，再加 ${q.b} 個🍏`;
+                            for(let i=0; i<q.a; i++) { if (session !== animationSessionId) return; iconsArea.innerHTML += `<span class="apple-icon">🍎</span>`; await sleep(200); }
+                            if(q.b > 0) {
+                                iconsArea.innerHTML += `<span style="margin:0 5px; font-size:1.5rem; color:#888;">+</span>`;
+                                for(let i=0; i<q.b; i++) { if (session !== animationSessionId) return; iconsArea.innerHTML += `<span class="apple-icon">🍏</span>`; await sleep(200); }
+                            }
+                            if(q.c > 0) {
+                                await sleep(400);
+                                if (session !== animationSessionId) return;
+                                hintText.innerText = `最後再加 ${q.c} 個🍊`;
+                                iconsArea.innerHTML += `<span style="margin:0 5px; font-size:1.5rem; color:#888;">+</span>`;
+                                for(let i=0; i<q.c; i++) { if (session !== animationSessionId) return; iconsArea.innerHTML += `<span class="apple-icon">🍊</span>`; await sleep(200); }
+                            }
+                            await sleep(500);
+                            if (session !== animationSessionId) return;
+                            hintText.innerText = `數下全部加埋有幾多個？`;
+                            break;
+                    }
+                } catch(e) { console.error(e); } 
+                
+                isAnimatingHint = false;
+            };
+
             // ---------- 語音：粵語 + 英式英語 ----------
             window.speakQuestion = function() {
                 if (isProcessing) return;
                 window.speechSynthesis.cancel();
 
-                // 粵語版本：將 ? 轉換為自然講法
                 const cantoText = questionText
                     .replace(/\?/g, '幾多')
                     .replace(/\+/g, '加')
@@ -494,7 +741,6 @@
                 cantoUtter.lang = 'zh-HK';
                 cantoUtter.rate = 0.85;
 
-                // 英語版本
                 const engText = questionText
                     .replace(/\?/g, 'what')
                     .replace(/\+/g, 'plus')
@@ -514,6 +760,8 @@
 
                 if (selected === correctAnswer) {
                     isProcessing = true;
+                    // 中斷進行中的動畫
+                    animationSessionId++; 
                     
                     correctCount++;
                     updateCounterUI();
@@ -543,17 +791,18 @@
                 setTimeout(() => {
                     banner.style.display = 'none';
                     nextQuestion();
-                }, 2800);
+                }, 2500);
             }
 
-            // ---------- 精彩獎勵動畫 (20題倍數) ----------
+            // ---------- 精彩獎勵動畫 (10題倍數) ----------
             function showRewardAnimation() {
                 window.speechSynthesis.cancel();
                 
+                rewardTextDisplay.innerText = `🎉 ${correctCount}題達成 🎉`;
                 rewardBanner.style.display = 'flex';
                 startConfetti();
 
-                let rewardUtter = new SpeechSynthesisUtterance("好犀利！你已經完成二十題啦！繼續加油！");
+                let rewardUtter = new SpeechSynthesisUtterance(`好犀利！你已經完成${correctCount}題啦！繼續加油！`);
                 rewardUtter.lang = 'zh-HK';
                 rewardUtter.rate = 0.9;
                 window.speechSynthesis.speak(rewardUtter);
