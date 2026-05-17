@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活量詞趣味小測驗</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        cute: ['Mali', '"Noto Sans TC"', 'cursive'],
+                    },
+                    colors: {
+                        primary: '#FF9F1C',
+                        secondary: '#2EC4B6',
+                        accent: '#FFBF69',
+                        bgLight: '#CBF3F0',
+                        textDark: '#011627'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f7f9fc;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .slide-up {
+            animation: slideUp 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .option-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body
+    class="min-h-screen flex items-center justify-center p-4 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0yMCAxMWMtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOSA5LTQuMDMgOS05LTQuMDMtOS05LTl6bTAgMTZjLTMuODYgMC03LTMuMTQtNy03czMuMTQtNyA3LTcgNyAzLjE0IDcgNy0zLjE0IDctNyA3eiIgZmlsbD0iI2U1ZTdlYiIgZmlsbC1vcGFjaXR5PSIwLjQiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPgo8L3N2Zz4=')]">
+
+    <div id="app"
+        class="bg-white rounded-3xl shadow-xl w-full max-w-2xl border-4 border-white fade-in">
+    </div>
+
+    <script>
+        const quizData = [{
+            question: "森林裡走來了可愛的小貓 🐱，我們應該怎麼說呢？",
+            hint: "用來數小動物（例如貓、狗）的量詞是什麼呢？",
+            emoji: "🐈",
+            options: [
+                { text: "一隻小貓", isCorrect: true, rationale: "答對了！「隻」是最常用來計算小動物的量詞喔。" },
+                { text: "一張小貓", isCorrect: false, rationale: "「張」是用來數薄薄平平的東西，像是紙張或卡片。" },
+                { text: "一本小貓", isCorrect: false, rationale: "「本」是用來數一頁一頁的書本的。" },
+                { text: "一朵小貓", isCorrect: false, rationale: "「朵」是用來數漂亮的花或是天空中的雲。" }
+            ]
+        }, {
+            question: "樹上開了紅色的花 🌸，好漂亮呀！我們要怎麼數花呢？",
+            hint: "花的量詞聽起來跟耳朵的「朵」一樣哦！",
+            emoji: "🌺",
+            options: [
+                { text: "一條花", isCorrect: false, rationale: "「條」用來數細細長長的東西，花不是長長的喔。" },
+                { text: "一朵花", isCorrect: true, rationale: "非常棒！「朵」專門用來計算花瓣展開的植物。" },
+                { text: "一件花", isCorrect: false, rationale: "「件」通常用來數衣服或是事情。" },
+                { text: "一個花", isCorrect: false, rationale: "雖然「個」很常用，但數漂亮的花時，用「朵」會更準確喔！" }
+            ]
+        }, {
+            question: "桌子上放著又紅又甜的蘋果 🍎，是「一（ ）蘋果」呢？",
+            hint: "圓圓的、沒有特別形狀的食物，最常用的量詞是哪一個呢？",
+            emoji: "🍏",
+            options: [
+                { text: "一個蘋果", isCorrect: true, rationale: "答對了！「個」是最常用來數圓形水果的量詞。" },
+                { text: "一條蘋果", isCorrect: false, rationale: "蘋果是圓圓的，不是細細長長的，所以不用「條」。" },
+                { text: "一張蘋果", isCorrect: false, rationale: "蘋果鼓鼓的，不是像紙一樣扁扁平平的喔。" },
+                { text: "一件蘋果", isCorrect: false, rationale: "「件」是用來數衣服的，不能用來數蘋果。" }
+            ]
+        }, {
+            question: "畫畫的時候，我們需要用到「一（ ）白紙」📄。",
+            hint: "薄薄的、平平的東西（像紙、桌子），我們會用這個字。",
+            emoji: "📝",
+            options: [
+                { text: "一隻白紙", isCorrect: false, rationale: "「隻」是用來數小動物的，白紙不是小動物喔。" },
+                { text: "一頭白紙", isCorrect: false, rationale: "「頭」是用來數體型很大的動物，像是牛或大象。" },
+                { text: "一張白紙", isCorrect: true, rationale: "好聰明！薄薄平平的紙張，量詞就是「張」。" },
+                { text: "一朵白紙", isCorrect: false, rationale: "「朵」是用來數花的，白紙沒有花瓣呀。" }
+            ]
+        }, {
+            question: "哥哥要寫字，他拿出「一（ ）鉛筆」✏️。",
+            hint: "細細長長、用來寫字的東西，它的量詞部首有「木」或「手」哦，不要和小動物搞混了！",
+            emoji: "🖍️",
+            options: [
+                { text: "一隻鉛筆", isCorrect: false, rationale: "要注意喔！下面有「隹」的「隻」是用來數小鳥和小動物的。" },
+                { text: "一支鉛筆", isCorrect: true, rationale: "完全正確！「支」（或枝）是用來計算筆的專用量詞。" },
+                { text: "一件鉛筆", isCorrect: false, rationale: "「件」是用來數衣服的，不適合用在鉛筆上。" },
+                { text: "一本鉛筆", isCorrect: false, rationale: "「本」是用來數書的，鉛筆不能一頁一頁翻開。" }
+            ]
+        }, {
+            question: "水裡游來游去的魚 🐟，我們應該用什麼量詞呢？",
+            hint: "像繩子一樣長長的動物，通常會用這個字來數。",
+            emoji: "🐠",
+            options: [
+                { text: "一本魚", isCorrect: false, rationale: "「本」是用來數書的，不能用來數魚喔。" },
+                { text: "一隻魚", isCorrect: false, rationale: "雖然很多小動物用「隻」，但細長的魚習慣用「條」來數更合適。" },
+                { text: "一個魚", isCorrect: false, rationale: "「個」通常數圓圓的東西，魚的形狀長長的，用「條」比較好。" },
+                { text: "一條魚", isCorrect: true, rationale: "很棒！「條」用來計算細長形狀的動物或物品，像魚或蛇。" }
+            ]
+        }, {
+            question: "天氣變冷了，要穿上「一（ ）衣服」👕 才不會著涼哦！",
+            hint: "穿在上半身的衣物，我們會用這個專屬的量詞。",
+            emoji: "🧥",
+            options: [
+                { text: "一件衣服", isCorrect: true, rationale: "答對了！包覆全身的衣物或是上衣，量詞都是「件」。" },
+                { text: "一本衣服", isCorrect: false, rationale: "「本」是用來數書本的喔。" },
+                { text: "一條衣服", isCorrect: false, rationale: "「條」通常用來數褲子（一條褲子），上衣要用「件」。" },
+                { text: "一隻衣服", isCorrect: false, rationale: "衣服不會跑來跑去，所以不能用小動物的「隻」。" }
+            ]
+        }, {
+            question: "睡覺前，爸爸會讀「一（ ）故事書」📖 給我聽。",
+            hint: "有很多頁紙釘在一起的東西，會用什麼量詞呢？",
+            emoji: "📚",
+            options: [
+                { text: "一張故事書", isCorrect: false, rationale: "「張」只是一張單獨的紙，故事書有很多頁，所以是「本」。" },
+                { text: "一個故事書", isCorrect: false, rationale: "書籍有自己的專屬量詞「本」，用「個」不夠準確喔。" },
+                { text: "一本故事書", isCorrect: true, rationale: "太棒了！有書頁裝訂在一起的書籍，量詞都是「本」。" },
+                { text: "一支故事書", isCorrect: false, rationale: "「支」是用來數筆的，不能用來數書。" }
+            ]
+        }, {
+            question: "農場裡有好大的牛 🐄 在吃草！我們要說「一（ ）牛」？",
+            hint: "體型比較大、在農場裡的動物（像牛、大象），我們會用這個字。",
+            emoji: "🐃",
+            options: [
+                { text: "一張牛", isCorrect: false, rationale: "牛不是扁扁平平的紙張，不能用「張」。" },
+                { text: "一頭牛", isCorrect: true, rationale: "非常正確！「頭」專門用來計算體型比較大的家畜。" },
+                { text: "一朵牛", isCorrect: false, rationale: "牛沒有花瓣，不能用「朵」喔。" },
+                { text: "一枝牛", isCorrect: false, rationale: "「枝」是用來數樹枝或是筆的。" }
+            ]
+        }, {
+            question: "準備出門了，要把「一（ ）鞋子」👟 穿好喔！",
+            hint: "鞋子通常是左腳和右腳兩個合在一起的，這樣的組合我們稱為什麼呢？",
+            emoji: "🥾",
+            options: [
+                { text: "一隻鞋子", isCorrect: false, rationale: "「一隻」只有單獨一邊喔，鞋子要左右兩邊一起穿，所以是「一雙」。" },
+                { text: "一張鞋子", isCorrect: false, rationale: "鞋子不是平平的紙張，不能用「張」。" },
+                { text: "一件鞋子", isCorrect: false, rationale: "「件」是用來數衣服的，鞋子要用「雙」。" },
+                { text: "一雙鞋子", isCorrect: true, rationale: "答對了！左右兩邊合在一起才能穿的物品（像鞋子、襪子），要用「雙」。" }
+            ]
+        }, {
+            question: "馬路上開來了「一（ ）汽車」🚗，準備停在紅綠燈前。",
+            hint: "有輪子可以在路上跑的交通工具，通常會用部首是「車」的字來數。",
+            emoji: "🚙",
+            options: [
+                { text: "一輛汽車", isCorrect: true, rationale: "「輛」是專門用來計算有輪子的車輛的量詞。" },
+                { text: "一張汽車", isCorrect: false, rationale: "「張」通常用來計算平平薄薄的東西。" },
+                { text: "一條汽車", isCorrect: false, rationale: "汽車的形狀不是細細長長的。" },
+                { text: "一本汽車", isCorrect: false, rationale: "「本」是用來計算有頁面可以翻開的書本。" }
+            ]
+        }, {
+            question: "草原上跑得很快的馬 🐎，我們應該說「一（ ）馬」。",
+            hint: "這個字聽起來像是布料的單位，專門用來配馬喔。",
+            emoji: "🐴",
+            options: [
+                { text: "一匹馬", isCorrect: true, rationale: "「匹」是專門用來計算馬的專屬量詞。" },
+                { text: "一隻馬", isCorrect: false, rationale: "雖然馬是動物，但牠有專屬的量詞「匹」。" },
+                { text: "一條馬", isCorrect: false, rationale: "馬不是細長形狀的動物。" },
+                { text: "一頭馬", isCorrect: false, rationale: "「頭」通常用來計算牛、豬等體型較大的家畜。" }
+            ]
+        }, {
+            question: "生日的時候，我吃了一「（ ）蛋糕」🍰，好甜好好吃！",
+            hint: "從一整個大蛋糕切下來的部分，我們會用這個字來形容。",
+            emoji: "🎂",
+            options: [
+                { text: "一塊蛋糕", isCorrect: true, rationale: "「塊」用來計算成塊狀、有厚度的食物或物品。" },
+                { text: "一條蛋糕", isCorrect: false, rationale: "除非是整條瑞士卷，否則切下來的蛋糕通常用「塊」。" },
+                { text: "一本蛋糕", isCorrect: false, rationale: "蛋糕不能像書一樣翻開喔。" },
+                { text: "一張蛋糕", isCorrect: false, rationale: "蛋糕不是扁扁平平的。" }
+            ]
+        }, {
+            question: "公園裡種了「一（ ）大樹」🌳，可以在下面乘涼。",
+            hint: "這個字的部首是「木」，專門用來數植物。",
+            emoji: "🌲",
+            options: [
+                { text: "一棵大樹", isCorrect: true, rationale: "「棵」是專門用來計算植物（如樹木、青菜）的量詞。" },
+                { text: "一支大樹", isCorrect: false, rationale: "「支」通常用來數筆。" },
+                { text: "一朵大樹", isCorrect: false, rationale: "「朵」是用來數花的，不是整棵樹。" },
+                { text: "一個大樹", isCorrect: false, rationale: "樹有自己專屬的量詞「棵」。" }
+            ]
+        }, {
+            question: "下雨了，我們要撐開「一（ ）雨傘」☂️ 才不會淋濕。",
+            hint: "有把手可以握住的物品（像雨傘、剪刀），通常會用這個字。",
+            emoji: "☔",
+            options: [
+                { text: "一把雨傘", isCorrect: true, rationale: "「把」通常用來計算有手柄、可以握著的器具。" },
+                { text: "一張雨傘", isCorrect: false, rationale: "雨傘不是平面的紙張喔。" },
+                { text: "一隻雨傘", isCorrect: false, rationale: "雨傘不是動物。" },
+                { text: "一件雨傘", isCorrect: false, rationale: "「件」通常用來數衣服。" }
+            ]
+        }, {
+            question: "除了穿外套，還要穿上「一（ ）長褲」👖。",
+            hint: "長長的、穿在下半身的衣物，量詞和魚一樣喔！",
+            emoji: "👖",
+            options: [
+                { text: "一條長褲", isCorrect: true, rationale: "「條」用來計算細長形狀的物品，褲管長長的，所以用「條」。" },
+                { text: "一件長褲", isCorrect: false, rationale: "「件」通常用來計算上衣。" },
+                { text: "一雙長褲", isCorrect: false, rationale: "褲子是連在一起的單一物品，不用「雙」。" },
+                { text: "一個長褲", isCorrect: false, rationale: "衣物類不適合用「個」。" }
+            ]
+        }, {
+            question: "天空中飛過「一（ ）飛機」✈️，飛得好高好高！",
+            hint: "用來數飛機、鋼琴或是有骨架機器的量詞是什麼呢？",
+            emoji: "🛩️",
+            options: [
+                { text: "一架飛機", isCorrect: true, rationale: "「架」專門用來計算飛機或是大型的機器設備。" },
+                { text: "一隻飛機", isCorrect: false, rationale: "飛機不是動物喔。" },
+                { text: "一輛飛機", isCorrect: false, rationale: "「輛」是專門在陸地上跑的車子的量詞。" },
+                { text: "一艘飛機", isCorrect: false, rationale: "「艘」是用來計算水裡的船隻。" }
+            ]
+        }, {
+            question: "妹妹吃了一「（ ）糖果」🍬，嘴巴甜甜的。",
+            hint: "小小圓圓的、一粒一粒的東西，我們會用哪個字呢？",
+            emoji: "🍭",
+            options: [
+                { text: "一顆糖果", isCorrect: true, rationale: "「顆」或是「粒」專門用來計算體積小、圓形的物品。" },
+                { text: "一片糖果", isCorrect: false, rationale: "糖果通常不是薄薄一片。" },
+                { text: "一條糖果", isCorrect: false, rationale: "單顆糖果不會用「條」。" },
+                { text: "一本糖果", isCorrect: false, rationale: "糖果不能用來閱讀喔。" }
+            ]
+        }, {
+            question: "秋天到了，從樹上掉下來「一（ ）落葉」🍂。",
+            hint: "樹葉薄薄的、扁扁的，量詞跟餅乾有點像喔。",
+            emoji: "🍁",
+            options: [
+                { text: "一片落葉", isCorrect: true, rationale: "「片」用來計算平的、薄薄的物體，像樹葉或肉片。" },
+                { text: "一張落葉", isCorrect: false, rationale: "「張」通常用在人造的平面物品（如紙張）。" },
+                { text: "一朵落葉", isCorrect: false, rationale: "「朵」是用來數花的。" },
+                { text: "一棵落葉", isCorrect: false, rationale: "「棵」是用來數整株植物的。" }
+            ]
+        }, {
+            question: "做勞作時，我們需要用到「一（ ）剪刀」✂️。",
+            hint: "剪刀有把手可以用手握住，量詞跟雨傘一樣喔。",
+            emoji: "✂️",
+            options: [
+                { text: "一把剪刀", isCorrect: true, rationale: "「把」專門用來計算有柄、有把手可以握持的器具。" },
+                { text: "一張剪刀", isCorrect: false, rationale: "剪刀不是紙張。" },
+                { text: "一支剪刀", isCorrect: false, rationale: "雖然有些口語會說一支，但「一把」是更標準的量詞。" },
+                { text: "一條剪刀", isCorrect: false, rationale: "剪刀不是細長的軟性物品。" }
+            ]
+        }, {
+            question: "牆上掛著「一（ ）美麗的風景畫」🖼️。",
+            hint: "掛在牆上的畫作，或者布料，我們會用這個專屬量詞。",
+            emoji: "🎨",
+            options: [
+                { text: "一幅畫", isCorrect: true, rationale: "「幅」是專門用來計算圖畫、布匹等展開物品的量詞。" },
+                { text: "一張畫", isCorrect: false, rationale: "如果是畫在紙上還沒掛起來可以說一張，但作品通常用「幅」。" },
+                { text: "一面畫", isCorrect: false, rationale: "「面」通常用來計算鏡子或旗幟。" },
+                { text: "一本畫", isCorrect: false, rationale: "這不是裝訂成冊的畫冊喔。" }
+            ]
+        }, {
+            question: "房間的入口處有「一（ ）木門」🚪。",
+            hint: "門和窗戶的量詞是一樣的，可以開關的平面物體。",
+            emoji: "🚪",
+            options: [
+                { text: "一扇門", isCorrect: true, rationale: "「扇」專門用來計算門、窗等可以開合的片狀物體。" },
+                { text: "一張門", isCorrect: false, rationale: "門雖然是平的，但它裝在牆上可以活動，所以不用「張」。" },
+                { text: "一個門", isCorrect: false, rationale: "用「個」雖然聽得懂，但「扇」才是最準確的。" },
+                { text: "一塊門", isCorrect: false, rationale: "「塊」通常指不規則的塊狀物。" }
+            ]
+        }, {
+            question: "桌上放了「一（ ）裝滿水的杯子」🥛。",
+            hint: "杯子這種生活容器，最常用的通用量詞是什麼呢？",
+            emoji: "🍵",
+            options: [
+                { text: "一個杯子", isCorrect: true, rationale: "「個」是非常通用的量詞，常用於計算沒有特定專屬量詞的立體物品。" },
+                { text: "一張杯子", isCorrect: false, rationale: "杯子是立體的容器，不是平面的喔。" },
+                { text: "一條杯子", isCorrect: false, rationale: "杯子不是細長形的。" },
+                { text: "一本杯子", isCorrect: false, rationale: "杯子不能翻頁。" }
+            ]
+        }, {
+            question: "天黑了，哥哥打開了書桌上的「一（ ）檯燈」💡。",
+            hint: "會發光的燈具，專屬的量詞是什麼呢？",
+            emoji: "🛋️",
+            options: [
+                { text: "一盞檯燈", isCorrect: true, rationale: "「盞」是專門用來計算燈具的量詞。" },
+                { text: "一個檯燈", isCorrect: false, rationale: "雖然說一個檯燈也能懂，但燈具有專門的量詞「盞」。" },
+                { text: "一朵檯燈", isCorrect: false, rationale: "燈光照下來像花朵，但量詞不能用「朵」。" },
+                { text: "一把檯燈", isCorrect: false, rationale: "檯燈不需要我們一直用手握住把手。" }
+            ]
+        }, {
+            question: "海面上航行著「一（ ）大船」🚢。",
+            hint: "在水裡航行的交通工具，有一個部首是「舟」的專屬量詞。",
+            emoji: "⛵",
+            options: [
+                { text: "一艘大船", isCorrect: true, rationale: "「艘」是專門用來計算船隻的量詞。" },
+                { text: "一架大船", isCorrect: false, rationale: "「架」是在天上飛的飛機用的。" },
+                { text: "一輛大船", isCorrect: false, rationale: "「輛」是在陸地上跑的車子用的。" },
+                { text: "一隻大船", isCorrect: false, rationale: "正規來說，大船的量詞是「艘」。" }
+            ]
+        }, {
+            question: "夏天吃「一（ ）大西瓜」🍉 最消暑了！",
+            hint: "西瓜圓圓大大的，跟蘋果一樣，會用哪個量詞呢？",
+            emoji: "🍉",
+            options: [
+                { text: "一個大西瓜", isCorrect: true, rationale: "「個」常用來計算圓形的水果或是立體的物品。" },
+                { text: "一條大西瓜", isCorrect: false, rationale: "西瓜是圓的或橢圓的，不是長條形的。" },
+                { text: "一張大西瓜", isCorrect: false, rationale: "西瓜是立體的，不是扁扁的。" },
+                { text: "一件大西瓜", isCorrect: false, rationale: "「件」是用來計算衣服或事情的。" }
+            ]
+        }, {
+            question: "草叢裡躲著「一（ ）長長的蛇」🐍。",
+            hint: "蛇的身體細細長長的，量詞和魚一樣喔。",
+            emoji: "🐍",
+            options: [
+                { text: "一條蛇", isCorrect: true, rationale: "「條」專門用來計算細長形狀的動物或物品。" },
+                { text: "一隻蛇", isCorrect: false, rationale: "因為蛇的形狀特別，用「條」更適合。" },
+                { text: "一頭蛇", isCorrect: false, rationale: "「頭」用來計算體型龐大的家畜。" },
+                { text: "一根蛇", isCorrect: false, rationale: "「根」通常計算硬硬的、細長的東西，蛇身體是軟的喔。" }
+            ]
+        }, {
+            question: "樹枝上停著「一（ ）唱歌的小鳥」🐦。",
+            hint: "體型小小的飛禽類動物，通常會用這個字來數。",
+            emoji: "🕊️",
+            options: [
+                { text: "一隻小鳥", isCorrect: true, rationale: "「隻」是最常用來計算飛禽走獸等小動物的量詞。" },
+                { text: "一朵小鳥", isCorrect: false, rationale: "小鳥沒有花瓣，不能用「朵」。" },
+                { text: "一條小鳥", isCorrect: false, rationale: "小鳥圓圓小小的，不是細長形。" },
+                { text: "一個小鳥", isCorrect: false, rationale: "動物通常有專屬的量詞，很少用「個」。" }
+            ]
+        }, {
+            question: "天上閃爍著「一（ ）明亮的星星」⭐。",
+            hint: "跟糖果一樣小小圓圓的感覺，量詞是一樣的喔！",
+            emoji: "🌟",
+            options: [
+                { text: "一顆星星", isCorrect: true, rationale: "「顆」用來計算顆粒狀或看起來小小的發光體。" },
+                { text: "一朵星星", isCorrect: false, rationale: "星星不是花喔。" },
+                { text: "一張星星", isCorrect: false, rationale: "星星不是平面的紙。" },
+                { text: "一件星星", isCorrect: false, rationale: "「件」是用來數衣服的。" }
+            ]
+        }, {
+            question: "媽媽買了「一（ ）好吃的葡萄」🍇。",
+            hint: "很多顆水果連在同一個蒂頭上，我們會用這個量詞。",
+            emoji: "🍇",
+            options: [
+                { text: "一串葡萄", isCorrect: true, rationale: "「串」用來計算連貫在一起的事物，像是葡萄或烤肉串。" },
+                { text: "一顆葡萄", isCorrect: false, rationale: "「顆」是只有單獨一粒，通常買葡萄是一整串的。" },
+                { text: "一條葡萄", isCorrect: false, rationale: "葡萄不是長條形的。" },
+                { text: "一本葡萄", isCorrect: false, rationale: "葡萄不能像書一樣翻閱。" }
+            ]
+        }, {
+            question: "太陽太大了，我要戴上「一（ ）帽子」🧢。",
+            hint: "戴在頭上的東西，有一個專屬的量詞喔！",
+            emoji: "🎩",
+            options: [
+                { text: "一頂帽子", isCorrect: true, rationale: "「頂」是專門用來計算戴在頭上的物品（如帽子、皇冠）的量詞。" },
+                { text: "一件帽子", isCorrect: false, rationale: "帽子不是穿在身上的衣服。" },
+                { text: "一個帽子", isCorrect: false, rationale: "雖然聽得懂，但「頂」才是最準確的。" },
+                { text: "一張帽子", isCorrect: false, rationale: "帽子不是平平的紙張。" }
+            ]
+        }, {
+            question: "早上洗臉前，要先準備「一（ ）毛巾」。",
+            hint: "毛巾長長的、軟軟的，跟褲子或魚的量詞一樣喔！",
+            emoji: "🧣",
+            options: [
+                { text: "一條毛巾", isCorrect: true, rationale: "「條」用來計算細長且柔軟的物品。" },
+                { text: "一張毛巾", isCorrect: false, rationale: "毛巾雖然可以攤平，但習慣上用「條」來強調長度。" },
+                { text: "一件毛巾", isCorrect: false, rationale: "毛巾不是穿著的衣物。" },
+                { text: "一塊毛巾", isCorrect: false, rationale: "如果抹布可能會用「塊」，但洗臉的長毛巾多用「條」。" }
+            ]
+        }, {
+            question: "出門前要照一下「一（ ）鏡子」，看看衣服有沒有穿好。",
+            hint: "平平亮亮的鏡子或旗幟，都有一個專屬的量詞。",
+            emoji: "🪞",
+            options: [
+                { text: "一面鏡子", isCorrect: true, rationale: "「面」用來計算扁平且有表面的物品，如鏡子、牆壁、旗子。" },
+                { text: "一張鏡子", isCorrect: false, rationale: "鏡子通常較厚重且堅硬，不用「張」。" },
+                { text: "一個鏡子", isCorrect: false, rationale: "「面」是更精確的用法。" },
+                { text: "一塊鏡子", isCorrect: false, rationale: "通常指破碎的鏡子碎片才會用「一塊」。" }
+            ]
+        }, {
+            question: "爺爺看報紙時，都會戴上「一（ ）眼鏡」。",
+            hint: "成套的或是兩個鏡片連在一起的物品，會用這個字。",
+            emoji: "👓",
+            options: [
+                { text: "一副眼鏡", isCorrect: true, rationale: "「副」用來計算成套或對稱的物品，例如眼鏡、手套、撲克牌。" },
+                { text: "一雙眼鏡", isCorrect: false, rationale: "眼鏡雖然有兩個鏡片，但框架連在一起不可分開，習慣用「副」。" },
+                { text: "一個眼鏡", isCorrect: false, rationale: "「副」是專屬量詞，聽起來更有學問喔。" },
+                { text: "一件眼鏡", isCorrect: false, rationale: "眼鏡不是衣服類。" }
+            ]
+        }, {
+            question: "天空飄著「一（ ）白雲」，好像棉花糖。",
+            hint: "雲的量詞和花一樣喔，一坨一坨的感覺。",
+            emoji: "☁️",
+            options: [
+                { text: "一朵白雲", isCorrect: true, rationale: "「朵」除了用來數花，也用來數立體、成團狀的雲彩。" },
+                { text: "一片白雲", isCorrect: false, rationale: "如果雲平鋪在天空可說一片，但像棉花糖的立體狀多用「朵」。" },
+                { text: "一個白雲", isCorrect: false, rationale: "用「朵」更能形容雲的柔軟與形狀。" },
+                { text: "一隻白雲", isCorrect: false, rationale: "雲不是小動物喔。" }
+            ]
+        }, {
+            question: "裁縫師用「一（ ）針」把衣服縫好。",
+            hint: "細細長長、硬硬的東西，像木棍或針，會用這個字。",
+            emoji: "🪡",
+            options: [
+                { text: "一根針", isCorrect: true, rationale: "「根」專門用來計算細長且具有一定硬度的物品。" },
+                { text: "一條針", isCorrect: false, rationale: "「條」通常指柔軟的長條物（如繩子），針是硬的。" },
+                { text: "一支針", isCorrect: false, rationale: "雖然筆用「支」，但更細的針通常用「根」。" },
+                { text: "一把針", isCorrect: false, rationale: "「把」是用在有把手可以握持的物品。" }
+            ]
+        }, {
+            question: "農場裡有一大「（ ）綿羊」在吃草，數都數不清。",
+            hint: "很多隻動物聚集在一起的時候，我們該用什麼量詞？",
+            emoji: "🐑",
+            options: [
+                { text: "一群綿羊", isCorrect: true, rationale: "「群」用來計算聚集在一起的許多人或動物。" },
+                { text: "一隻綿羊", isCorrect: false, rationale: "「隻」只有單單一隻，題目說是數不清的很多隻喔。" },
+                { text: "一堆綿羊", isCorrect: false, rationale: "「堆」通常用在沒有生命的物品（如一堆土）。" },
+                { text: "一匹綿羊", isCorrect: false, rationale: "「匹」是用來數馬的。" }
+            ]
+        }, {
+            question: "葉子上有一「（ ）水珠」，晶瑩剔透。",
+            hint: "液體變成非常小的一點掉下來，我們稱為什麼？",
+            emoji: "💧",
+            options: [
+                { text: "一滴水珠", isCorrect: true, rationale: "「滴」用來計算微小、呈點狀的液體。" },
+                { text: "一顆水珠", isCorrect: false, rationale: "雖然水珠圓圓的，但液體的專屬單位是「滴」。" },
+                { text: "一片水珠", isCorrect: false, rationale: "水珠是立體的圓形，不是扁平的片狀。" },
+                { text: "一粒水珠", isCorrect: false, rationale: "液體不適合用「粒」，那是固體的用法。" }
+            ]
+        }, {
+            question: "遠方有「一（ ）高山」，看起來非常壯觀。",
+            hint: "體積龐大、固定不動的建築物或自然景觀，會用這個字。",
+            emoji: "⛰️",
+            options: [
+                { text: "一座高山", isCorrect: true, rationale: "「座」用來計算龐大且穩固的物體，如山、橋樑、城堡。" },
+                { text: "一個高山", isCorrect: false, rationale: "用「座」比較能表現出山的宏偉與巨大。" },
+                { text: "一棵高山", isCorrect: false, rationale: "「棵」是用來數樹木植物的。" },
+                { text: "一塊高山", isCorrect: false, rationale: "「塊」通常指較小的石頭或塊狀物。" }
+            ]
+        }, {
+            question: "吃飯時，我用「一（ ）筷子」夾菜。",
+            hint: "筷子跟鞋子一樣，一定要兩根合在一起才能用喔！",
+            emoji: "🥢",
+            options: [
+                { text: "一雙筷子", isCorrect: true, rationale: "「雙」用來計算成對搭配、兩兩一組才能使用的物品。" },
+                { text: "一根筷子", isCorrect: false, rationale: "一根筷子沒辦法夾菜，必須是一對（一雙）才行。" },
+                { text: "兩條筷子", isCorrect: false, rationale: "筷子通常不用「條」，而是直接說「一雙」。" },
+                { text: "一把筷子", isCorrect: false, rationale: "「把」是很多根筷子抓在一起，但吃飯只需用到「一雙」。" }
+            ]
+        }, {
+            question: "河面上建了「一（ ）大橋」，讓車子可以開過去。",
+            hint: "大型的建築物、橋樑或是高山，量詞都是一樣的喔。",
+            emoji: "🌉",
+            options: [
+                { text: "一座大橋", isCorrect: true, rationale: "「座」專門用來計算大型且固定不動的建築物或山峰。" },
+                { text: "一條大橋", isCorrect: false, rationale: "雖然橋長長的，但因為是大型建築，用「座」更合適。" },
+                { text: "一張大橋", isCorrect: false, rationale: "大橋不是平平薄薄的紙張。" },
+                { text: "一個大橋", isCorrect: false, rationale: "「座」是專屬量詞，用「個」太普通了。" }
+            ]
+        }, {
+            question: "哥哥寄了「一（ ）信」給遠方的朋友。",
+            hint: "裝在信封裡的信件，量詞和用來把東西封住的字一樣。",
+            emoji: "✉️",
+            options: [
+                { text: "一封信", isCorrect: true, rationale: "「封」是專門用來計算信件或是密封物品的量詞。" },
+                { text: "一張信", isCorrect: false, rationale: "如果指裡面的信紙可以說一張，但整封信件要用「封」。" },
+                { text: "一本信", isCorrect: false, rationale: "信不是書本喔。" },
+                { text: "一件信", isCorrect: false, rationale: "雖然可以說「一件包裹」，但信件專屬量詞是「封」。" }
+            ]
+        }, {
+            question: "我們全家拍了「一（ ）照片」留作紀念。",
+            hint: "照片扁扁平平的，就像紙張一樣。",
+            emoji: "📸",
+            options: [
+                { text: "一張照片", isCorrect: true, rationale: "「張」用來計算平面、薄片狀的物品，如照片、紙張、桌子。" },
+                { text: "一個照片", isCorrect: false, rationale: "相框可以是「一個」，但照片本身用「張」。" },
+                { text: "一幅照片", isCorrect: false, rationale: "「幅」通常用在畫作上，照片習慣用「張」。" },
+                { text: "一本照片", isCorrect: false, rationale: "相簿才是「一本」，單張照片是「一張」。" }
+            ]
+        }, {
+            question: "媽媽買了「一（ ）新床」，睡起來好舒服。",
+            hint: "床有平平的表面讓我們躺在上面，量詞跟桌子或紙一樣。",
+            emoji: "🛏️",
+            options: [
+                { text: "一張床", isCorrect: true, rationale: "「張」除了紙以外，也用來計算有平坦表面的家具（如床、桌子、椅子）。" },
+                { text: "一個床", isCorrect: false, rationale: "家具類有更精確的量詞「張」或「把」。" },
+                { text: "一座床", isCorrect: false, rationale: "床沒有像山或橋那麼巨大，不用「座」。" },
+                { text: "一件床", isCorrect: false, rationale: "「件」通常用來計算衣服或是事情。" }
+            ]
+        }, {
+            question: "天空出現了「一（ ）美麗的彩虹」。",
+            hint: "彩虹彎彎的，像光芒劃過天際，我們會用哪個字呢？",
+            emoji: "🌈",
+            options: [
+                { text: "一道彩虹", isCorrect: true, rationale: "「道」用來計算光線、閃電、彩虹，或是長條狀的水流。" },
+                { text: "一條彩虹", isCorrect: false, rationale: "雖然也是長長的，但對光束或彩虹習慣用「道」。" },
+                { text: "一座彩虹", isCorrect: false, rationale: "彩虹不是實體的建築物，不能用「座」。" },
+                { text: "一個彩虹", isCorrect: false, rationale: "「道」比「個」更能展現出光影的感覺。" }
+            ]
+        }, {
+            question: "黑板擦不乾淨，需要用「一（ ）抹布」。",
+            hint: "抹布通常是四四方方、一小片一小片的布料。",
+            emoji: "🧽",
+            options: [
+                { text: "一塊抹布", isCorrect: true, rationale: "「塊」除了用在立體的石頭或蛋糕，也常指裁切好的方形布料。" },
+                { text: "一條抹布", isCorrect: false, rationale: "雖然洗臉用「毛巾」是條，但抹布多為方形，常用「塊」。" },
+                { text: "一張抹布", isCorrect: false, rationale: "抹布是布料，不用紙張的「張」。" },
+                { text: "一件抹布", isCorrect: false, rationale: "抹布不是穿在身上的衣服。" }
+            ]
+        }, {
+            question: "弟弟的手上拿著「一（ ）氣球」。",
+            hint: "氣球圓圓的、鼓鼓的，和蘋果的量詞一樣。",
+            emoji: "🎈",
+            options: [
+                { text: "一個氣球", isCorrect: true, rationale: "「個」常用來計算圓形或沒有特殊專屬量詞的物品。" },
+                { text: "一朵氣球", isCorrect: false, rationale: "氣球不是花朵。" },
+                { text: "一隻氣球", isCorrect: false, rationale: "氣球沒有生命，不是小動物。" },
+                { text: "一粒氣球", isCorrect: false, rationale: "氣球體積比「一粒」米大太多了，用「個」更適合。" }
+            ]
+        }, {
+            question: "道路旁直立著「一（ ）電線桿」。",
+            hint: "細長且直直插在地上、硬梆梆的物品，量詞是什麼呢？",
+            emoji: "🔌",
+            options: [
+                { text: "一根電線桿", isCorrect: true, rationale: "「根」用來計算細長、有硬度的物體，如木棍、柱子、電線桿。" },
+                { text: "一條電線桿", isCorrect: false, rationale: "「條」通常指柔軟的長狀物（如繩子），電線桿是硬的。" },
+                { text: "一顆電線桿", isCorrect: false, rationale: "電線桿非常長，不是圓圓小小的一顆。" },
+                { text: "一把電線桿", isCorrect: false, rationale: "電線桿太大了，無法用手「一把」抓起來。" }
+            ]
+        }, {
+            question: "媽媽在院子裡種了「一（ ）紅玫瑰」。",
+            hint: "美麗的花瓣綻放，就像耳朵的形狀，量詞是什麼？",
+            emoji: "🌹",
+            options: [
+                { text: "一朵紅玫瑰", isCorrect: true, rationale: "「朵」是專門用來計算花瓣展開的花卉量詞。" },
+                { text: "一顆紅玫瑰", isCorrect: false, rationale: "如果是沒開花的花苞可能說一顆，但開花後用「朵」。" },
+                { text: "一條紅玫瑰", isCorrect: false, rationale: "玫瑰不是細長形的。" },
+                { text: "一塊紅玫瑰", isCorrect: false, rationale: "花不是堅硬的塊狀物。" }
+            ]
+        }, {
+            question: "今天早上媽媽煎了「一（ ）荷包蛋」。",
+            hint: "雞蛋圓圓的，體積不大不小，最常使用的量詞是什麼呢？",
+            emoji: "🍳",
+            options: [
+                { text: "一個荷包蛋", isCorrect: true, rationale: "「個」常用來計算圓形食物；如果是還沒敲破的蛋，常說「一顆蛋」。" },
+                { text: "一條荷包蛋", isCorrect: false, rationale: "荷包蛋是圓的，不是長條形的。" },
+                { text: "一隻荷包蛋", isCorrect: false, rationale: "煎好的蛋沒有生命，不能用「隻」。" },
+                { text: "一本荷包蛋", isCorrect: false, rationale: "荷包蛋不是書。" }
+            ]
+        }, {
+            question: "大掃除時，我幫忙丟了「一（ ）垃圾」。",
+            hint: "裝在塑膠袋裡、或是堆在一起的事物，會用哪個字？",
+            emoji: "🗑️",
+            options: [
+                { text: "一包垃圾", isCorrect: true, rationale: "裝在袋子裡的物品通常用「包」，如果散落在地上則可能用「堆」。" },
+                { text: "一隻垃圾", isCorrect: false, rationale: "垃圾不是動物喔。" },
+                { text: "一朵垃圾", isCorrect: false, rationale: "垃圾不是花。" },
+                { text: "一張垃圾", isCorrect: false, rationale: "除非是一張廢紙，否則整袋垃圾不用「張」。" }
+            ]
+        }];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        const appDiv = document.getElementById('app');
+
+        const synth = window.speechSynthesis;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playCorrectSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function playIncorrectSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function stripEmoji(text) {
+            return text.replace(
+                    /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
+                    '')
+                .replace(/（\s*）/g, '乜嘢')
+                .replace(/\(\s*\)/g, '乜嘢');
+        }
+
+        function speakCantonese(text) {
+            if (synth.speaking) synth.cancel();
+            const cleanText = stripEmoji(text);
+            const utterThis = new SpeechSynthesisUtterance(cleanText);
+            utterThis.lang = 'zh-HK';
+            utterThis.rate = 0.85;
+            const voices = synth.getVoices();
+            const hkVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'yue-HK');
+            if (hkVoice) {
+                utterThis.voice = hkVoice;
+            }
+            synth.speak(utterThis);
+        }
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="p-10 text-center bg-bgLight">
+                    <h1 class="text-4xl font-cute font-bold text-textDark mb-4">🌟 生活量詞趣味小測驗 🌟</h1>
+                    <p class="text-lg text-gray-700 mb-8 font-sans">一起來挑戰看看，你能不能幫小動物和物品找到正確的「量詞」朋友吧！<br><span class="text-primary font-bold mt-2 inline-block">（🔥 終極大挑戰：共 50 題！）</span></p>
+                    <div class="text-6xl mb-8">🏫🐈🍎✏️</div>
+                    <button onclick="initAudio(); startQuiz(); speakCantonese('準備好未？我哋開始喇！');" class="bg-primary hover:bg-orange-500 text-white font-cute font-bold py-4 px-8 rounded-full text-2xl shadow-lg transform transition hover:scale-105 active:scale-95">
+                        開始挑戰！ 🚀
+                    </button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = quizData[currentQuestionIndex];
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+
+            let optionsHtml = '';
+            q.options.forEach((opt, index) => {
+                optionsHtml += `
+                    <div class="relative mb-3">
+                        <button id="opt-${index}" onclick="handleAnswer(${index})" class="option-btn w-full text-left p-4 rounded-xl border-2 border-gray-200 bg-gray-50 hover:bg-blue-50 font-sans text-lg font-medium text-textDark pr-14">
+                            <span class="inline-block w-8 h-8 rounded-full bg-white border border-gray-300 text-center leading-8 mr-3 font-bold">${String.fromCharCode(65 + index)}</span>
+                            ${opt.text}
+                        </button>
+                        <button onclick="speakCantonese('${opt.text}')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 transition p-2 bg-white rounded-full shadow-sm hover:bg-blue-50 z-10" title="讀出選項">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                        </button>
+                    </div>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="bg-secondary h-3 w-full">
+                    <div class="bg-primary h-3 transition-all duration-500" style="width: ${progress}%"></div>
+                </div>
+                <div class="p-6 md:p-10 slide-up">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-gray-500 font-bold font-sans">第 ${currentQuestionIndex + 1} / ${quizData.length} 題</span>
+                        <span class="text-secondary font-bold font-sans">⭐ 分數: ${score}</span>
+                    </div>
+
+                    <div class="flex items-center gap-4 mb-6 relative">
+                        <div class="text-5xl bg-bgLight p-4 rounded-2xl flex-shrink-0">${q.emoji}</div>
+                        <h2 class="text-2xl md:text-3xl font-cute font-bold text-textDark leading-snug pr-12">${q.question}</h2>
+                        <button onclick="speakCantonese('${q.question.replace(/'/g, "\\'")}')" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-100 hover:bg-blue-200 text-blue-600 p-3 rounded-full shadow-sm transition active:scale-90" title="讀出題目">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                        </button>
+                    </div>
+
+                    <div class="mb-6">
+                        <button onclick="toggleHint()" class="text-sm font-bold text-secondary flex items-center hover:text-teal-600 transition">
+                            💡 需要一點小提示嗎？
+                        </button>
+                        <div id="hint-box" class="hidden mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800 font-sans relative">
+                            <span class="pr-10 block">${q.hint}</span>
+                            <button onclick="speakCantonese('${q.hint.replace(/'/g, "\\'")}')" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-yellow-200 hover:bg-yellow-300 text-yellow-700 p-2 rounded-full transition active:scale-90" title="讀出提示">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="options-container" class="mt-4">
+                        ${optionsHtml}
+                    </div>
+
+                    <div id="feedback-container" class="hidden mt-6 p-5 rounded-2xl">
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button id="next-btn" onclick="nextQuestion()" class="hidden bg-secondary hover:bg-teal-500 text-white font-cute font-bold py-3 px-8 rounded-full text-xl shadow-md transition">
+                            ${currentQuestionIndex === quizData.length - 1 ? '看成績 🏆' : '下一題 ➡️'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleHint() {
+            const hintBox = document.getElementById('hint-box');
+            hintBox.classList.toggle('hidden');
+        }
+
+        function handleAnswer(selectedIndex) {
+            if (answered) return;
+            answered = true;
+
+            const q = quizData[currentQuestionIndex];
+            const isCorrect = q.options[selectedIndex].isCorrect;
+            const optionsContainer = document.getElementById('options-container');
+            // *** 修復關鍵：只選取帶有 .option-btn 類別的按鈕，避免誤抓朗讀按鈕 ***
+            const buttons = optionsContainer.querySelectorAll('.option-btn');
+
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-blue-50', 'hover:scale-102');
+                btn.classList.add('opacity-70', 'cursor-not-allowed');
+            });
+
+            buttons.forEach((btn, idx) => {
+                const opt = q.options[idx];
+                const letterSpan = btn.querySelector('span');
+
+                if (opt.isCorrect) {
+                    btn.classList.remove('bg-gray-50', 'border-gray-200');
+                    btn.classList.add('bg-green-100', 'border-green-400', 'text-green-800', 'opacity-100',
+                        'ring-2', 'ring-green-400', 'ring-offset-2');
+                    letterSpan.classList.add('bg-green-500', 'text-white', 'border-none');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.remove('bg-gray-50', 'border-gray-200');
+                    btn.classList.add('bg-red-100', 'border-red-400', 'text-red-800', 'opacity-100');
+                    letterSpan.classList.add('bg-red-500', 'text-white', 'border-none');
+                }
+            });
+
+            if (isCorrect) score += 10;
+
+            const correctPhrases = ["答對喇！好叻啊！", "好犀利啊！完全正確！", "真係聰明！", "好棒啊！繼續努力！"];
+            const incorrectPhrases = ["唔緊要，差少少咋，睇下點解啦！", "哎呀，爭少少，下次一定得！", "唔怕，我哋一齊學！"];
+
+            if (isCorrect) {
+                playCorrectSound();
+                const randomMsg = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
+                setTimeout(() => speakCantonese(randomMsg), 300);
+            } else {
+                playIncorrectSound();
+                const randomMsg = incorrectPhrases[Math.floor(Math.random() * incorrectPhrases.length)];
+                setTimeout(() => speakCantonese(randomMsg), 300);
+            }
+
+            const feedbackContainer = document.getElementById('feedback-container');
+            const rationale = q.options[selectedIndex].rationale;
+
+            feedbackContainer.classList.remove('hidden');
+            if (isCorrect) {
+                feedbackContainer.classList.add('bg-green-50', 'border', 'border-green-200');
+                feedbackContainer.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="text-3xl">✅</div>
+                        <div>
+                            <h3 class="text-xl font-cute font-bold text-green-700 mb-1">太棒了，答對囉！</h3>
+                            <p class="text-green-900 font-sans">${rationale}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                feedbackContainer.classList.add('bg-red-50', 'border', 'border-red-200');
+                feedbackContainer.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="text-3xl">❌</div>
+                        <div>
+                            <h3 class="text-xl font-cute font-bold text-red-700 mb-1">哎呀，有點可惜！</h3>
+                            <p class="text-red-900 font-sans">${rationale}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Show next button and scroll it into view
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+            setTimeout(() => {
+                nextBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 150);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                renderQuestion();
+                appDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function renderResultScreen() {
+            const maxScore = quizData.length * 10;
+            let message = "";
+            let emoji = "";
+
+            if (score === maxScore) {
+                message = "太厲害了！你是量詞小大師！ 🎉";
+                emoji = "🏆";
+            } else if (score >= maxScore * 0.7) {
+                message = "表現得很棒喔！繼續加油！ 👍";
+                emoji = "🌟";
+            } else {
+                message = "多練習幾次，你一定會越來越進步的！ 💪";
+                emoji = "🌱";
+            }
+
+            appDiv.innerHTML = `
+                <div class="p-10 text-center bg-bgLight slide-up">
+                    <div class="text-7xl mb-4">${emoji}</div>
+                    <h1 class="text-4xl font-cute font-bold text-textDark mb-4">測驗結束！</h1>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm inline-block mb-6 border-2 border-dashed border-primary">
+                        <p class="text-lg text-gray-500 font-sans mb-1">你的總分是</p>
+                        <p class="text-5xl font-bold text-primary font-cute">${score} <span class="text-2xl text-gray-400">/ ${maxScore}</span></p>
+                    </div>
+                    <p class="text-xl text-gray-800 font-sans mb-8 font-bold">${message}</p>
+                    <button onclick="startQuiz()" class="bg-secondary hover:bg-teal-600 text-white font-cute font-bold py-3 px-8 rounded-full text-xl shadow-md transition mx-2 my-2">
+                        再玩一次 🔄
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

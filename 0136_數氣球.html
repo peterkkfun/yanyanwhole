@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎈 汽球尋寶遊戲 | 學習左右方向</title>
+    <!-- Tailwind CSS v3 + Google Fonts 穩定載入 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;700;900&display=swap');
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans HK', sans-serif;
+            background: linear-gradient(145deg, #e0f2fe 0%, #bae6fd 100%);
+            touch-action: manipulation;
+        }
+
+        /* 汽球立體造型 */
+        .balloon {
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 2px 2px 8px rgba(0,0,0,0.15);
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        
+        .balloon:active {
+            transform: scale(0.92);
+        }
+
+        .balloon-tie {
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 12px solid;
+            margin: 0 auto;
+            margin-top: -5px;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+        }
+
+        .balloon-string {
+            width: 2px;
+            height: 55px;
+            background: linear-gradient(180deg, #a1a1aa, #d4d4d8);
+            margin: 0 auto;
+        }
+
+        /* 飄浮動畫 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1.5deg); }
+        }
+        .animate-float {
+            animation: float 2.8s ease-in-out infinite;
+        }
+
+        /* 答對跳躍 */
+        @keyframes bounce-win {
+            0% { transform: translateY(0) scale(1); }
+            40% { transform: translateY(-28px) scale(1.1); }
+            80% { transform: translateY(5px) scale(0.98); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        .correct-animation {
+            animation: bounce-win 0.5s cubic-bezier(0.4, 1.2, 0.6, 1) 2;
+        }
+
+        /* 答錯搖晃 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .wrong-animation {
+            animation: shake 0.35s ease-in-out;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 遊戲主區塊流暢過渡 */
+        .game-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 2.5rem;
+        }
+        
+        /* 按鈕點擊反饋 */
+        .btn-skip {
+            transition: all 0.15s;
+        }
+        .btn-skip:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- 開始畫面 (確保語音授權) -->
+    <div id="start-screen" class="fixed inset-0 bg-gradient-to-br from-blue-600 via-indigo-500 to-purple-600 z-50 flex flex-col items-center justify-center p-6 transition-all duration-500">
+        <div class="text-center max-w-xl">
+            <div class="text-8xl mb-4 drop-shadow-2xl animate-bounce">🎈🎈</div>
+            <h1 class="text-5xl md:text-7xl font-black mb-4 text-white drop-shadow-lg">汽球尋寶遊戲</h1>
+            <p class="text-xl md:text-2xl font-bold text-yellow-100 mb-6">👂 聽指示 · 找汽球 👂</p>
+            <p class="text-white/90 text-lg mb-10 bg-black/20 rounded-2xl p-3">🔊 學習「左」與「右」｜方向數數挑戰</p>
+            <button id="start-btn" class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 text-3xl font-black py-5 px-12 rounded-full shadow-[0_12px_0_#b45309] active:shadow-[0_4px_0_#b45309] active:translate-y-2 transition-all duration-150">
+                🚀 開始遊戲
+            </button>
+            <p class="text-white/60 text-sm mt-8">✨ 點擊汽球答題 ✨</p>
+        </div>
+    </div>
+
+    <!-- 遊戲主畫面 -->
+    <div id="game-screen" class="w-full max-w-5xl hidden flex-col items-center space-y-5">
+        
+        <!-- 頂部分數與跳過 -->
+        <div class="w-full flex justify-between items-center bg-white/70 backdrop-blur-sm rounded-2xl p-3 shadow-md">
+            <div class="flex items-center gap-2 text-2xl md:text-3xl font-black text-blue-900">
+                🎖️ 得分 <span id="score" class="text-4xl text-red-600 mx-1">0</span> 🌟
+            </div>
+            <button id="skip-button" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-5 rounded-xl shadow-sm flex items-center gap-1 text-lg transition active:scale-95">
+                ⏩ 跳過題目
+            </button>
+        </div>
+
+        <!-- 題目卡片 + 朗讀按鈕 -->
+        <div class="bg-white rounded-3xl shadow-2xl p-5 md:p-7 w-full border-4 border-indigo-200 relative">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-5">
+                <button id="speak-btn" class="bg-blue-100 hover:bg-blue-200 p-4 rounded-full shadow-md text-4xl transition active:scale-95 focus:outline-none" aria-label="聽取題目">
+                    🔊
+                </button>
+                <h3 id="question-text" class="text-xl md:text-3xl lg:text-4xl font-black text-gray-800 text-center leading-relaxed tracking-wide">
+                    點擊開始遊戲吧！
+                </h3>
+            </div>
+            <div class="text-center mt-3 text-amber-600 font-bold text-base md:text-lg">
+                👆 請點擊正確的汽球 👆
+            </div>
+        </div>
+
+        <!-- 左右標誌 -->
+        <div class="w-full flex justify-between px-2 md:px-10 font-black text-xl md:text-3xl text-indigo-700/80">
+            <div class="flex items-center gap-3 bg-white/40 px-4 py-1 rounded-full"><span class="text-3xl">👈</span> 左邊</div>
+            <div class="flex items-center gap-3 bg-white/40 px-4 py-1 rounded-full">右邊 <span class="text-3xl">👉</span></div>
+        </div>
+
+        <!-- 汽球滾動區 (支援觸控滑動) -->
+        <div class="bg-white/40 rounded-3xl p-3 w-full overflow-x-auto shadow-inner border border-indigo-200">
+            <div id="balloons-container" class="flex justify-center items-end gap-3 md:gap-5 min-w-max mx-auto py-6 px-3">
+                <!-- 動態汽球列表 -->
+            </div>
+        </div>
+
+        <!-- 即時回饋訊息 -->
+        <div id="feedback-message" class="mt-2 text-2xl md:text-4xl font-black text-center opacity-0 transition-all duration-300 pointer-events-none min-h-[4rem]">
+        </div>
+    </div>
+
+    <script>
+        // ---------- 汽球色彩庫 ----------
+        const ALL_COLORS = [
+            { name: '紅色', colorCode: '#ef4444' },
+            { name: '橙色', colorCode: '#f97316' },
+            { name: '黃色', colorCode: '#facc15' },
+            { name: '綠色', colorCode: '#22c55e' },
+            { name: '藍色', colorCode: '#3b82f6' },
+            { name: '紫色', colorCode: '#a855f7' },
+            { name: '灰色', colorCode: '#9ca3af' },
+            { name: '粉紅色', colorCode: '#f472b6' }
+        ];
+
+        // 遊戲狀態
+        let currentBalloons = [];        // 當前汽球陣列 {colorCode, number}
+        let targetIndex = -1;            // 正確答案的汽球索引
+        let score = 0;
+        let isWaitingForNext = false;     // 答對後等待下一題
+        let currentQuestionText = "";
+        let pendingRoundTimeout = null;    // 答對後自動下一題的計時器
+        
+        // 語音 API
+        const synth = window.speechSynthesis;
+        
+        // DOM 元素
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const scoreSpan = document.getElementById('score');
+        const questionEl = document.getElementById('question-text');
+        const balloonsContainer = document.getElementById('balloons-container');
+        const feedbackDiv = document.getElementById('feedback-message');
+        const startBtn = document.getElementById('start-btn');
+        const skipBtn = document.getElementById('skip-button');
+        const speakBtn = document.getElementById('speak-btn');
+
+        // ---------- 輔助函式 ----------
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // 停止所有進行中的語音 & 清除待播放
+        function cancelSpeech() {
+            if (synth.speaking || synth.pending) {
+                synth.cancel();
+            }
+        }
+
+        // 朗讀文字 (廣東話/普通話)
+        function speakText(text, rateVal = 0.85) {
+            if (!text) return;
+            cancelSpeech();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-HK';     // 香港粵語，支援繁體
+            utterance.rate = rateVal;
+            utterance.pitch = 1.05;
+            // 部分瀏覽器需要等待 voices 載入，但直接使用也可以
+            synth.speak(utterance);
+        }
+
+        // 朗讀當前題目 (外部點擊按鈕使用)
+        function speakQuestion() {
+            if (currentQuestionText) {
+                speakText(currentQuestionText, 0.85);
+            }
+        }
+
+        // 清除計時器與等待狀態 (避免衝突)
+        function clearPendingRound() {
+            if (pendingRoundTimeout) {
+                clearTimeout(pendingRoundTimeout);
+                pendingRoundTimeout = null;
+            }
+        }
+
+        // 重置 UI 回饋 (隱藏訊息)
+        function resetFeedback() {
+            feedbackDiv.style.opacity = '0';
+            setTimeout(() => {
+                feedbackDiv.innerText = '';
+            }, 150);
+        }
+
+        // ---------- 核心: 生成全新回合 (題目+汽球) ----------
+        function generateRound() {
+            // 1. 清除等待標記 & 計時器
+            if (isWaitingForNext) {
+                isWaitingForNext = false;
+            }
+            clearPendingRound();
+            cancelSpeech();          // 停止舊語音，避免混亂
+            resetFeedback();
+            
+            // 2. 隨機取8種不同顏色的汽球 (從顏色庫洗牌取前8)
+            let shuffledColors = shuffleArray([...ALL_COLORS]);
+            currentBalloons = shuffledColors.slice(0, 8).map(c => ({ ...c, number: null }));
+            
+            // 3. 隨機挑選3個氣球加上數字編號 (數字從 2,3,5,7,8 中選不重複)
+            let balloonIndices = [0, 1, 2, 3, 4, 5, 6, 7];
+            let selectedPositions = shuffleArray(balloonIndices).slice(0, 3);
+            let numberPool = [2, 3, 5, 7, 8];
+            let assignedNumbers = shuffleArray(numberPool).slice(0, 3);
+            for (let i = 0; i < 3; i++) {
+                currentBalloons[selectedPositions[i]].number = assignedNumbers[i];
+            }
+            
+            // 4. 判斷可用的題目類型
+            // 類型: 0=從左數, 1=從右數, 2=從某號左邊數, 3=從某號右邊數
+            let validTypes = [0, 1];
+            // 找出有數字的汽球及其索引
+            const numberedBalloons = currentBalloons.map((b, idx) => ({ ...b, idx })).filter(b => b.number !== null);
+            const canDoLeftOfNumber = numberedBalloons.some(b => b.idx > 0);   // 左邊還有汽球
+            const canDoRightOfNumber = numberedBalloons.some(b => b.idx < 7);  // 右邊還有汽球
+            
+            if (canDoLeftOfNumber) validTypes.push(2);
+            if (canDoRightOfNumber) validTypes.push(3);
+            
+            const qType = validTypes[Math.floor(Math.random() * validTypes.length)];
+            let targetIdx = -1;
+            let questionStr = "";
+            
+            switch (qType) {
+                case 0: { // 由左邊數第幾個
+                    let pos = Math.floor(Math.random() * 8) + 1; // 1~8
+                    targetIdx = pos - 1;
+                    questionStr = `由左邊開始數，請找出第 ${pos} 個汽球。`;
+                    break;
+                }
+                case 1: { // 由右邊數第幾個
+                    let pos = Math.floor(Math.random() * 8) + 1;
+                    targetIdx = 8 - pos;
+                    questionStr = `由右邊開始數，請找出第 ${pos} 個汽球。`;
+                    break;
+                }
+                case 2: { // 由某號汽球左邊數
+                    const leftCandidates = numberedBalloons.filter(b => b.idx > 0);
+                    const ref = leftCandidates[Math.floor(Math.random() * leftCandidates.length)];
+                    const maxLeftSteps = ref.idx; // 左邊有幾個球 (1 ~ ref.idx)
+                    let step = Math.floor(Math.random() * maxLeftSteps) + 1;
+                    targetIdx = ref.idx - step;
+                    questionStr = `由 ${ref.number} 號汽球左邊開始數，請找出第 ${step} 個汽球。`;
+                    break;
+                }
+                case 3: { // 由某號汽球右邊數
+                    const rightCandidates = numberedBalloons.filter(b => b.idx < 7);
+                    const ref = rightCandidates[Math.floor(Math.random() * rightCandidates.length)];
+                    const maxRightSteps = 7 - ref.idx;
+                    let step = Math.floor(Math.random() * maxRightSteps) + 1;
+                    targetIdx = ref.idx + step;
+                    questionStr = `由 ${ref.number} 號汽球右邊開始數，請找出第 ${step} 個汽球。`;
+                    break;
+                }
+                default: // 保險備案
+                    targetIdx = 0;
+                    questionStr = "請點擊最左邊的汽球。";
+            }
+            
+            targetIndex = targetIdx;
+            currentQuestionText = questionStr;
+            questionEl.innerText = currentQuestionText;
+            
+            // 渲染汽球
+            renderBalloons();
+            
+            // 自動朗讀新題目 (因為是由用戶開始遊戲或按跳過觸發，安全)
+            setTimeout(() => {
+                // 確保沒有等待競賽: 如果目前還在等待下一題就不朗讀? 不過 generateRound 已重置標記
+                if (!isWaitingForNext) {
+                    speakQuestion();
+                }
+            }, 150);
+        }
+        
+        // 渲染所有汽球 (綁定點擊事件委託)
+        function renderBalloons() {
+            balloonsContainer.innerHTML = '';
+            currentBalloons.forEach((balloon, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = `balloon-wrapper flex flex-col items-center cursor-pointer group transition-all duration-200`;
+                wrapper.setAttribute('data-index', idx);
+                
+                // 汽球本體
+                const balloonDiv = document.createElement('div');
+                balloonDiv.className = `balloon w-16 h-20 md:w-20 md:h-24 flex items-center justify-center text-white font-black text-2xl md:text-3xl animate-float`;
+                balloonDiv.style.backgroundColor = balloon.colorCode;
+                balloonDiv.style.animationDelay = `${(idx * 0.15) % 1}s`;
+                if (balloon.number !== null) {
+                    balloonDiv.innerText = balloon.number;
+                    balloonDiv.style.textShadow = "2px 2px 0 rgba(0,0,0,0.4)";
+                    balloonDiv.style.fontWeight = "900";
+                } else {
+                    balloonDiv.innerText = "";
+                }
+                
+                // 汽球結
+                const tie = document.createElement('div');
+                tie.className = 'balloon-tie';
+                tie.style.borderBottomColor = balloon.colorCode;
+                
+                // 線
+                const stringLine = document.createElement('div');
+                stringLine.className = 'balloon-string';
+                
+                wrapper.appendChild(balloonDiv);
+                wrapper.appendChild(tie);
+                wrapper.appendChild(stringLine);
+                
+                // 點擊事件直接綁定
+                wrapper.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    checkAnswer(idx, wrapper);
+                });
+                
+                balloonsContainer.appendChild(wrapper);
+            });
+        }
+        
+        // 處理答題
+        function checkAnswer(clickedIdx, wrapperElement) {
+            if (isWaitingForNext) return;  // 等待下一題, 不能點
+            
+            const balloonDiv = wrapperElement.querySelector('.balloon');
+            
+            if (clickedIdx === targetIndex) {
+                // ---------- 答對 ----------
+                isWaitingForNext = true;
+                // 加分
+                score += 10;
+                scoreSpan.innerText = score;
+                
+                // 語音鼓勵
+                speakText("答對了！好棒！", 0.88);
+                
+                // 停止原先動畫，加上正確特效
+                balloonDiv.classList.remove('animate-float');
+                balloonDiv.classList.add('correct-animation');
+                
+                // 顯示華麗回饋
+                feedbackDiv.innerText = "🎉 太厲害了！ 🎉  +10分";
+                feedbackDiv.style.opacity = '1';
+                feedbackDiv.style.color = '#16a34a';
+                feedbackDiv.style.textShadow = '0 2px 5px #bbf7d0';
+                
+                // 清除舊計時器，設定自動下一回合
+                clearPendingRound();
+                pendingRoundTimeout = setTimeout(() => {
+                    pendingRoundTimeout = null;
+                    generateRound();
+                }, 2400);
+            } 
+            else {
+                // ---------- 答錯 ----------
+                speakText("唔係呢個，再試下啦！", 0.85);
+                
+                // 錯誤動畫
+                balloonDiv.classList.remove('animate-float');
+                balloonDiv.classList.add('wrong-animation');
+                
+                feedbackDiv.innerText = "❌ 不對喔，再試一次！❌";
+                feedbackDiv.style.opacity = '1';
+                feedbackDiv.style.color = '#dc2626';
+                feedbackDiv.style.fontWeight = '900';
+                
+                // 恢復動畫 & 清除錯誤回饋 (一秒後)
+                setTimeout(() => {
+                    if (balloonDiv) {
+                        balloonDiv.classList.remove('wrong-animation');
+                        balloonDiv.classList.add('animate-float');
+                    }
+                    // 如果回饋訊息還是錯誤的那個，淡化 (但別蓋過答對後的訊息)
+                    if (feedbackDiv.innerText.includes("不對喔") && !isWaitingForNext) {
+                        feedbackDiv.style.opacity = '0';
+                    }
+                }, 950);
+            }
+        }
+        
+        // 強制跳過目前題目 (不清分數)
+        function forceSkipRound() {
+            if (pendingRoundTimeout) {
+                clearPendingRound();
+                pendingRoundTimeout = null;
+            }
+            // 如果正處在答對等待狀態，要重置等待旗標才能繼續
+            if (isWaitingForNext) {
+                isWaitingForNext = false;
+            }
+            // 取消任何語音
+            cancelSpeech();
+            // 隱藏任何錯誤/正確訊息
+            resetFeedback();
+            // 直接生成新題目
+            generateRound();
+        }
+        
+        // ---------- 遊戲啟動 (用戶必須點擊開始) ----------
+        function initGame() {
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+            
+            // 重置分數與狀態
+            score = 0;
+            scoreSpan.innerText = "0";
+            isWaitingForNext = false;
+            if (pendingRoundTimeout) {
+                clearTimeout(pendingRoundTimeout);
+                pendingRoundTimeout = null;
+            }
+            cancelSpeech();
+            
+            // 為了 iOS 啟用語音，先說一個空白語音啟用 Audio Session
+            const silentUtter = new SpeechSynthesisUtterance(' ');
+            silentUtter.lang = 'zh-HK';
+            synth.speak(silentUtter);
+            
+            // 生成第一個題目
+            generateRound();
+        }
+        
+        // ----- 註冊事件與清理全局殘留 -----
+        startBtn.addEventListener('click', () => {
+            initGame();
+        });
+        
+        skipBtn.addEventListener('click', () => {
+            // 跳過時不可讓玩家卡死，同時清除所有等待
+            if (!gameScreen.classList.contains('hidden')) {
+                forceSkipRound();
+            }
+        });
+        
+        speakBtn.addEventListener('click', () => {
+            if (!gameScreen.classList.contains('hidden')) {
+                speakQuestion();
+            }
+        });
+        
+        // 防止手機長按選單及雙擊縮放
+        document.querySelectorAll('button, .balloon-wrapper').forEach(el => {
+            el.addEventListener('contextmenu', (e) => e.preventDefault());
+        });
+        
+        // 當頁面卸載時停止語音 (可選)
+        window.addEventListener('beforeunload', () => {
+            if (synth) synth.cancel();
+        });
+        
+        // 假如開始畫面沒加載完全，確保按鈕不會重複監聽
+        console.log("🎈 汽球遊戲已載入 — 學習左右，樂趣滿分");
+    </script>
+</body>
+</html>
