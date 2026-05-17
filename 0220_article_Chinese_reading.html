@@ -276,7 +276,6 @@
     <div class="game-container">
         <h1><i class="fas fa-book-open"></i> 欣欣學中文 · 粵普樂園 <i class="fas fa-heart" style="color:#ff4d6d;"></i></h1>
 
-        <!-- 管理視圖 -->
         <div id="managerView">
             <div class="pink-card">
                 <div class="manager-header" style="display:flex; justify-content:space-between;">
@@ -308,7 +307,6 @@
             </div>
         </div>
 
-        <!-- 練習視圖 -->
         <div id="practiceView" class="hide">
             <div class="flex-row" style="justify-content:space-between;">
                 <button id="backToManagerBtn" class="secondary"><i class="fas fa-arrow-left"></i> 文章庫</button>
@@ -332,7 +330,6 @@
         </div>
     </div>
 
-    <!-- 彈出動畫 -->
     <div id="popupBanner" class="banner-pop hide">欣欣叻叻</div>
     <div id="rainbowFinalBanner" class="rainbow-banner hide">🌈 欣欣好叻，爸爸媽媽哥哥愛欣欣! 🌈</div>
 
@@ -341,8 +338,7 @@
             "use strict";
 
             // ---------- 常數設定 ----------
-            // ★ 已將語速從 0.65 調慢至 0.5，小朋友更容易跟上。如仍太快，可再降低（例如 0.4）。
-            const SPEECH_RATE = 0.5;  // 原為 0.65，現改為 0.5
+            const SPEECH_RATE = 0.5;
 
             // ---------- 數據 ----------
             let articles = [];
@@ -356,7 +352,6 @@
             let mandarinVoice = null;
             let cantoneseVoice = null;
 
-            // 排序狀態
             let currentSort = 'default';
 
             // DOM
@@ -630,50 +625,61 @@
                 importFileInput.click();
             }
 
-            // ---------- 語音 ----------
+            // ---------- 語音選擇邏輯 (已優化) ----------
             function loadVoices() {
                 voiceList = speechSynth.getVoices();
-                if (voiceList.length === 0) {
-                    setTimeout(() => { voiceList = speechSynth.getVoices();
-                        selectVoicesStrict(); }, 150);
-                } else {
-                    selectVoicesStrict();
-                }
+                selectVoicesStrict();
             }
 
             function selectVoicesStrict() {
                 voiceList = speechSynth.getVoices();
-                mandarinVoice = voiceList.find(v => {
-                    const name = v.name.toLowerCase();
-                    const lang = v.lang.toLowerCase();
-                    const isMandarin = (lang.includes('zh-cn') || lang.includes('cmn') || name.includes(
-                            '普通话') || name.includes('國語') || name.includes('mandarin') || name.includes(
-                            'china'));
-                    const isNotCantonese = !(lang.includes('hk') || lang.includes('yue') || name.includes(
-                        '粤') || name.includes('廣東') || name.includes('cantonese') || name.includes(
-                        'hong kong'));
-                    return isMandarin && isNotCantonese;
-                });
+                
+                // 1. 尋找廣東話語音
                 cantoneseVoice = voiceList.find(v => {
                     const name = v.name.toLowerCase();
                     const lang = v.lang.toLowerCase();
-                    return (lang.includes('zh-hk') || lang.includes('yue') || name.includes('粤') || name.includes(
-                        '廣東') || name.includes('cantonese') || name.includes('hong kong'));
+                    return (lang.includes('zh-hk') || lang.includes('yue') || name.includes('粤') || name.includes('廣東') || name.includes('cantonese') || name.includes('hong kong'));
                 });
+
+                // 2. 尋找普通話語音 (優化篩選條件)
+                // 第一步：嚴格篩選（排除廣東話的普通話）
+                mandarinVoice = voiceList.find(v => {
+                    const name = v.name.toLowerCase();
+                    const lang = v.lang.toLowerCase();
+                    const isMandarin = (lang.includes('zh-cn') || lang.includes('zh-tw') || lang.includes('cmn') || name.includes('普通话') || name.includes('國語') || name.includes('mandarin') || name.includes('china') || name.includes('taiwan'));
+                    const isNotCantonese = !(lang.includes('hk') || lang.includes('yue') || name.includes('粤') || name.includes('廣東') || name.includes('cantonese'));
+                    return isMandarin && isNotCantonese;
+                });
+
+                // 第二步：放寬篩選（若嚴格篩選找不到，尋找任何包含中文簡體/台灣地區的語音包）
+                if (!mandarinVoice) {
+                    mandarinVoice = voiceList.find(v => {
+                        const lang = v.lang.toLowerCase();
+                        return (lang.startsWith('zh-cn') || lang.startsWith('zh-tw') || lang.includes('zh-hans'));
+                    });
+                }
+                
                 updateVoiceStatus();
             }
 
             function updateVoiceStatus() {
-                const manName = mandarinVoice ? mandarinVoice.name : '❌ 無普通話語音';
-                const canName = cantoneseVoice ? cantoneseVoice.name : '❌ 無粵語語音';
+                const manName = mandarinVoice ? mandarinVoice.name : '❌ 未偵測到普通話語音';
+                const canName = cantoneseVoice ? cantoneseVoice.name : '❌ 未偵測到粵語語音';
                 voiceStatusDisplay.innerHTML = `<i class="fas fa-microphone"></i> 普: ${manName} | 粵: ${canName}`;
             }
 
             if (speechSynth.onvoiceschanged !== undefined) {
                 speechSynth.onvoiceschanged = loadVoices;
             }
+            
+            // 初始化與定時重載語音（解決部分瀏覽器非同步載入問題）
             loadVoices();
-            setInterval(() => { if (voiceList.length === 0) loadVoices(); }, 500);
+            const voiceInterval = setInterval(() => { 
+                loadVoices();
+                if (voiceList.length > 0 && mandarinVoice && cantoneseVoice) {
+                    clearInterval(voiceInterval);
+                }
+            }, 500);
 
             // ---------- 練習控制 ----------
             function startPractice(article) {
@@ -686,7 +692,7 @@
                 managerView.classList.add('hide');
                 practiceView.classList.remove('hide');
                 updateProgress();
-                setTimeout(updateVoiceStatus, 200);
+                setTimeout(selectVoicesStrict, 200);
             }
 
             function displaySentence(idx) {
@@ -728,25 +734,27 @@
             function speakWithVoiceType(text, type) {
                 stopSpeaking();
                 clearHighlights();
-                voiceList = speechSynth.getVoices();
-                selectVoicesStrict();
+                selectVoicesStrict(); // 播放前再次校準語音
+
                 const utterance = new SpeechSynthesisUtterance(text);
                 let selectedVoice = null;
+                
                 if (type === 'mandarin') {
                     if (!mandarinVoice) {
-                        alert('❌ 找不到普通話語音！\n請安裝普通話語音包（如 Google 普通話）或使用 Chrome 瀏覽器。');
+                        alert('❌ 您的裝置上找不到普通話語音！\n\n【解決方法】：\n1. Windows/Mac：請更換使用 Google Chrome 瀏覽器。\n2. iPad/iPhone：請前往手機「設定」->「輔助使用」->「語音內容」->「聲音」->「中文」，下載「普通話」語音包。');
                         return;
                     }
                     selectedVoice = mandarinVoice;
-                    utterance.lang = 'zh-CN';
+                    utterance.lang = mandarinVoice.lang || 'zh-CN';
                 } else {
                     if (!cantoneseVoice) {
-                        alert('❌ 找不到粵語語音！\n請安裝粵語語音包。');
+                        alert('❌ 找不到粵語語音！請安裝粵語語音包。');
                         return;
                     }
                     selectedVoice = cantoneseVoice;
-                    utterance.lang = 'zh-HK';
+                    utterance.lang = cantoneseVoice.lang || 'zh-HK';
                 }
+                
                 utterance.voice = selectedVoice;
                 utterance.rate = SPEECH_RATE;
                 utterance.onboundary = (e) => {
