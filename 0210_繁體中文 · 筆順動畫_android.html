@@ -45,6 +45,26 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+        .lang-selector {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            background: #e3f0dc;
+            padding: 10px 20px;
+            border-radius: 40px;
+            display: inline-block;
+            border: 2px solid #b9cdae;
+        }
+        .lang-selector label {
+            cursor: pointer;
+            margin: 0 15px;
+            font-weight: bold;
+            color: #2d5a2c;
+        }
+        .lang-selector input[type="radio"] {
+            transform: scale(1.3);
+            margin-right: 5px;
+        }
         .word-input-area {
             background: #fef9e6;
             border-radius: 60px;
@@ -196,8 +216,10 @@
             padding: 14px 32px; font-size: 1.3rem; font-weight: bold;
             border-radius: 60px; border: none; cursor: pointer;
         }
-        .pronounce-btn { background: #4c7a8a; color: white; }
-        .next-btn { background: #e9a23b; color: white; }
+        .pronounce-btn { background: #4c7a8a; color: white; transition: 0.2s; }
+        .pronounce-btn:hover { filter: brightness(1.1); transform: scale(0.98); }
+        .next-btn { background: #e9a23b; color: white; transition: 0.2s; }
+        .next-btn:hover { filter: brightness(1.1); transform: scale(0.98); }
         .progress {
             text-align: center; font-size: 1.1rem; background: #e2e8e0;
             display: inline-block; padding: 6px 18px; border-radius: 40px; margin-bottom: 10px; font-weight: bold;
@@ -271,6 +293,15 @@
 <div class="app">
     <div id="managerPanel" class="manager-panel">
         <h2>📚 欣欣中文：筆順與聽音遊戲 ✍️🎧</h2>
+        
+        <div style="text-align: center; width: 100%;">
+            <div class="lang-selector">
+                <span style="margin-right: 10px;">🗣️ 遊戲與系統發音：</span>
+                <label><input type="radio" name="langPref" value="cantonese" checked> 廣東話</label>
+                <label><input type="radio" name="langPref" value="mandarin"> 普通話</label>
+            </div>
+        </div>
+
         <div class="word-input-area">
             <input type="text" id="wordsInput" placeholder="輸入詞語，用逗號分隔，例如：蘋果,香蕉,車站" value="蘋果,香蕉,快樂">
             <button id="startTeachingBtn" class="primary">🎓 慢速筆順教學</button>
@@ -297,10 +328,11 @@
         </div>
         <div class="current-word" id="currentWordDisplay">蘋果</div>
         <div class="btn-group">
-            <button id="pronounceWordBtn" class="big-btn pronounce-btn">🔊 讀出詞語 (粵語)</button>
-            <button id="completeWordBtn" class="big-btn next-btn">⭐ 完成此詞｜欣欣叻叻</button>
+            <button id="pronounceCantoBtn" class="big-btn pronounce-btn">🔊 廣東話發音</button>
+            <button id="pronounceMandoBtn" class="big-btn pronounce-btn" style="background:#d96c6c;">🔊 普通話發音</button>
+            <button id="completeWordBtn" class="big-btn next-btn">⭐ 完成此詞</button>
         </div>
-        <div class="speak-hint">💡 提示：按鍵盤【空格鍵】也可讀出當前詞語發音</div>
+        <div class="speak-hint">💡 提示：按鍵盤【空格鍵】也可讀出當前詞語（根據預設語言）</div>
         
         <div class="speed-control">
             <span class="speed-label">🐢 筆順動畫速度 (越慢越易跟寫)</span>
@@ -325,13 +357,14 @@
         <div style="text-align: center; color: #666;">（點擊喇叭可以再聽一次）</div>
 
         <div class="game-options-grid" id="gameOptionsContainer">
-            </div>
+        </div>
     </div>
 </div>
 
 <script>
     // ---------- 全局變量 ----------
     let groups = [];            
+    let currentLang = 'cantonese'; // 預設語言 ('cantonese' 或 'mandarin')
     
     // 教學模式變數
     let currentTeachingList = [];   
@@ -349,8 +382,27 @@
     let isGaming = false;
     let isGameChecking = false;
     
-    // 粵語語音函式
-    function speakCantonese(text, onEnd = null) {
+    // 安全銷毀 HanziWriter
+    function destroyWriterSafely(writerObj) {
+        if (!writerObj) return;
+        if (typeof writerObj.destroy === 'function') writerObj.destroy();
+        else if (typeof writerObj._destroy === 'function') writerObj._destroy();
+    }
+
+    // 多語言字串對照表
+    function getLocalizedString(key) {
+        const strings = {
+            'well_done': { cantonese: '欣欣叻叻', mandarin: '欣欣真棒' },
+            'all_done': { cantonese: '欣欣好叻，爸爸媽媽哥哥愛欣欣', mandarin: '欣欣好棒，爸爸媽媽哥哥愛欣欣' },
+            'correct': { cantonese: '答對啦！', mandarin: '答對了！' },
+            'wrong': { cantonese: '唔係呢個，再試下', mandarin: '不是這個，再試一次' },
+            'game_finish': { cantonese: '遊戲完成，欣欣好叻！', mandarin: '遊戲完成，欣欣好棒！' }
+        };
+        return strings[key][currentLang] || strings[key]['cantonese'];
+    }
+
+    // 統一的語音函式 (支援強制指定語言或使用系統預設)
+    function speakText(text, langOverride = null, onEnd = null) {
         if (!window.speechSynthesis) {
             console.warn("不支援語音");
             if(onEnd) onEnd();
@@ -358,12 +410,24 @@
         }
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'zh-HK';
-        utterance.rate = 0.85;
-        utterance.pitch = 1.1;
         let voices = window.speechSynthesis.getVoices();
-        const cantoneseVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'zh-Hant-HK' || v.lang.includes('HK'));
-        if (cantoneseVoice) utterance.voice = cantoneseVoice;
+
+        const targetLang = langOverride || currentLang;
+
+        if (targetLang === 'cantonese') {
+            utterance.lang = 'zh-HK';
+            utterance.rate = 0.85;
+            utterance.pitch = 1.1;
+            const cantoneseVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'zh-Hant-HK' || v.lang.includes('HK'));
+            if (cantoneseVoice) utterance.voice = cantoneseVoice;
+        } else {
+            utterance.lang = 'zh-TW'; 
+            utterance.rate = 0.85;
+            utterance.pitch = 1.1;
+            const mandarinVoice = voices.find(v => v.lang === 'zh-TW' || v.lang === 'zh-CN' || v.lang.includes('TW') || v.lang.includes('CN'));
+            if (mandarinVoice) utterance.voice = mandarinVoice;
+        }
+
         if (onEnd) {
             utterance.onend = () => { setTimeout(() => onEnd(), 50); };
             utterance.onerror = () => { setTimeout(() => onEnd(), 50); };
@@ -418,8 +482,9 @@
         const container = document.getElementById('strokeContainer');
         if(!container) return;
         container.innerHTML = '<div style="padding:20px;">⏳ 載入慢速筆順資料中...</div>';
+        // 銷毀舊writer
         if(currentWordWriters) {
-            currentWordWriters.forEach(item => { if(item.writer && item.writer._destroy) item.writer._destroy(); });
+            currentWordWriters.forEach(item => { if(item.writer) destroyWriterSafely(item.writer); });
             currentWordWriters = [];
         }
         const chars = [...word];
@@ -457,7 +522,7 @@
                     });
                     currentWordWriters.push({ writer, ch });
                     
-                    pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakCantonese(ch); });
+                    pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakText(ch); });
                     pausePlayBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (animationFinished) { writer.animateCharacter(); animationFinished = false; isPlaying = true; isPaused = false; pausePlayBtn.innerHTML = '⏸️ 暫停'; } 
@@ -469,11 +534,11 @@
                     writer.animateCharacter();
                 } else {
                     canvasDiv.innerHTML = `<div style="text-align:center; padding-top:40px;">❌ 無筆順</div>`;
-                    pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakCantonese(ch); });
+                    pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakText(ch); });
                 }
             } catch(e) {
                 canvasDiv.innerHTML = `<div style="color:red;">載入失敗</div>`;
-                pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakCantonese(ch); });
+                pronounceBtn.addEventListener('click', (e) => { e.stopPropagation(); speakText(ch); });
             }
         }
     }
@@ -517,8 +582,9 @@
         if(!isTeaching || !allowNext) return;
         if(currentIndex >= currentTeachingList.length) { finishAllWords(); return; }
         const currentWord = currentTeachingList[currentIndex];
-        showBanner(`🎉 欣欣叻叻！ ${currentWord} 🎉`, false, 2500); allowNext = false;
-        speakCantonese("欣欣叻叻", () => {
+        const wellDoneMsg = getLocalizedString('well_done');
+        showBanner(`🎉 ${wellDoneMsg}！ ${currentWord} 🎉`, false, 2500); allowNext = false;
+        speakText(wellDoneMsg, null, () => {
             allowNext = true; currentIndex++;
             if(currentIndex < currentTeachingList.length) loadCurrentWordToUI(); else finishAllWords();
         });
@@ -527,8 +593,9 @@
     function finishAllWords() {
         if(!isTeaching) return;
         isTeaching = false;
-        showBanner("🌈 欣欣好叻，爸爸媽媽哥哥愛欣欣! 🌈", true, 4000);
-        speakCantonese("欣欣好叻，爸爸媽媽哥哥愛欣欣", () => {});
+        const allDoneMsg = getLocalizedString('all_done');
+        showBanner(`🌈 ${allDoneMsg}! 🌈`, true, 4000);
+        speakText(allDoneMsg, null, () => {});
         exitMode();
     }
 
@@ -561,20 +628,13 @@
         gameTargetWord = currentGameList[currentGameIndex];
         document.getElementById('gameProgressText').innerText = `第 ${currentGameIndex + 1} / ${currentGameList.length} 題`;
         
-        // --- 核心修改：只從同組提取錯誤選項 ---
         let options = [gameTargetWord];
         
         // 只過濾出「當前這組詞語」中，不等於正確答案的其他詞語
         let sameGroupWords = currentGameList.filter(w => w !== gameTargetWord);
-        
-        // 隨機打亂這些同組詞語
-        sameGroupWords.sort(() => Math.random() - 0.5);
-        
-        // 取出最多 3 個干擾選項加進去
-        options.push(...sameGroupWords.slice(0, 3));
-        
-        // 再次洗牌，讓正確答案出現在隨機位置
-        options.sort(() => Math.random() - 0.5);
+        sameGroupWords.sort(() => Math.random() - 0.5); // 隨機打亂這些同組詞語
+        options.push(...sameGroupWords.slice(0, 3)); // 取出最多 3 個干擾選項加進去
+        options.sort(() => Math.random() - 0.5); // 再次洗牌
         
         const container = document.getElementById('gameOptionsContainer');
         container.innerHTML = '';
@@ -588,7 +648,7 @@
         });
         
         // 自動播放讀音
-        setTimeout(() => speakCantonese(gameTargetWord), 600);
+        setTimeout(() => speakText(gameTargetWord), 600);
     }
 
     function checkGameAnswer(selected, btnElement) {
@@ -597,22 +657,25 @@
         if (selected === gameTargetWord) {
             isGameChecking = true;
             btnElement.classList.add('correct');
-            showBanner("🎉 答對啦！", false, 1500);
             
-            speakCantonese("答對啦！" + gameTargetWord, () => {
+            const correctMsg = getLocalizedString('correct');
+            showBanner(`🎉 ${correctMsg}`, false, 1500);
+            
+            speakText(correctMsg + gameTargetWord, null, () => {
                 currentGameIndex++;
                 if (currentGameIndex < currentGameList.length) {
                     loadGameQuestion();
                 } else {
-                    showBanner("🌈 遊戲完成！欣欣好叻！ 🌈", true, 4000);
-                    speakCantonese("遊戲完成，欣欣好叻！", () => {
+                    const finishMsg = getLocalizedString('game_finish');
+                    showBanner(`🌈 ${finishMsg} 🌈`, true, 4000);
+                    speakText(finishMsg, null, () => {
                         setTimeout(exitMode, 2000);
                     });
                 }
             });
         } else {
             btnElement.classList.add('wrong');
-            speakCantonese("唔係呢個，再試下");
+            speakText(getLocalizedString('wrong'));
             setTimeout(() => btnElement.classList.remove('wrong'), 800);
         }
     }
@@ -628,7 +691,7 @@
         document.getElementById('teachingPanel').classList.add('hide');
         document.getElementById('gamePanel').classList.add('hide');
         if(currentWordWriters) {
-            currentWordWriters.forEach(item => { if(item.writer && item.writer._destroy) item.writer._destroy(); });
+            currentWordWriters.forEach(item => { if(item.writer) destroyWriterSafely(item.writer); });
             currentWordWriters = [];
         }
     }
@@ -717,14 +780,29 @@
     }
     
     function bindEvents() {
+        // 語言切換監聽
+        document.querySelectorAll('input[name="langPref"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentLang = e.target.value;
+            });
+        });
+
         // 教學模式按鈕
         document.getElementById('startTeachingBtn').addEventListener('click', startTeaching);
-        document.getElementById('pronounceWordBtn').addEventListener('click', () => { if(isTeaching) speakCantonese(currentTeachingList[currentIndex]); });
+        
+        // 兩個專屬的發音按鈕
+        document.getElementById('pronounceCantoBtn').addEventListener('click', () => { 
+            if(isTeaching) speakText(currentTeachingList[currentIndex], 'cantonese'); 
+        });
+        document.getElementById('pronounceMandoBtn').addEventListener('click', () => { 
+            if(isTeaching) speakText(currentTeachingList[currentIndex], 'mandarin'); 
+        });
+        
         document.getElementById('completeWordBtn').addEventListener('click', completeCurrentWordAndNext);
         
         // 遊戲模式按鈕
         document.getElementById('startGameBtn').addEventListener('click', startGame);
-        document.getElementById('playGameAudioBtn').addEventListener('click', () => { if(isGaming) speakCantonese(gameTargetWord); });
+        document.getElementById('playGameAudioBtn').addEventListener('click', () => { if(isGaming) speakText(gameTargetWord); });
         
         // 返回按鈕
         document.querySelectorAll('.backToMenuBtn').forEach(btn => {
@@ -745,12 +823,15 @@
             if (e.target.files[0]) { importGroupsData(e.target.files[0]); importFileInput.value = ''; }
         });
         
-        // 鍵盤支援
+        // 鍵盤支援 (避免在輸入框內誤觸)
         window.addEventListener('keydown', (e) => {
             if(e.code === 'Space') {
+                if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+                    return; // 不干擾輸入框
+                }
                 e.preventDefault();
-                if(isTeaching) speakCantonese(currentTeachingList[currentIndex]);
-                if(isGaming) speakCantonese(gameTargetWord);
+                if(isTeaching) speakText(currentTeachingList[currentIndex]);
+                if(isGaming) speakText(gameTargetWord);
             }
         });
         
