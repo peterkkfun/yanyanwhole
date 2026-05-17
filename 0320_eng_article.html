@@ -10,7 +10,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Quicksand', sans-serif;
-            /* 綠色漸變主題 */
             background: linear-gradient(145deg, #c1e1c1 0%, #d4efdf 100%);
             min-height: 100vh;
             display: flex;
@@ -46,11 +45,10 @@
         h1 i { color: #2f7a4c; font-size: 2.5rem; }
         h2 {
             font-size: 1.9rem;
-            margin-bottom: 16px;
+            margin-bottom: 0; /* 調整以配合 flexbox */
             border-left: 14px solid #6fbf7a;
             padding-left: 22px;
         }
-        /* 卡片改為綠色調 */
         .pink-card {
             background: #e2f3e2;
             border-radius: 36px;
@@ -124,7 +122,7 @@
         .english-text { font-size: 2.2rem; font-weight: 700; color: #1d4a2c; line-height: 1.5; margin-bottom: 20px; }
         .chinese-text { font-size: 1.9rem; color: #235b33; background: #cbe5cb; padding: 16px 24px; border-radius: 40px; display: inline-block; font-weight: 600; border-left: 12px solid #5fa875; }
         .highlight {
-            background: #f5e56b !important;  /* 高亮保持明顯，黃綠色調 */
+            background: #f5e56b !important; 
             color: #1e3a1e !important;
             border-radius: 18px;
             padding: 2px 8px;
@@ -151,7 +149,6 @@
         }
         .hide { display: none !important; }
         .flex-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
-        /* 導入導出按鈕微調 */
         .import-export-group { margin-top: 10px; border-top: 2px dashed #8fc09f; padding-top: 18px; }
     </style>
 </head>
@@ -159,10 +156,9 @@
 <div class="game-container">
     <h1><i class="fas fa-book-open"></i> 馮樂欣學英文 <i class="fas fa-heart" style="color:#2f7a4c;"></i></h1>
 
-    <!-- 管理頁 -->
     <div id="managerView">
         <div class="pink-card">
-            <div class="manager-header" style="display:flex; justify-content:space-between;">
+            <div class="manager-header" style="display:flex; justify-content:space-between; margin-bottom: 16px; align-items: center;">
                 <h2><i class="fas fa-pencil-alt"></i> 欣欣文章庫</h2>
                 <button id="newArticleBtn"><i class="fas fa-plus-circle"></i> 新文章</button>
             </div>
@@ -172,7 +168,6 @@
                 <button id="saveArticleBtn"><i class="fas fa-save"></i> 儲存文章</button>
                 <button id="cancelEditBtn" class="secondary"><i class="fas fa-times"></i> 取消</button>
             </div>
-            <!-- 導入 / 導出 JSON 功能區 -->
             <div class="import-export-group flex-row">
                 <button id="exportJsonBtn"><i class="fas fa-download"></i> 匯出 JSON</button>
                 <button id="importJsonBtn"><i class="fas fa-upload"></i> 匯入 JSON</button>
@@ -181,12 +176,14 @@
             </div>
         </div>
         <div class="pink-card">
-            <h2><i class="fas fa-list-ul"></i> 我的文章</h2>
+            <div class="manager-header" style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 16px;">
+                <h2><i class="fas fa-list-ul"></i> 我的文章</h2>
+                <button id="sortArticlesBtn" class="secondary" style="font-size:1rem; padding:8px 16px; margin:0;"><i class="fas fa-sort-alpha-down"></i> 排序 (A-Z)</button>
+            </div>
             <div id="articleListContainer" class="article-list"></div>
         </div>
     </div>
 
-    <!-- 練習頁 -->
     <div id="practiceView" class="hide">
         <div class="flex-row" style="justify-content:space-between;">
             <button id="backToManagerBtn" class="secondary"><i class="fas fa-arrow-left"></i> 文章庫</button>
@@ -219,6 +216,7 @@
         let currentArticle = null;
         let sentences = [], translations = [];
         let currentIdx = 0;
+        let sortAscending = true; // 排序狀態紀錄
         const speechSynth = window.speechSynthesis;
         const EN_LANG = 'en-GB';
         const ZH_LANG = 'zh-HK'; // 粵語
@@ -242,6 +240,9 @@
         const nextBtn = document.getElementById('nextSentenceBtn');
         const popup = document.getElementById('popupBanner');
         const rainbow = document.getElementById('rainbowFinalBanner');
+        
+        // 排序按鈕
+        const sortBtn = document.getElementById('sortArticlesBtn');
 
         // 導入導出相關
         const exportBtn = document.getElementById('exportJsonBtn');
@@ -289,7 +290,6 @@
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (!Array.isArray(imported)) throw new Error('格式必須是陣列');
-                    // 基本驗證：每個物件應有 id, name, content
                     for (let item of imported) {
                         if (typeof item.id !== 'string' || typeof item.name !== 'string' || typeof item.content !== 'string') {
                             throw new Error('文章格式不正確 (需要 id, name, content)');
@@ -308,13 +308,12 @@
                 } catch (err) {
                     alert('❌ 匯入失敗：' + err.message);
                 } finally {
-                    fileInput.value = ''; // 清空，允許再次選取同一檔案
+                    fileInput.value = ''; 
                 }
             };
             reader.readAsText(file);
         }
 
-        // 觸發檔案選擇
         function triggerImport() {
             fileInput.click();
         }
@@ -367,7 +366,6 @@
             }
             saveArticles();
             renderList();
-            // 保留內容方便連續編輯 (不清空)
         }
 
         function deleteArticle(id) {
@@ -481,7 +479,8 @@
             clearHighlights();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = lang;
-            utterance.rate = 0.9;
+            // 已將語速由 0.9 調整為 0.6，適合幼稚園學生聆聽
+            utterance.rate = 0.6; 
 
             utterance.onboundary = (e) => {
                 if(e.name === 'word' || e.name === 'sentence') {
@@ -498,7 +497,8 @@
                 stopSpeaking();
                 const u = new SpeechSynthesisUtterance(phrase);
                 u.lang = ZH_LANG;
-                u.rate = 0.9;
+                // 已將語速由 0.9 調整為 0.6，適合幼稚園學生聆聽
+                u.rate = 0.6; 
                 u.onend = resolve;
                 u.onerror = resolve;
                 speechSynth.speak(u);
@@ -558,6 +558,18 @@
                 stopSpeaking();
                 practiceView.classList.add('hide');
                 managerView.classList.remove('hide');
+            });
+
+            // 排序按鈕事件
+            sortBtn.addEventListener('click', () => {
+                sortAscending = !sortAscending;
+                articles.sort((a, b) => {
+                    // 根據中英文環境進行排序
+                    return sortAscending ? a.name.localeCompare(b.name, 'zh-HK') : b.name.localeCompare(a.name, 'zh-HK');
+                });
+                sortBtn.innerHTML = sortAscending ? '<i class="fas fa-sort-alpha-down"></i> 排序 (A-Z)' : '<i class="fas fa-sort-alpha-up"></i> 排序 (Z-A)';
+                saveArticles();
+                renderList();
             });
 
             speakEnBtn.addEventListener('click', () => {
