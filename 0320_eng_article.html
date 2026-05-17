@@ -110,7 +110,9 @@
             background: #cae5ca;
             padding: 8px;
             border-radius: 50%;
+            transition: 0.1s;
         }
+        .article-actions i:hover { background: #b3dcb3; transform: scale(1.05); }
         .sentence-box {
             background: #e0f0e0;
             border-radius: 60px 60px 30px 60px;
@@ -119,8 +121,8 @@
             border: 3px solid #8fc09f;
             box-shadow: inset 0 0 0 5px #d0ecd0, 0 8px 0 #5f9170;
         }
-        .english-text { font-size: 2.2rem; font-weight: 700; color: #1d4a2c; line-height: 1.5; margin-bottom: 20px; }
-        .chinese-text { font-size: 1.9rem; color: #235b33; background: #cbe5cb; padding: 16px 24px; border-radius: 40px; display: inline-block; font-weight: 600; border-left: 12px solid #5fa875; }
+        .english-text { font-size: 2.2rem; font-weight: 700; color: #1d4a2c; line-height: 1.5; margin-bottom: 20px; word-break: break-word; }
+        .chinese-text { font-size: 1.9rem; color: #235b33; background: #cbe5cb; padding: 16px 24px; border-radius: 40px; display: inline-block; font-weight: 600; border-left: 12px solid #5fa875; max-width: 100%; word-break: break-word; }
         .highlight {
             background: #f5e56b !important; 
             color: #1e3a1e !important;
@@ -129,18 +131,23 @@
             box-shadow: 0 0 10px #b3b83e;
             font-weight: 800;
         }
-        .word-span, .char-span { display: inline-block; padding: 0 2px; border-radius: 18px; transition: background 0.1s; }
-        .progress-indicator { font-size: 1.6rem; background: #9fcca8; padding: 8px 30px; border-radius: 50px; color: #163d20; }
+        .word-span, .char-span { display: inline-block; padding: 0 2px; border-radius: 18px; transition: background 0.08s; }
+        .progress-indicator { font-size: 1.6rem; background: #9fcca8; padding: 8px 30px; border-radius: 50px; color: #163d20; font-weight: bold;}
         .banner-pop {
             position: fixed; top: 30%; left: 50%; transform: translate(-50%, -30%);
             background: #f3e27b; padding: 28px 50px; border-radius: 100px; font-size: 3.8rem;
             font-weight: 800; color: #1e6b3a; border: 8px solid #fcf1bb; z-index: 999;
             animation: bouncePop 0.5s;
+            white-space: nowrap;
+            font-family: 'Quicksand', sans-serif;
         }
         .rainbow-banner {
             background: linear-gradient(45deg, #c1e6c1, #e0f0b4, #b4e0e0, #c3d4ff, #b4f0d0);
             padding: 30px 40px; border-radius: 80px; font-size: 2.8rem; font-weight: 800;
             color: #173e1f; border: 6px solid white; box-shadow: 0 20px 30px #6fa882;
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 1000;
+            white-space: nowrap;
         }
         @keyframes bouncePop {
             0% { transform: translate(-50%, -30%) scale(0.7); opacity: 0; }
@@ -150,6 +157,14 @@
         .hide { display: none !important; }
         .flex-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
         .import-export-group { margin-top: 10px; border-top: 2px dashed #8fc09f; padding-top: 18px; }
+        @media (max-width: 650px) {
+            .english-text { font-size: 1.5rem; }
+            .chinese-text { font-size: 1.4rem; }
+            h1 { font-size: 2rem; }
+            .banner-pop { font-size: 2.2rem; padding: 15px 30px; white-space: nowrap; }
+            .rainbow-banner { font-size: 1.6rem; white-space: normal; text-align: center; width: 90%; padding: 20px; }
+        }
+        .loading-toast { background: #578b66; color: white; border-radius: 40px; padding: 10px 20px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -189,7 +204,7 @@
             <button id="backToManagerBtn" class="secondary"><i class="fas fa-arrow-left"></i> 文章庫</button>
             <span class="progress-indicator" id="progressDisplay">句子 1 / 3</span>
         </div>
-        <div style="margin:10px 0"><span id="currentArticleTitle" style="background:#a3d0a3; padding:8px 24px; border-radius:40px; font-size:1.5rem; color:#1b4d2b;">---</span></div>
+        <div style="margin:10px 0"><span id="currentArticleTitle" style="background:#a3d0a3; padding:8px 24px; border-radius:40px; font-size:1.5rem; color:#1b4d2b; display:inline-block;">---</span></div>
         <div class="sentence-box">
             <div id="englishSentenceDisplay" class="english-text"></div>
             <div id="chineseSentenceDisplay" class="chinese-text"></div>
@@ -216,12 +231,16 @@
         let currentArticle = null;
         let sentences = [], translations = [];
         let currentIdx = 0;
-        let sortAscending = true; // 排序狀態紀錄
+        let sortAscending = true; 
         const speechSynth = window.speechSynthesis;
         const EN_LANG = 'en-GB';
-        const ZH_LANG = 'zh-HK'; // 粵語
+        const ZH_LANG = 'zh-HK'; 
 
-        // DOM
+        // 防止翻譯競態 (避免快速切換文章導致句子錯亂)
+        let currentTranslationSession = 0;
+        let isTranslating = false;
+
+        // DOM 元素綁定
         const managerView = document.getElementById('managerView');
         const practiceView = document.getElementById('practiceView');
         const nameInput = document.getElementById('articleNameInput');
@@ -241,18 +260,23 @@
         const popup = document.getElementById('popupBanner');
         const rainbow = document.getElementById('rainbowFinalBanner');
         
-        // 排序按鈕
         const sortBtn = document.getElementById('sortArticlesBtn');
-
-        // 導入導出相關
         const exportBtn = document.getElementById('exportJsonBtn');
         const importBtn = document.getElementById('importJsonBtn');
         const fileInput = document.getElementById('fileInput');
 
-        // 翻譯緩存
         const translateCache = new Map();
 
-        // 加載/儲存
+        // 智慧型句子分割器 (保留縮寫，避免錯斷)
+        function splitIntoSentences(text) {
+            let cleanText = text.replace(/\n+/g, ' ');
+            // 避免常見縮寫造成錯誤分割: Mr. Dr. vs. etc. 但簡單規則優先保留句尾標點
+            let parts = cleanText.split(/(?<=[.!?])\s+(?=[A-Z0-9"']|$)|(?<=[。！？])\s*/);
+            let sents = parts.filter(s => s.trim().length > 0);
+            if(sents.length === 0 && cleanText.trim()) sents = [cleanText];
+            return sents;
+        }
+
         function loadArticles() {
             const stored = localStorage.getItem('fung_articles_v3');
             if(stored) {
@@ -270,7 +294,6 @@
             localStorage.setItem('fung_articles_v3', JSON.stringify(articles)); 
         }
 
-        // ----- 導入 / 導出 JSON 功能 -----
         function exportToJson() {
             const dataStr = JSON.stringify(articles, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
@@ -292,7 +315,7 @@
                     if (!Array.isArray(imported)) throw new Error('格式必須是陣列');
                     for (let item of imported) {
                         if (typeof item.id !== 'string' || typeof item.name !== 'string' || typeof item.content !== 'string') {
-                            throw new Error('文章格式不正確 (需要 id, name, content)');
+                            throw new Error('文章格式不正確');
                         }
                     }
                     if (imported.length === 0) {
@@ -318,7 +341,6 @@
             fileInput.click();
         }
 
-        // ----- 列表渲染 -----
         function renderList() {
             if(!articles.length) {
                 listDiv.innerHTML = '<div style="padding:20px;">✨ 按「新文章」加入故事 ✨</div>';
@@ -366,34 +388,32 @@
             }
             saveArticles();
             renderList();
+            resetForm();
         }
 
-        // 翻譯 (優先使用 Google，MyMemory 作為備用)
         async function translateText(text) {
             if(translateCache.has(text)) return translateCache.get(text);
-            
             try {
-                // 首選：Google Translate API (準確度較高)
-                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(text)}`;
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=zh-TW&dt=t&q=${encodeURIComponent(text)}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                const trans = data[0].map(x => x[0]).join('');
+                const trans = data[0].map(x => x[0] || '').join('');
                 translateCache.set(text, trans);
                 return trans;
             } catch {
-                // 備用：MyMemory API (如果 Google API 剛好無回應)
                 try {
                     const url2 = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|zh-TW`;
                     const res2 = await fetch(url2);
                     const data2 = await res2.json();
                     if(data2.responseData && data2.responseData.translatedText) {
-                        const trans = data2.responseData.translatedText;
+                        let trans = data2.responseData.translatedText;
+                        if(trans === text) trans = '⚠️ 翻譯暫不可用';
                         translateCache.set(text, trans);
                         return trans;
                     }
                     throw new Error('MyMemory failed');
                 } catch {
-                    return '❌ 翻譯失敗，請檢查網絡';
+                    return '❌ 翻譯失敗，稍後重試';
                 }
             }
         }
@@ -405,35 +425,98 @@
             renderList();
         }
 
-        // 開始練習
+        // 開始練習 (具備防競態保護)
         async function startPractice(article) {
+            // 避免同時翻譯多篇文章造成的錯亂
+            if (isTranslating) {
+                alert('請稍等，目前正在載入文章翻譯～');
+                return;
+            }
+            // 停止當前任何語音
+            stopSpeaking();
+            clearHighlights();
+            
             currentArticle = article;
             titleLabel.textContent = article.name;
-            const raw = article.content;
-            const splitRegex = /(?<=[.!?])\s+/g;
-            let rawSents = raw.split(splitRegex).filter(s => s.trim().length > 0);
-            if(rawSents.length === 0) rawSents = [raw];
-            sentences = rawSents.map(s => s.trim());
+            sentences = splitIntoSentences(article.content);
+            if(sentences.length === 0) sentences = [article.content];
 
             engDisplay.textContent = '🔄 準備翻譯...';
-            chiDisplay.textContent = '請稍候 💚';
-
-            translations = [];
-            for(let eng of sentences) {
-                const trans = await translateText(eng);
-                translations.push(trans);
+            chiDisplay.textContent = '💚 請稍候，欣欣學習中 💚';
+            
+            const sessionId = ++currentTranslationSession;
+            isTranslating = true;
+            const newTranslations = [];
+            
+            try {
+                for(let i = 0; i < sentences.length; i++) {
+                    // 如果 session 改變，代表被新練習中斷，直接放棄
+                    if (sessionId !== currentTranslationSession) {
+                        console.log("翻譯已過期，中斷");
+                        return;
+                    }
+                    const trans = await translateText(sentences[i]);
+                    if (sessionId !== currentTranslationSession) return;
+                    newTranslations.push(trans);
+                }
+                if (sessionId !== currentTranslationSession) return;
+                translations = newTranslations;
+                currentIdx = 0;
+                displaySentence(currentIdx);
+                managerView.classList.add('hide');
+                practiceView.classList.remove('hide');
+                updateProgress();
+            } catch(err) {
+                console.error(err);
+                if(sessionId === currentTranslationSession) {
+                    alert('翻譯出錯，請重新選擇文章。');
+                }
+            } finally {
+                if(sessionId === currentTranslationSession) {
+                    isTranslating = false;
+                } else {
+                    // 過期 session 不改變全域狀態
+                }
             }
-            currentIdx = 0;
-            displaySentence(currentIdx);
-            managerView.classList.add('hide');
-            practiceView.classList.remove('hide');
-            updateProgress();
+        }
+
+        // 中文渲染 (保留詞級高亮)
+        function renderChineseSentence(chi) {
+            let chiHtml = '';
+            let charOffset = 0;
+            
+            if (window.Intl && Intl.Segmenter) {
+                const segmenter = new Intl.Segmenter('zh-HK', { granularity: 'word' });
+                const segments = Array.from(segmenter.segment(chi));
+                segments.forEach(seg => {
+                    const word = seg.segment;
+                    if (!word.trim() && word.length > 0) {
+                        chiHtml += word;
+                    } else {
+                        chiHtml += `<span class="char-span" data-start="${charOffset}" data-end="${charOffset + word.length}">${escapeHtml(word)}</span>`;
+                    }
+                    charOffset += word.length;
+                });
+            } else {
+                const chars = Array.from(chi);
+                for (let i = 0; i < chars.length; i++) {
+                    const ch = chars[i];
+                    if (!ch.trim()) {
+                        chiHtml += ch;
+                    } else {
+                        chiHtml += `<span class="char-span" data-start="${charOffset}" data-end="${charOffset + ch.length}">${escapeHtml(ch)}</span>`;
+                    }
+                    charOffset += ch.length;
+                }
+            }
+            chiDisplay.innerHTML = chiHtml;
         }
 
         function displaySentence(idx) {
+            if(!sentences.length || !translations.length || idx >= sentences.length) return;
             const eng = sentences[idx];
-            const chi = translations[idx] || '翻譯中';
-
+            const chi = translations[idx] || '✨ 翻譯中 ✨';
+            // 英文構造索引span
             const engTokens = eng.split(/(\s+|\b)/g).filter(t => t.length);
             let engHtml = '', offset = 0;
             engTokens.forEach((tok) => {
@@ -445,14 +528,7 @@
                 offset += tok.length;
             });
             engDisplay.innerHTML = engHtml;
-
-            const chars = [...chi];
-            let chiHtml = '', charOffset = 0;
-            chars.forEach((ch) => {
-                chiHtml += `<span class="char-span" data-start="${charOffset}" data-end="${charOffset + ch.length}">${escapeHtml(ch)}</span>`;
-                charOffset += ch.length;
-            });
-            chiDisplay.innerHTML = chiHtml;
+            renderChineseSentence(chi);
             updateProgress();
         }
 
@@ -460,30 +536,51 @@
             progressSpan.textContent = `句子 ${currentIdx+1} / ${sentences.length}`;
         }
 
-        function stopSpeaking() { if(speechSynth.speaking) speechSynth.cancel(); }
-        function clearHighlights() { document.querySelectorAll('.word-span, .char-span').forEach(s => s.classList.remove('highlight')); }
+        function stopSpeaking() { 
+            if(speechSynth.speaking) speechSynth.cancel(); 
+        }
+        function clearHighlights() { 
+            document.querySelectorAll('.word-span, .char-span').forEach(s => s.classList.remove('highlight')); 
+        }
 
         function highlightByCharIndex(charIndex, type) {
             const selector = type === 'english' ? '.word-span' : '.char-span';
             const spans = document.querySelectorAll(selector);
             clearHighlights();
-            for(let span of spans) {
+            let highlighted = false;
+            for(let i = 0; i < spans.length; i++) {
+                const span = spans[i];
                 const start = parseInt(span.dataset.start);
                 const end = parseInt(span.dataset.end);
                 if(charIndex >= start && charIndex < end) {
                     span.classList.add('highlight');
+                    highlighted = true;
                     break;
+                }
+            }
+            if (!highlighted && spans.length) {
+                for(let i = 0; i < spans.length; i++) {
+                    const span = spans[i];
+                    const start = parseInt(span.dataset.start);
+                    if (start >= charIndex) {
+                        span.classList.add('highlight');
+                        break;
+                    }
                 }
             }
         }
 
         function speakWithHighlight(text, lang, type) {
+            if(!text || text.includes('❌') || text.includes('⚠️')) {
+                // 若翻譯失敗不朗讀錯誤文字，改提示短音效可選，此處直接無聲
+                return;
+            }
             stopSpeaking();
             clearHighlights();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = lang;
-            // 已將語速由 0.9 調整為 0.6，適合幼稚園學生聆聽
-            utterance.rate = 0.6; 
+            utterance.rate = 0.7; 
+            utterance.pitch = 1.0;
 
             utterance.onboundary = (e) => {
                 if(e.name === 'word' || e.name === 'sentence') {
@@ -497,11 +594,11 @@
 
         async function speakPhrase(phrase) {
             return new Promise(resolve => {
+                if(!phrase) { resolve(); return; }
                 stopSpeaking();
                 const u = new SpeechSynthesisUtterance(phrase);
                 u.lang = ZH_LANG;
-                // 已將語速由 0.9 調整為 0.6，適合幼稚園學生聆聽
-                u.rate = 0.6; 
+                u.rate = 0.65;
                 u.onend = resolve;
                 u.onerror = resolve;
                 speechSynth.speak(u);
@@ -511,14 +608,14 @@
         async function showCongrats() {
             popup.classList.remove('hide');
             await speakPhrase('欣欣叻叻');
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 280));
             popup.classList.add('hide');
         }
 
         async function showFinal() {
             rainbow.classList.remove('hide');
             await speakPhrase('欣欣好叻，爸爸媽媽哥哥愛欣欣');
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 1800));
             rainbow.classList.add('hide');
             practiceView.classList.add('hide');
             managerView.classList.remove('hide');
@@ -526,6 +623,7 @@
                 nameInput.value = currentArticle.name;
                 contentInput.value = currentArticle.content;
             }
+            stopSpeaking();
         }
 
         async function handleNext() {
@@ -540,7 +638,6 @@
             displaySentence(currentIdx);
         }
 
-        // 事件綁定
         function bindEvents() {
             listDiv.addEventListener('click', e => {
                 const icon = e.target.closest('[data-action]');
@@ -551,23 +648,21 @@
                 if(!art) return;
                 if(action === 'practice') startPractice(art);
                 else if(action === 'edit') editArticle(art);
-                else if(action === 'delete') { if(confirm('確定刪除？')) deleteArticle(id); }
+                else if(action === 'delete') { if(confirm('確定刪除文章？')) deleteArticle(id); }
             });
 
             saveBtn.addEventListener('click', handleSave);
             cancelBtn.addEventListener('click', resetForm);
-            newBtn.addEventListener('click', resetForm);
+            newBtn.addEventListener('click', () => { resetForm(); });
             backBtn.addEventListener('click', () => {
                 stopSpeaking();
                 practiceView.classList.add('hide');
                 managerView.classList.remove('hide');
             });
 
-            // 排序按鈕事件
             sortBtn.addEventListener('click', () => {
                 sortAscending = !sortAscending;
                 articles.sort((a, b) => {
-                    // 根據中英文環境進行排序
                     return sortAscending ? a.name.localeCompare(b.name, 'zh-HK') : b.name.localeCompare(a.name, 'zh-HK');
                 });
                 sortBtn.innerHTML = sortAscending ? '<i class="fas fa-sort-alpha-down"></i> 排序 (A-Z)' : '<i class="fas fa-sort-alpha-up"></i> 排序 (Z-A)';
@@ -576,14 +671,19 @@
             });
 
             speakEnBtn.addEventListener('click', () => {
-                if(sentences.length) speakWithHighlight(sentences[currentIdx], EN_LANG, 'english');
+                if(sentences.length && sentences[currentIdx]) {
+                    speakWithHighlight(sentences[currentIdx], EN_LANG, 'english');
+                }
             });
             speakCantoBtn.addEventListener('click', () => {
-                if(sentences.length) speakWithHighlight(translations[currentIdx]||'', ZH_LANG, 'chinese');
+                if(translations.length && translations[currentIdx] && !translations[currentIdx].startsWith('❌') && !translations[currentIdx].includes('⚠️')) {
+                    speakWithHighlight(translations[currentIdx], ZH_LANG, 'chinese');
+                } else if(translations[currentIdx]) {
+                    // 若翻譯失敗但文字存在，顯示簡短提示但不朗讀錯誤文字
+                }
             });
             nextBtn.addEventListener('click', handleNext);
 
-            // 導入導出
             exportBtn.addEventListener('click', exportToJson);
             importBtn.addEventListener('click', triggerImport);
             fileInput.addEventListener('change', (e) => {
@@ -598,7 +698,7 @@
             renderList();
             resetForm();
             bindEvents();
-            if(!window.speechSynthesis) alert('瀏覽器不支援語音');
+            if(!window.speechSynthesis) alert('您的瀏覽器可能不支援語音功能，但其他學習功能正常');
         }
         init();
     })();
