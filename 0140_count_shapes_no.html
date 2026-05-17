@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>數圖形挑戰營 | 數數小英雄</title>
-    <script src="https://cdn.tailwindcss.com">
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * {
             user-select: none;
@@ -130,16 +129,9 @@
         }
 
         @keyframes shake {
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-6px) rotate(-5deg);
-            }
-            75% {
-                transform: translateX(6px) rotate(5deg);
-            }
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px) rotate(-5deg); }
+            75% { transform: translateX(6px) rotate(5deg); }
         }
 
         .toast-warning {
@@ -191,14 +183,8 @@
         }
 
         @keyframes popWin {
-            from {
-                transform: scale(0.6);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            from { transform: scale(0.6); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .star-icon {
@@ -231,6 +217,19 @@
             gap: 5px;
         }
 
+        .level-badge {
+            background: #fef08a;
+            border: 2px solid #eab308;
+            color: #854d0e;
+            padding: 4px 16px;
+            border-radius: 999px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin: 4px 0;
+            display: inline-block;
+        }
+
         @media (max-width: 550px) {
             .number-btn {
                 min-width: 44px;
@@ -255,7 +254,13 @@
         </div>
         <header class="text-center mb-2 flex flex-col items-center gap-1">
             <h1 class="text-3xl sm:text-4xl font-extrabold text-green-800 tracking-wide">🔢 數圖形大冒險 🔢</h1>
-            <div class="info-chip">
+            
+            <!-- 新增：已完成關卡計數器 -->
+            <div class="level-badge">
+                🏆 已通關：<span id="level-counter">0</span> 關
+            </div>
+
+            <div class="info-chip mt-1">
                 <span>✨ 點圖形會發光 ✨</span>
                 <span>｜ 每個形狀最多8個</span>
             </div>
@@ -282,13 +287,63 @@
             const successModal = document.getElementById('success-modal');
             const playAgainModalBtn = document.getElementById('play-again-btn');
             const toastWarning = document.getElementById('toast-warning');
+            const levelCounterSpan = document.getElementById('level-counter');
+            
             const SHAPE_TYPES = ['square', 'triangle', 'circle', 'rectangle'];
             let currentCounts = {};
             let solvedShapes = {};
             let warningTimeout = null;
+            let completedLevels = 0; // 新增：記錄完成的關卡數
+
+            // ================== 音效系統 (Web Audio API) ==================
+            let audioCtx = null;
+
+            function initAudio() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+
+            function playTone(freq, type, duration, vol = 0.1) {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }
+
+            function playClickShapeSound() {
+                playTone(400, 'sine', 0.1, 0.05);
+            }
+
+            function playCorrectSound() {
+                playTone(523.25, 'sine', 0.1, 0.1); // C5
+                setTimeout(() => playTone(659.25, 'sine', 0.15, 0.1), 100); // E5
+            }
+
+            function playWrongSound() {
+                playTone(150, 'sawtooth', 0.3, 0.1); // 低沉錯誤音
+            }
+
+            function playWinSound() {
+                // 歡樂的過關琶音
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, i) => {
+                    setTimeout(() => playTone(freq, 'square', 0.15, 0.06), i * 150);
+                });
+            }
+            // ==============================================================
 
             function hideModal() { successModal.style.display = 'none'; }
-
             function showModal() { successModal.style.display = 'flex'; }
 
             function startNewGame() {
@@ -399,8 +454,11 @@
                 shapeElement.setAttribute("stroke-width", "3");
                 shapeElement.setAttribute("fill", "none");
                 svg.appendChild(shapeElement);
+                
+                // 點擊圖形特效與音效
                 svg.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    playClickShapeSound(); // 播放點擊音效
                     const rot = parseFloat(svg.dataset.rotation) || 0;
                     shapeElement.setAttribute("stroke", "#3b82f6");
                     shapeElement.setAttribute("stroke-width", "4");
@@ -425,30 +483,42 @@
                     equalSpan.textContent = '=';
                     const numberGroup = document.createElement('div');
                     numberGroup.className = 'number-group';
+                    
                     for (let num = 1; num <= 8; num++) {
                         const btn = document.createElement('button');
                         btn.className = 'number-btn';
                         btn.textContent = num;
+                        
                         btn.addEventListener('click', (e) => {
                             e.stopPropagation();
+                            initAudio(); // 確保使用者互動時解鎖音效
                             if (solvedShapes[type]) return;
+                            
                             const correctCount = currentCounts[type];
                             if (num === correctCount) {
+                                // 答對了
+                                playCorrectSound(); 
                                 btn.classList.add('correct');
                                 solvedShapes[type] = true;
                                 row.classList.add('solved');
+                                
                                 const allBtnsInRow = numberGroup.querySelectorAll('.number-btn');
-                                allBtnsInRow.forEach(b => {
-                                    b.disabled = true;
-                                });
-                                const allSolved = Object.values(solvedShapes).every(status =>
-                                    status === true);
+                                allBtnsInRow.forEach(b => { b.disabled = true; });
+                                
+                                const allSolved = Object.values(solvedShapes).every(status => status === true);
                                 if (allSolved) {
+                                    // 關卡全對
+                                    completedLevels++; // 更新計數
+                                    levelCounterSpan.textContent = completedLevels; // 更新畫面
+                                    
                                     setTimeout(() => {
+                                        playWinSound();
                                         showModal();
                                     }, 400);
                                 }
                             } else {
+                                // 答錯了
+                                playWrongSound(); 
                                 btn.classList.add('wrong');
                                 showWarning();
                                 setTimeout(() => {
@@ -503,12 +573,16 @@
                 svg.appendChild(shape);
                 return svg;
             }
+            
             playAgainModalBtn.addEventListener('click', () => {
+                initAudio(); // 確保使用者互動時解鎖音效
                 startNewGame();
             });
+            
             successModal.addEventListener('click', (e) => {
                 if (e.target === successModal) {}
             });
+            
             window.addEventListener('load', () => {
                 setTimeout(() => {
                     startNewGame();
