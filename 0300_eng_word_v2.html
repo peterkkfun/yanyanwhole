@@ -734,16 +734,23 @@
             }
         }
 
-        // ---------- 翻译 API ----------
+        // ---------- 翻译 API (Google Translate) ----------
         async function translateToTraditional(sentence) {
             try {
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=en|zh-TW`;
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(sentence)}`;
                 const response = await fetch(url);
                 const data = await response.json();
-                if (data?.responseData?.translatedText) {
-                    let translation = data.responseData.translatedText;
-                    if (translation.toLowerCase() === sentence.toLowerCase()) return sentence;
-                    return translation;
+                
+                if (data && data[0]) {
+                    let translation = '';
+                    for (let i = 0; i < data[0].length; i++) {
+                        if (data[0][i][0]) {
+                            translation += data[0][i][0];
+                        }
+                    }
+                    if (translation && translation.toLowerCase() !== sentence.toLowerCase()) {
+                        return translation;
+                    }
                 }
                 return sentence;
             } catch { return sentence; }
@@ -847,7 +854,7 @@
                 stopSpeaking();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-GB';
-                utterance.rate = 0.85; // 放慢一點讓小朋友聽得清楚
+                utterance.rate = 0.85;
                 utterance.onend = resolve;
                 utterance.onerror = resolve;
                 speechSynth.speak(utterance);
@@ -1027,8 +1034,6 @@
             }
             
             originalInputText = rawInput;
-            
-            // 洗牌打亂題目順序
             currentGameList = [...wordsArray].sort(() => Math.random() - 0.5);
             currentGameIndex = 0;
             isGaming = true;
@@ -1045,17 +1050,11 @@
             gameTargetWord = currentGameList[currentGameIndex];
             document.getElementById('gameProgressIndicator').innerText = `第 ${currentGameIndex + 1} / ${currentGameList.length} 題 🎮`;
             
-            // 只從同組提取錯誤選項
             let options = [gameTargetWord];
             let sameGroupWords = currentGameList.filter(w => w !== gameTargetWord);
-            
-            // 隨機打亂同組詞語
             sameGroupWords.sort(() => Math.random() - 0.5);
-            
-            // 取出最多 3 個干擾選項加進去
             options.push(...sameGroupWords.slice(0, 3));
             
-            // 如果這組詞語真的太少(不到4個)，加入預設英文單字補足4個選項
             if (options.length < 4) {
                 let pools = fallbackEnglishWords.filter(w => w !== gameTargetWord && !options.includes(w));
                 pools.sort(() => Math.random() - 0.5);
@@ -1064,7 +1063,6 @@
                 }
             }
             
-            // 再次洗牌，讓正確答案出現在隨機位置
             options.sort(() => Math.random() - 0.5);
             
             const container = document.getElementById('gameOptionsContainer');
@@ -1078,7 +1076,6 @@
                 container.appendChild(btn);
             });
             
-            // 自動播放英文讀音
             setTimeout(() => speakEnglish(gameTargetWord), 600);
         }
 
@@ -1088,21 +1085,17 @@
             if (selected === gameTargetWord) {
                 isGameChecking = true;
                 btnElement.classList.add('correct');
-                
                 const banner = showEncouragementBanner("Good Job!");
-                
-                await speakEncouragement(); // 講「答對啦！欣欣叻叻」
-                
+                await speakEncouragement();
                 setTimeout(() => {
                     if(banner) banner.remove();
                     currentGameIndex++;
                     if (currentGameIndex < currentGameList.length) {
                         loadGameQuestion();
                     } else {
-                        showRainbowBannerAndFinish(); // 結束並返回
+                        showRainbowBannerAndFinish();
                     }
                 }, 1500);
-                
             } else {
                 btnElement.classList.add('wrong');
                 await speakCantonese("唔係呢個，再試下");
@@ -1128,18 +1121,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadGroups();
 
-            // 輸入介面按鈕
             document.getElementById('startTrainBtn').addEventListener('click', startTraining);
             document.getElementById('startGameBtn').addEventListener('click', startGame);
             document.getElementById('saveGroupBtn').addEventListener('click', addCurrentWordsAsGroup);
             
-            // 組別管理按鈕
             document.getElementById('resetDefaultGroupsBtn').addEventListener('click', resetToDefaultGroups);
             document.getElementById('exportDataBtn').addEventListener('click', exportGroupsData);
             document.getElementById('importDataBtn').addEventListener('click', importGroupsData);
             document.getElementById('sortGroupsBtn').addEventListener('click', sortGroupsByName);
             
-            // 學習模式按鈕
             document.getElementById('repeatSoundBtn').addEventListener('click', repeatCurrentPronunciation);
             document.getElementById('nextWordBtn').addEventListener('click', () => {
                 if (trainingView.style.display === 'block' && !isProcessingNext && trainingWords.length) proceedToNextWord();
@@ -1148,7 +1138,6 @@
                 if (trainingView.style.display === 'block' && confirm("返回會中斷學習，確定嗎？")) exitToInputMode();
             });
 
-            // 遊戲模式按鈕
             document.getElementById('playGameAudioBtn').addEventListener('click', () => {
                 if(isGaming) speakEnglish(gameTargetWord);
             });
@@ -1156,7 +1145,6 @@
                 if (gameView.style.display === 'block' && confirm("返回會中斷遊戲，確定嗎？")) exitToInputMode();
             });
 
-            // 鍵盤與系統事件
             window.addEventListener('keydown', onSpacePress);
             window.addEventListener('beforeunload', () => { if(speechSynth) speechSynth.cancel(); });
         });
