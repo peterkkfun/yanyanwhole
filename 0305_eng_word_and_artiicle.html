@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>🌿 馮樂欣學英文 🌿 | 慢速拼讀 + 聽音遊戲 + 文章閱讀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        body {
+            font-family: 'Quicksand', 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #c8e6c9 0%, #a5d6a7 100%);
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 16px 12px;
+        }
+
+        .game-container {
+            max-width: 900px; width: 100%;
+            background-color: #f1f9f0;
+            border-radius: 60px;
+            box-shadow: 0 20px 40px rgba(30, 90, 40, 0.25);
+            overflow: hidden;
+            border: 2px solid #6da56d;
+        }
+
+        .header {
+            background: #2e7d5e; padding: 22px 20px; text-align: center; color: white; text-shadow: 2px 2px 0 #1b5e3f;
+        }
+        .header h1 { font-size: 2.2rem; font-weight: 700; }
+        .header p {
+            font-size: 1.1rem; font-weight: 600; background: #e8f5e9; display: inline-block;
+            padding: 5px 18px; border-radius: 50px; color: #1e5631; margin-top: 8px;
+        }
+
+        .main-view { padding: 25px 24px 35px; }
+
+        /* 按鈕共用樣式 */
+        .btn {
+            border: none; font-weight: 700; padding: 12px 22px; border-radius: 50px;
+            font-size: 1.1rem; font-family: 'Quicksand', sans-serif; cursor: pointer;
+            transition: 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn:active { transform: translateY(3px); }
+        .btn-green { background: #388e3c; color: white; box-shadow: 0 5px 0 #1e5f22; }
+        .btn-green:hover { background: #4caf50; }
+        .btn-blue { background: #29b6f6; color: white; box-shadow: 0 5px 0 #0288d1; }
+        .btn-blue:hover { background: #4fc3f7; }
+        .btn-orange { background: #ffa726; color: white; box-shadow: 0 5px 0 #e65100; }
+        .btn-orange:hover { background: #ffb74d; }
+        .btn-light { background: #a5d6a7; color: #1e4620; border: 2px solid #6da56d; box-shadow: 0 4px 6px rgba(50, 100, 30, 0.2); }
+        .btn-light:hover { background: #81c784; }
+        .btn-outline { background: transparent; border: 3px solid #388e3c; color: #1d6b23; }
+
+        /* 輸入區塊 */
+        .input-area {
+            background: #e8f5e9; border-radius: 40px; padding: 25px; margin-bottom: 20px; border: 2px dashed #4c9a5e;
+        }
+        .input-label { font-weight: 800; color: #1e5c27; font-size: 1.1rem; margin-bottom: 8px; display: block; }
+        input[type="text"], textarea {
+            width: 100%; border-radius: 20px; border: 2.5px solid #5fa06a; padding: 14px 18px;
+            font-size: 1.1rem; font-family: 'Quicksand', sans-serif; background: #fcfff9;
+            outline: none; color: #1e4620; font-weight: 600; margin-bottom: 15px; resize: vertical;
+        }
+        input[type="text"]:focus, textarea:focus { border-color: #2e7d5e; box-shadow: 0 0 0 4px #b9e6b9; }
+
+        /* 群組管理 */
+        .group-panel {
+            background: #dcedc8; border-radius: 40px; padding: 20px; border: 1px solid #8bc34a; margin-bottom: 25px;
+        }
+        .group-badge {
+            background: white; border-radius: 50px; padding: 8px 16px; margin: 6px;
+            display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 3px 6px #9fcc9f;
+            border: 2px solid #7ab87a; cursor: pointer; transition: 0.2s;
+        }
+        .group-badge.active { background: #c8e6c9; border-color: #2e7d5e; box-shadow: 0 4px 10px rgba(46, 125, 94, 0.4); transform: scale(1.02); }
+        .group-name { font-weight: 800; color: #1e5c27; }
+        .del-group-btn {
+            background: #ffebee; color: #c62828; border: none; border-radius: 50%; width: 26px; height: 26px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* 字卡與文章共用 */
+        .flashcard {
+            background: #f1f9ec; border-radius: 60px; padding: 30px 20px; text-align: center;
+            box-shadow: inset 0 1px 6px #c8e6c9, 0 12px 20px rgba(30, 80, 30, 0.1); margin: 20px 0; border: 2px solid #a5d6a7;
+        }
+        .progress-tag {
+            font-size: 1.3rem; background: #c8e6c9; display: inline-block; padding: 8px 22px;
+            border-radius: 50px; font-weight: 700; color: #1e5631; border: 1px solid #6da56d; margin-bottom: 15px;
+        }
+
+        /* Phonics 學習專區 */
+        .english-word { font-size: 2.8rem; font-weight: 800; color: #1d5e2b; margin-bottom: 20px; word-break: break-word; }
+        .phonics-area { background: #e2f0da; border-radius: 40px; padding: 20px; border: 3px dotted #6ea86e; margin-bottom: 20px; }
+        .phonics-chunk {
+            display: inline-block; padding: 8px 16px; border-radius: 36px; font-size: 1.6rem; font-weight: 700;
+            box-shadow: inset 0 1px 4px white, 0 3px 0 #5e9468; margin: 5px; cursor: pointer; border: 1.5px solid #87bf87;
+        }
+        .phonics-chunk:nth-child(even) { background: #fff9c4; color:#33691e; }
+        .phonics-chunk:nth-child(odd) { background: #c5e1a5; color:#1b5e20; }
+        .chinese-trans {
+            font-size: 1.8rem; font-weight: 700; color: #1b5e20; background: #c8e6c9; padding: 12px 35px;
+            border-radius: 60px; display: inline-block; border: 2px solid #81c784; box-shadow: 0 4px 8px #c5e1a5;
+        }
+
+        /* 文章閱讀專區 */
+        .sentence-box {
+            background: #eaf6ea; border-radius: 40px; padding: 25px; margin: 20px auto; border: 2px dashed #81c784; text-align: center;
+        }
+        .article-text { font-size: 2.2rem; font-weight: 700; color: #1d4a2c; line-height: 1.6; margin-bottom: 20px; }
+        .word-span, .char-span { display: inline-block; padding: 0 4px; border-radius: 12px; cursor: pointer; transition: 0.1s; }
+        .word-span:hover { background: #dcedc8; }
+        .highlight { background: #f5e56b !important; color: #1e3a1e !important; box-shadow: 0 0 10px #b3b83e; font-weight: 800; }
+
+        /* 遊戲專區 */
+        .big-play-btn {
+            font-size: 5rem; width: 140px; height: 140px; border-radius: 50%; background: #ffb74d; border: 5px solid #f57c00;
+            color: white; cursor: pointer; margin: 15px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .game-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .game-option-btn {
+            background: white; border: 3px solid #81c784; border-radius: 25px; padding: 20px 15px; font-size: 2rem;
+            font-weight: bold; color: #1b5e20; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .game-option-btn.correct { background: #c8e6c9; border-color: #388e3c; }
+        .game-option-btn.wrong { background: #ffcdd2; border-color: #d32f2f; animation: shake 0.5s; }
+
+        /* 動畫與彈窗 */
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        .popup-banner {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: #f1f8e9;
+            border-radius: 60px; padding: 25px 40px; text-align: center; z-index: 1000;
+            box-shadow: 0 20px 40px rgba(40, 110, 30, 0.4); border: 5px solid #aed581; animation: bouncePop 0.4s ease;
+        }
+        .popup-banner h2 { color: #2e7d5e; font-size: 2.2rem; margin-bottom: 10px; }
+        @keyframes bouncePop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8);} 100% { opacity: 1; transform: translate(-50%, -50%) scale(1);} }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="header">
+        <h1><i class="fas fa-leaf"></i> 馮樂欣學英文 <i class="fas fa-seedling"></i></h1>
+        <p>🌱 超慢速拼讀 + 聽音遊戲 + 文章閱讀 (幼幼友善) 🌱</p>
+    </div>
+
+    <!-- 主選單：群組與文章管理 -->
+    <div id="inputView" class="main-view">
+        <div class="group-panel">
+            <h3 style="color:#2e7d5e; margin-bottom:15px;"><i class="fas fa-tags"></i> 選擇學習群組：</h3>
+            <div id="groupManagerPanel" style="display:flex; flex-wrap:wrap; max-height:200px; overflow-y:auto;"></div>
+        </div>
+
+        <div class="input-area">
+            <span class="input-label"><i class="fas fa-folder"></i> 群組名稱</span>
+            <input type="text" id="groupNameInput" placeholder="例如: Unit 1 常用問候">
+
+            <span class="input-label"><i class="fas fa-pen-fancy"></i> 英文單字或句子 (請用英文逗號分隔)</span>
+            <textarea id="wordInput" rows="2" placeholder="例如: Good morning, How are you?"></textarea>
+
+            <span class="input-label"><i class="fas fa-book-open"></i> 專屬閱讀文章 (標題與內容)</span>
+            <input type="text" id="articleTitleInput" placeholder="文章標題 (例如: My Morning)">
+            <textarea id="articleContentInput" rows="3" placeholder="請輸入相關英文文章... 系統會自動切分為句子進行朗讀。"></textarea>
+            
+            <div style="display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap;">
+                <button id="saveGroupBtn" class="btn btn-green"><i class="fas fa-save"></i> 更新目前群組</button>
+                <button id="newGroupBtn" class="btn btn-light"><i class="fas fa-plus"></i> 新增為新群組</button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px; border-top: 2px dashed #a5d6a7; padding-top: 25px;">
+            <button id="startTrainBtn" class="btn btn-light" style="background:#fff;"><i class="fas fa-graduation-cap"></i> 單字拼讀學習</button>
+            <button id="startGameBtn" class="btn btn-orange"><i class="fas fa-gamepad"></i> 聽音選字遊戲</button>
+            <button id="startArticleBtn" class="btn btn-blue"><i class="fas fa-book-reader"></i> 進入文章閱讀</button>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <button id="exportDataBtn" class="btn btn-outline" style="font-size: 0.9rem; padding: 8px 15px;">匯出 JSON</button>
+            <button id="importDataBtn" class="btn btn-outline" style="font-size: 0.9rem; padding: 8px 15px;">匯入 JSON</button>
+            <input type="file" id="importFileHidden" accept=".json" style="display: none;">
+        </div>
+    </div>
+
+    <!-- 模式一：字卡拼讀學習 (超慢速) -->
+    <div id="trainingView" class="main-view" style="display: none;">
+        <div style="text-align: center;"><span class="progress-tag" id="trainProgress">0 / 0</span></div>
+        <div class="flashcard">
+            <div class="english-word" id="currentWordTarget">Loading...</div>
+            <button id="playPhonicsAudioBtn" class="btn btn-light" style="margin-bottom: 15px;"><i class="fas fa-volume-up"></i> 朗讀整句 (中英雙語・超慢速)</button>
+            
+            <div class="phonics-area" id="phonicsBlocksList"></div>
+            
+            <div style="margin-top: 15px;"><span class="chinese-trans" id="currentChineseTarget">翻譯載入中...</span></div>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+            <button class="btn btn-outline backToMainBtn"><i class="fas fa-home"></i> 返回主頁</button>
+            <button id="repeatSoundBtn" class="btn btn-light"><i class="fas fa-redo"></i> 重播慢速</button>
+            <button id="nextWordBtn" class="btn btn-green">下一個 <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- 模式二：聽音遊戲 (超慢速發音) -->
+    <div id="gameView" class="main-view" style="display: none;">
+        <div style="text-align: center;"><span class="progress-tag" id="gameProgress">第一關：0 / 5</span></div>
+        <div class="flashcard">
+            <h3 style="color:#2e7d5e; margin-bottom:10px;">聽聲音，選出正確的句子！ (發音很慢)</h3>
+            <div class="big-play-btn" id="playGameAudioBtn"><i class="fas fa-volume-up"></i></div>
+            <div class="game-options-grid" id="gameOptionsContainer"></div>
+        </div>
+        <div style="display: flex; justify-content: center; margin-top: 20px;">
+            <button class="btn btn-outline backToMainBtn"><i class="fas fa-home"></i> 結束遊戲</button>
+        </div>
+    </div>
+
+    <!-- 模式三：文章閱讀 (超慢速輔助) -->
+    <div id="articleView" class="main-view" style="display: none;">
+        <div style="text-align: center;"><span class="progress-tag" id="articleProgress">句子 0 / 0</span></div>
+        <div class="flashcard" style="text-align: left; padding: 25px 20px;">
+            <h2 id="articleReadTitle" style="text-align: center; color: #1e5a3c; margin-bottom: 15px;">文章標題</h2>
+            
+            <div class="sentence-box">
+                <div class="article-text" id="articleEnSentence"></div>
+                <div class="chinese-trans" id="articleCnSentence" style="font-size: 1.6rem; margin-top: 10px;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <button id="speakEnBtn" class="btn btn-light"><i class="fas fa-volume-up"></i> 慢速朗讀英文</button>
+                <button id="speakCantoBtn" class="btn btn-light" style="background:#fff; border-color:#81c784;"><i class="fas fa-comment-dots"></i> 慢速朗讀廣東話</button>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+            <button class="btn btn-outline backToMainBtn"><i class="fas fa-home"></i> 返回主頁</button>
+            <button id="prevArticleBtn" class="btn btn-light"><i class="fas fa-arrow-left"></i> 上一句</button>
+            <button id="nextArticleBtn" class="btn btn-blue">下一句 <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ======================== 為幼稚園小朋友調整的超慢速語音設定 ========================
+        // 讓每一個發音都非常清晰緩慢，幫助聽覺跟讀
+        const EXTRA_SLOW_EN_WORD = 0.55;      // 單字 / 短音節 (像是 Good morning, cat)
+        const EXTRA_SLOW_EN_SENTENCE = 0.62;  // 完整句子 (文章段落/長句子) 稍微再慢一點確保清楚
+        const EXTRA_SLOW_CANTONESE = 0.58;    // 廣東話語速調慢至非常和緩
+        
+        // --- 資料結構 ---
+        let groups = [];
+        let currentGroupId = null;
+
+        // --- 預設資料 ---
+        const DEFAULT_GROUPS = [
+            {
+                id: 101,
+                name: "1. 常用問候 (Greetings)",
+                words: ["Good morning", "How are you?", "Nice to meet you"],
+                articleTitle: "Morning Greeting",
+                articleContent: "Good morning! How are you today? It is nice to meet you here. Have a nice day."
+            },
+            {
+                id: 102,
+                name: "2. 關於動物 (Animals)",
+                words: ["The cat is sleeping", "I see an elephant", "Dogs are loyal"],
+                articleTitle: "Animals in the Park",
+                articleContent: "The cat is sleeping under the tree. Look, I see a big elephant! Dogs are loyal animals."
+            }
+        ];
+
+        // --- 變數狀態 ---
+        let trainingWords = []; let currentTrainIdx = 0;
+        let isGaming = false; let gameWordsPool = []; let gameTargetWord = ""; let gameRoundCount = 0;
+        let articleSentences = []; let articleTranslations = []; let currentSentenceIdx = 0;
+
+        // --- 語音核心 (全局超慢速參數) ---
+        const synth = window.speechSynthesis;
+
+        function speakEnglish(text, onBoundary, onEnd, customRate) {
+            if(!synth) return;
+            synth.cancel();
+            const cleanText = text.replace(/[^a-zA-Z0-9\s.,!?'"-]/g, '');
+            const utter = new SpeechSynthesisUtterance(cleanText);
+            utter.lang = 'en-GB';
+            
+            const voices = synth.getVoices();
+            const ukVoice = voices.find(v => v.lang === 'en-GB' || v.lang.includes('en-GB') || v.name.includes('UK'));
+            if(ukVoice) utter.voice = ukVoice;
+            
+            // 使用傳入的超慢速率 (單字或句子專用)
+            utter.rate = customRate; 
+            if(onBoundary) utter.onboundary = onBoundary;
+            if(onEnd) utter.onend = onEnd;
+            synth.speak(utter);
+        }
+
+        function speakCantonese(text, onBoundary, onEnd, customRate) {
+            if(!synth) return;
+            synth.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'zh-HK';
+            
+            const voices = synth.getVoices();
+            const hkVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'zh-YUE' || v.name.toLowerCase().includes('cantonese') || v.name.toLowerCase().includes('hong kong'));
+            if(hkVoice) utter.voice = hkVoice;
+            
+            utter.rate = customRate;
+            if(onBoundary) utter.onboundary = onBoundary;
+            if(onEnd) utter.onend = onEnd;
+            synth.speak(utter);
+        }
+
+        // 雙語慢速連讀邏輯 (單字卡用：極慢速英文 -> 停頓 -> 極慢速廣東話)
+        function playWordAndTranslationSlow(wordText, translationText) {
+            // 英文使用單字/短句慢速 (0.55)  結束後延長停頓到 800ms 讓小朋友消化
+            speakEnglish(wordText, null, () => {
+                setTimeout(() => {
+                    speakCantonese(translationText, null, null, EXTRA_SLOW_CANTONESE);
+                }, 800);  // 停頓更久，適合幼童
+            }, EXTRA_SLOW_EN_WORD);
+        }
+
+        // --- 初始化與儲存邏輯 ---
+        function loadGroups() {
+            const saved = localStorage.getItem('欣欣學英文_完整整合版');
+            if(saved) {
+                try { groups = JSON.parse(saved); } catch(e) { groups = [...DEFAULT_GROUPS]; }
+            } else { groups = [...DEFAULT_GROUPS]; }
+            
+            if(groups.length > 0) currentGroupId = groups[0].id;
+            renderGroupPanels();
+            selectGroup(currentGroupId);
+        }
+
+        function saveGroups() {
+            localStorage.setItem('欣欣學英文_完整整合版', JSON.stringify(groups));
+        }
+
+        // --- UI 渲染 ---
+        function renderGroupPanels() {
+            const container = document.getElementById('groupManagerPanel');
+            container.innerHTML = '';
+            groups.forEach(g => {
+                const badge = document.createElement('div');
+                badge.className = 'group-badge' + (g.id === currentGroupId ? ' active' : '');
+                
+                const title = document.createElement('span');
+                title.className = 'group-name';
+                title.innerText = g.name;
+                title.onclick = () => selectGroup(g.id);
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'del-group-btn';
+                delBtn.innerHTML = '<i class="fas fa-times"></i>';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if(confirm(`確定刪除「${g.name}」群組嗎？`)) {
+                        groups = groups.filter(item => item.id !== g.id);
+                        if(groups.length > 0) currentGroupId = groups[0].id;
+                        else currentGroupId = null;
+                        saveGroups(); renderGroupPanels(); selectGroup(currentGroupId);
+                    }
+                };
+                
+                badge.appendChild(title);
+                badge.appendChild(delBtn);
+                container.appendChild(badge);
+            });
+        }
+
+        function selectGroup(id) {
+            currentGroupId = id;
+            document.querySelectorAll('.group-badge').forEach(b => b.classList.remove('active'));
+            renderGroupPanels(); 
+            
+            const group = groups.find(g => g.id === id);
+            if(group) {
+                document.getElementById('groupNameInput').value = group.name || '';
+                document.getElementById('wordInput').value = (group.words || []).join(', ');
+                document.getElementById('articleTitleInput').value = group.articleTitle || '';
+                document.getElementById('articleContentInput').value = group.articleContent || '';
+            } else {
+                document.getElementById('groupNameInput').value = '';
+                document.getElementById('wordInput').value = '';
+                document.getElementById('articleTitleInput').value = '';
+                document.getElementById('articleContentInput').value = '';
+            }
+        }
+
+        // --- 按鈕事件綁定：儲存群組 ---
+        document.getElementById('saveGroupBtn').onclick = () => {
+            if(!currentGroupId && groups.length === 0) return document.getElementById('newGroupBtn').click();
+            const group = groups.find(g => g.id === currentGroupId);
+            if(group) {
+                group.name = document.getElementById('groupNameInput').value.trim() || '未命名群組';
+                group.words = document.getElementById('wordInput').value.split(',').map(w=>w.trim()).filter(w=>w);
+                group.articleTitle = document.getElementById('articleTitleInput').value.trim();
+                group.articleContent = document.getElementById('articleContentInput').value.trim();
+                saveGroups(); renderGroupPanels(); showPopup("💾 儲存成功！", "群組內容已更新。");
+            }
+        };
+
+        document.getElementById('newGroupBtn').onclick = () => {
+            const newId = Date.now();
+            groups.push({
+                id: newId,
+                name: document.getElementById('groupNameInput').value.trim() || '新群組',
+                words: document.getElementById('wordInput').value.split(',').map(w=>w.trim()).filter(w=>w),
+                articleTitle: document.getElementById('articleTitleInput').value.trim(),
+                articleContent: document.getElementById('articleContentInput').value.trim()
+            });
+            currentGroupId = newId;
+            saveGroups(); renderGroupPanels(); selectGroup(newId); showPopup("✨ 新增成功！", "已建立全新學習群組。");
+        };
+
+        // --- 輔助函數：翻譯與彈窗 ---
+        async function fetchTranslation(text) {
+            try {
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(text)}`);
+                const data = await res.json();
+                return data[0].map(item => item[0]).join('');
+            } catch(e) { return "點擊發音學習"; }
+        }
+
+        function showPopup(title, sub) {
+            const pop = document.createElement('div');
+            pop.className = 'popup-banner';
+            pop.innerHTML = `<h2>${title}</h2><p style="font-weight:600; font-size:1.2rem; color:#1e5c27;">${sub}</p>`;
+            document.body.appendChild(pop);
+            setTimeout(() => pop.remove(), 1800);
+        }
+
+        function switchView(viewId) {
+            ['inputView', 'trainingView', 'gameView', 'articleView'].forEach(id => {
+                document.getElementById(id).style.display = (id === viewId) ? 'block' : 'none';
+            });
+        }
+
+        document.querySelectorAll('.backToMainBtn').forEach(btn => {
+            btn.onclick = () => { synth.cancel(); isGaming = false; switchView('inputView'); };
+        });
+
+
+        // ==================== 模式一：字卡拼讀學習 (超慢速) ====================
+        document.getElementById('startTrainBtn').onclick = () => {
+            const group = groups.find(g => g.id === currentGroupId);
+            if(!group || group.words.length === 0) return alert("目前群組沒有單字，請先輸入！");
+            trainingWords = group.words;
+            currentTrainIdx = 0;
+            switchView('trainingView');
+            loadFlashcard(currentTrainIdx);
+        };
+
+        async function loadFlashcard(idx) {
+            if(idx >= trainingWords.length) {
+                showPopup("🎉 太棒了！", "妳已經完成本組單字的學習！");
+                setTimeout(() => switchView('inputView'), 2000);
+                return;
+            }
+            document.getElementById('trainProgress').innerText = `${idx + 1} / ${trainingWords.length}`;
+            const word = trainingWords[idx];
+            document.getElementById('currentWordTarget').innerText = word;
+            
+            // Phonics 拆分 (點擊每個音節都用超慢速單字速度)
+            const phonicsContainer = document.getElementById('phonicsBlocksList');
+            phonicsContainer.innerHTML = '';
+            word.split(/(\s+|[,.!?])/).forEach(token => {
+                if(!token || /^\s+$/.test(token) || /^[,.!?]$/.test(token)) return;
+                const chunks = splitPhonics(token);
+                chunks.forEach(c => {
+                    const span = document.createElement('span');
+                    span.className = 'phonics-chunk';
+                    span.innerText = c;
+                    span.onclick = () => speakEnglish(c, null, null, EXTRA_SLOW_EN_WORD); 
+                    phonicsContainer.appendChild(span);
+                });
+            });
+
+            // 翻譯 (顯示文字)
+            const transTarget = document.getElementById('currentChineseTarget');
+            transTarget.innerText = "翻譯中...";
+            const translatedText = await fetchTranslation(word);
+            transTarget.innerText = translatedText;
+        }
+
+        function splitPhonics(word) {
+            const rules = ["ai","ay","ee","ea","ie","oa","oe","oo","ou","ow","ui","ch","sh","th","wh","ph","ck","kn","wr","ar","er","ir","or","ur","ing","ang","ung","ong","all"];
+            const res = []; let i = 0; const w = word.toLowerCase();
+            while(i < word.length) {
+                let matched = false;
+                for(let len = 3; len >= 2; len--) {
+                    if(i + len <= word.length && rules.includes(w.substring(i, i + len))) {
+                        res.push(word.substring(i, i + len)); i += len; matched = true; break;
+                    }
+                }
+                if(!matched) { res.push(word[i]); i++; }
+            }
+            return res;
+        }
+
+        // 手動點擊朗讀按鈕 (超慢速)
+        document.getElementById('playPhonicsAudioBtn').onclick = () => {
+            const word = trainingWords[currentTrainIdx];
+            const trans = document.getElementById('currentChineseTarget').innerText;
+            playWordAndTranslationSlow(word, trans);
+        };
+        document.getElementById('repeatSoundBtn').onclick = () => {
+            const word = trainingWords[currentTrainIdx];
+            const trans = document.getElementById('currentChineseTarget').innerText;
+            playWordAndTranslationSlow(word, trans);
+        };
+        
+        document.getElementById('nextWordBtn').onclick = () => { currentTrainIdx++; loadFlashcard(currentTrainIdx); };
+
+
+        // ==================== 模式二：聽音遊戲 (超級慢速發音) ====================
+        document.getElementById('startGameBtn').onclick = () => {
+            const group = groups.find(g => g.id === currentGroupId);
+            if(!group || group.words.length < 2) return alert("需要至少 2 個以上的單字才能玩遊戲喔！");
+            gameWordsPool = group.words;
+            isGaming = true; gameRoundCount = 0;
+            switchView('gameView');
+            generateGameRound();
+        };
+
+        function generateGameRound() {
+            if(gameRoundCount >= 5) {
+                isGaming = false;
+                showPopup("🏆 闖關成功！", "恭喜妳通過 5 關挑戰！");
+                setTimeout(() => switchView('inputView'), 2000);
+                return;
+            }
+            document.getElementById('gameProgress').innerText = `第 ${gameRoundCount + 1} 關 / 共 5 關`;
+            gameTargetWord = gameWordsPool[Math.floor(Math.random() * gameWordsPool.length)];
+            
+            let options = [gameTargetWord];
+            let distractors = gameWordsPool.filter(w => w !== gameTargetWord).sort(() => Math.random() - 0.5);
+            options.push(...distractors.slice(0, 3));
+            options.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('gameOptionsContainer');
+            container.innerHTML = '';
+            options.forEach(text => {
+                const btn = document.createElement('button');
+                btn.className = 'game-option-btn'; btn.innerText = text;
+                btn.onclick = () => {
+                    if(!isGaming || btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    if(text === gameTargetWord) {
+                        btn.classList.add('correct'); showPopup("⭐ 答對了！", "聽力一級棒！");
+                        isGaming = false;
+                        setTimeout(() => { gameRoundCount++; isGaming = true; generateGameRound(); }, 1500);
+                    } else {
+                        btn.classList.add('wrong');
+                        setTimeout(() => btn.classList.remove('wrong'), 500);
+                    }
+                };
+                container.appendChild(btn);
+            });
+            // 遊戲語音也使用超慢單字速度 (0.55)
+            setTimeout(() => speakEnglish(gameTargetWord, null, null, EXTRA_SLOW_EN_WORD), 400); 
+        }
+        document.getElementById('playGameAudioBtn').onclick = () => { if(isGaming) speakEnglish(gameTargetWord, null, null, EXTRA_SLOW_EN_WORD); };
+
+
+        // ==================== 模式三：文章逐句閱讀 (超慢速句子+廣東話) ====================
+        document.getElementById('startArticleBtn').onclick = () => {
+            const group = groups.find(g => g.id === currentGroupId);
+            if(!group || !group.articleContent) return alert('請先在主頁輸入「專屬閱讀文章」內容！');
+            
+            articleSentences = group.articleContent.match(/[^.!?]+[.!?]+/g) || [group.articleContent];
+            articleSentences = articleSentences.map(s => s.trim()).filter(s => s);
+            if(articleSentences.length === 0) return;
+
+            articleTranslations = new Array(articleSentences.length).fill('');
+            currentSentenceIdx = 0;
+            document.getElementById('articleReadTitle').innerText = group.articleTitle || group.name;
+            switchView('articleView');
+            loadArticleSentence();
+        };
+
+        async function loadArticleSentence() {
+            const sentence = articleSentences[currentSentenceIdx];
+            document.getElementById('articleProgress').innerText = `句子 ${currentSentenceIdx + 1} / ${articleSentences.length}`;
+            
+            const enBox = document.getElementById('articleEnSentence');
+            enBox.innerHTML = '';
+            const words = sentence.split(/(\s+)/);
+            let charOffset = 0;
+            const wordSpansData = [];
+            
+            words.forEach(w => {
+                if(/^\s+$/.test(w)) {
+                    enBox.appendChild(document.createTextNode(w));
+                    charOffset += w.length;
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'word-span'; span.innerText = w;
+                    // 點擊單詞朗讀也用超慢速單字速度 (0.55)
+                    span.onclick = () => speakEnglish(w.replace(/[^a-zA-Z]/g, ''), null, null, EXTRA_SLOW_EN_WORD);
+                    enBox.appendChild(span);
+                    wordSpansData.push({ span: span, start: charOffset, end: charOffset + w.length });
+                    charOffset += w.length;
+                }
+            });
+            enBox.wordSpansData = wordSpansData;
+
+            const cnBox = document.getElementById('articleCnSentence');
+            cnBox.innerText = '翻譯載入中...';
+            if(!articleTranslations[currentSentenceIdx]) {
+                articleTranslations[currentSentenceIdx] = await fetchTranslation(sentence);
+            }
+            cnBox.innerHTML = '';
+            const cnText = articleTranslations[currentSentenceIdx];
+            const cnCharsData = [];
+            for(let i=0; i<cnText.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'char-span'; span.innerText = cnText[i];
+                cnBox.appendChild(span);
+                cnCharsData.push(span);
+            }
+            cnBox.cnCharsData = cnCharsData;
+        }
+
+        // 朗讀英文 (整句使用超慢速句子速率 0.62)
+        document.getElementById('speakEnBtn').onclick = () => {
+            const sentence = articleSentences[currentSentenceIdx];
+            const wordSpansData = document.getElementById('articleEnSentence').wordSpansData;
+            document.querySelectorAll('.word-span, .char-span').forEach(s => s.classList.remove('highlight'));
+            
+            speakEnglish(sentence, (e) => {
+                if(e.name === 'word') {
+                    const charIndex = e.charIndex;
+                    wordSpansData.forEach(item => {
+                        if(charIndex >= item.start && charIndex < item.end) {
+                            document.querySelectorAll('.word-span').forEach(s => s.classList.remove('highlight'));
+                            item.span.classList.add('highlight');
+                        }
+                    });
+                }
+            }, () => { document.querySelectorAll('.word-span').forEach(s => s.classList.remove('highlight')); }, EXTRA_SLOW_EN_SENTENCE);
+        };
+
+        // 朗讀廣東話 (超慢速廣東話 0.58)
+        document.getElementById('speakCantoBtn').onclick = () => {
+            const text = articleTranslations[currentSentenceIdx];
+            if(!text) return;
+            const cnCharsData = document.getElementById('articleCnSentence').cnCharsData;
+            document.querySelectorAll('.word-span, .char-span').forEach(s => s.classList.remove('highlight'));
+            
+            speakCantonese(text, (e) => {
+                if(e.name === 'word' || e.name === 'character') {
+                    if(cnCharsData[e.charIndex]) {
+                        document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight'));
+                        cnCharsData[e.charIndex].classList.add('highlight');
+                    }
+                }
+            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }, EXTRA_SLOW_CANTONESE);
+        };
+
+        document.getElementById('prevArticleBtn').onclick = () => { if(currentSentenceIdx > 0) { currentSentenceIdx--; loadArticleSentence(); } };
+        document.getElementById('nextArticleBtn').onclick = () => {
+            if(currentSentenceIdx < articleSentences.length - 1) { currentSentenceIdx++; loadArticleSentence(); }
+            else { showPopup("📖 閱讀完畢！", "做得太棒了！"); setTimeout(() => switchView('inputView'), 2000); }
+        };
+
+        // --- 匯出匯入功能 ---
+        document.getElementById('exportDataBtn').onclick = () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(groups, null, 2));
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "欣欣英文群組資料.json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
+        };
+        const fileHidden = document.getElementById('importFileHidden');
+        document.getElementById('importDataBtn').onclick = () => fileHidden.click();
+        fileHidden.onchange = (e) => {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if(Array.isArray(parsed)) { groups = parsed; currentGroupId = groups[0]?.id; saveGroups(); renderGroupPanels(); selectGroup(currentGroupId); showPopup("📂 匯入成功！", "資料已更新。"); }
+                } catch(err) { alert('JSON 格式錯誤！'); }
+            };
+            reader.readAsText(file);
+        };
+
+        // --- 啟動初始化 ---
+        window.onload = () => loadGroups();
+        window.onbeforeunload = () => synth.cancel();
+    })();
+</script>
+</body>
+</html>

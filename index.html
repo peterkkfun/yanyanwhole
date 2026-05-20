@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes, viewport-fit=cover">
-    <title>欣欣學習樂園 · 綜合遊戲庫</title>
-    <!-- Google Font & 簡單圖標庫 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#fbc4ab">
+    <title>🌟 欣欣學習樂園 🌟 | 兒童遊戲總匯</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -12,498 +12,441 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: linear-gradient(145deg, #fff9e8 0%, #ffe6d5 100%);
-            font-family: 'Quicksand', 'Segoe UI', 'Comic Neue', sans-serif;
-            padding: 24px 20px 48px;
+            background: linear-gradient(145deg, #fff5e6 0%, #ffe0c4 100%);
+            font-family: 'Quicksand', 'Comic Neue', 'Segoe UI', system-ui, sans-serif;
+            padding: 20px 18px 40px;
             min-height: 100vh;
         }
 
-        /* 主容器 */
-        .portal-container {
-            max-width: 1400px;
+        /* 可愛雲朵背景 */
+        body::before {
+            content: "☁️☁️☁️";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            font-size: 130px;
+            white-space: nowrap;
+            opacity: 0.04;
+            letter-spacing: 60px;
+            transform: rotate(5deg);
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1300px;
             margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
 
         /* 頭部 */
         .hero {
             text-align: center;
-            margin-bottom: 32px;
-            background: rgba(255, 250, 225, 0.7);
-            backdrop-filter: blur(5px);
+            margin-bottom: 40px;
+            background: rgba(255, 250, 240, 0.75);
+            backdrop-filter: blur(12px);
             border-radius: 70px;
-            padding: 24px 20px 28px;
-            box-shadow: 0 18px 30px rgba(255, 140, 60, 0.12);
-            border: 2px solid #ffd9a5;
+            padding: 28px 20px;
+            box-shadow: 0 20px 35px rgba(150, 80, 20, 0.15), inset 0 1px 4px white;
+            border: 2px solid #fff1d6;
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 2.7rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #dd6b20, #f97316, #facc15);
+            background: linear-gradient(135deg, #f97316, #f59e0b, #eab308);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.05);
             letter-spacing: -0.5px;
-            text-shadow: 2px 2px 12px rgba(251, 146, 60, 0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
+            margin-bottom: 8px;
         }
 
         .hero h1 i {
             background: none;
-            color: #f97316;
-            font-size: 2.5rem;
+            color: #ffb347;
+            text-shadow: none;
         }
 
         .hero p {
             font-size: 1.25rem;
-            color: #7b4b2a;
             font-weight: 600;
-            margin-top: 12px;
-            background: #fff0e0;
+            color: #c06b2a;
+            background: #ffefdb;
             display: inline-block;
             padding: 8px 28px;
-            border-radius: 60px;
-            box-shadow: inset 0 1px 3px #ffe0b5, 0 3px 6px rgba(0,0,0,0.03);
+            border-radius: 40px;
+            box-shadow: inset 0 1px 4px #ffe2bb, 0 4px 6px rgba(0,0,0,0.03);
         }
 
-        /* 分類標籤 */
-        .category-section {
-            margin-top: 24px;
+        /* 分類篩選按鈕區 */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
             margin-bottom: 40px;
         }
 
-        .category-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.9rem;
-            font-weight: 800;
-            color: #b45f2b;
-            border-left: 12px solid #ffaa55;
-            padding-left: 20px;
-            margin: 0 0 18px 12px;
-            letter-spacing: -0.3px;
-        }
-
-        .category-title i {
-            font-size: 1.9rem;
-            color: #f39c12;
-        }
-
-        /* 卡片網格 */
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-            gap: 24px;
-            margin-bottom: 28px;
-        }
-
-        /* 卡片樣式 (超觸控友善) */
-        .game-card {
-            background: #fffffa;
-            border-radius: 42px;
-            overflow: hidden;
-            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            box-shadow: 0 15px 25px -8px rgba(0, 0, 0, 0.1), 0 2px 0 #fff9e6 inset;
-            border: 2px solid #ffddb0;
+        .filter-btn {
+            background: #fff3e0;
+            border: none;
+            padding: 10px 24px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            color: #aa6f30;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+            font-family: inherit;
+            border: 1.5px solid #ffe0b5;
             backdrop-filter: blur(2px);
         }
 
-        .game-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 28px 32px -12px rgba(160, 90, 20, 0.2);
-            border-color: #ffc68a;
+        .filter-btn i {
+            margin-right: 8px;
         }
 
-        .card-inner {
-            padding: 20px 18px 24px;
+        .filter-btn.active {
+            background: #f97316;
+            color: white;
+            border-color: #f9a95c;
+            box-shadow: 0 8px 16px rgba(249,115,22,0.25);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* 網格卡片區 */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 28px;
+            transition: all 0.2s;
+        }
+
+        .game-card {
+            background: rgba(255, 254, 250, 0.95);
+            backdrop-filter: blur(5px);
+            border-radius: 48px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            box-shadow: 0 16px 28px -8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255,215,150,0.6);
+            cursor: pointer;
+            transform: translateY(0);
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
 
-        .card-icon {
-            font-size: 3.4rem;
-            background: #fff0e0;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 30px;
-            margin-bottom: 16px;
-            box-shadow: inset 0 1px 4px #ffe0b0, 0 5px 12px rgba(0,0,0,0.03);
+        .game-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 35px -10px rgba(160, 80, 20, 0.25);
+            background: white;
         }
 
-        .card-title {
+        /* 卡片頂部顏色條 */
+        .card-category {
+            height: 12px;
+            width: 100%;
+        }
+
+        .cat-math { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .cat-english { background: linear-gradient(90deg, #10b981, #34d399); }
+        .cat-chinese { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+        .cat-logic { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+        .card-content {
+            padding: 22px 20px 24px;
+            flex: 1;
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: inline-block;
+            background: #fef2e6;
+            padding: 8px 18px;
+            border-radius: 50px;
+        }
+
+        .game-title {
             font-size: 1.65rem;
             font-weight: 800;
-            color: #613b1a;
-            line-height: 1.2;
-            margin-bottom: 8px;
+            color: #4a2e12;
+            line-height: 1.3;
+            margin-bottom: 10px;
             letter-spacing: -0.2px;
         }
 
-        .card-desc {
+        .game-desc {
             font-size: 0.9rem;
-            color: #a66f3c;
-            font-weight: 600;
+            color: #9b6b3c;
+            font-weight: 500;
             margin-bottom: 20px;
-            flex: 1;
-            border-left: 3px solid #ffc48a;
-            padding-left: 12px;
+            line-height: 1.4;
         }
 
-        .card-link {
-            background: #ffedd5;
-            border: none;
-            border-radius: 50px;
-            padding: 12px 5px;
-            font-weight: 800;
-            font-size: 1rem;
-            color: #c27e2e;
-            text-align: center;
-            display: inline-flex;
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            text-decoration: none;
-            transition: all 0.12s;
-            cursor: pointer;
-            border-bottom: 3px solid #f3bc6c;
-            font-family: inherit;
+            margin-top: 8px;
         }
 
-        .card-link:active {
-            transform: translateY(3px);
-            border-bottom-width: 1px;
-        }
-
-        /* 底部 */
-        .footer-note {
-            text-align: center;
-            margin-top: 58px;
-            padding: 16px;
-            background: #fff1e2;
-            border-radius: 60px;
-            font-weight: 600;
-            color: #b76828;
-            border: 2px solid #ffdbb5;
-        }
-
-        /* 響應 */
-        @media (max-width: 700px) {
-            body { padding: 16px 12px 32px; }
-            .hero h1 { font-size: 2.2rem; }
-            .category-title { font-size: 1.6rem; }
-            .game-grid { gap: 18px; }
-            .card-title { font-size: 1.4rem; }
-        }
-
-        /* 特別提示 */
-        .badge-new {
-            background: #fbbf24;
+        .badge {
+            background: #ffefdb;
+            padding: 4px 16px;
             border-radius: 50px;
             font-size: 0.7rem;
             font-weight: 800;
-            padding: 2px 8px;
-            color: #5c340c;
-            margin-left: 10px;
-            display: inline-block;
-            vertical-align: middle;
+            color: #bc6f2c;
+            text-transform: uppercase;
         }
 
-        i, .card-link i {
-            pointer-events: none;
+        .play-link {
+            background: #f0a55a;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            box-shadow: 0 3px 0 #b45a2a;
+        }
+
+        .play-link:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b45a2a;
+        }
+
+        /* 頁尾 */
+        .footer-note {
+            margin-top: 60px;
+            text-align: center;
+            color: #ba7a42;
+            font-weight: 600;
+            background: rgba(255,245,225,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 50px;
+            padding: 15px 18px;
+            font-size: 0.9rem;
+        }
+
+        /* 無結果提示 */
+        .no-result {
+            text-align: center;
+            grid-column: 1 / -1;
+            background: #fff0df;
+            border-radius: 60px;
+            padding: 45px;
+            font-size: 1.5rem;
+            color: #b97f48;
+        }
+
+        @media (max-width: 680px) {
+            body { padding: 16px 12px 30px; }
+            .hero h1 { font-size: 2rem; }
+            .games-grid { grid-template-columns: 1fr; gap: 20px; }
+            .filter-btn { padding: 6px 18px; font-size: 0.9rem; }
+            .game-title { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
-<div class="portal-container">
+
+<div class="container">
     <div class="hero">
         <h1>
-            <i class="fas fa-candy-cane"></i> 
-            欣欣學習樂園
-            <i class="fas fa-heart" style="color:#f97316;"></i>
+            <i class="fas fa-star-of-life"></i> 欣欣學習總動員 <i class="fas fa-heart" style="color:#ff9f4a;"></i>
         </h1>
-        <p>🐣 爸爸媽媽哥哥愛欣欣 · 遊戲中學習 🧸</p>
-        <div style="margin-top: 14px; font-size: 0.95rem; background: #fff3e6; border-radius: 30px; display: inline-block; padding: 4px 24px;">
-            🌟 點擊卡片即可開啟遊戲，全部獨立運作 🌟
-        </div>
+        <p>🐣 爸爸媽媽哥哥愛欣欣 · 一次玩遍所有遊戲 🧸</p>
     </div>
 
-    <!-- 數學邏輯區塊 -->
-    <div class="category-section">
-        <div class="category-title">
-            <i class="fas fa-calculator"></i> 
-            🔢 數學 · 數感與運算
-            <span style="font-size: 0.9rem; background: #ffe0b5; padding: 2px 12px; border-radius: 40px;">加減排序｜時鐘｜奇偶</span>
-        </div>
-        <div class="game-grid">
-            <!-- 卡片 加減填充 <=20/10 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-plus-circle"></i><i class="fas fa-minus-circle"></i></div>
-                    <div class="card-title">加減小英雄 <span class="badge-new">20內加法·10內減法</span></div>
-                    <div class="card-desc">加法 ≤ 20，減法 ≤ 10，每20題獎勵動畫！支援粵+英語音。</div>
-                    <a href="0120 addition less 20 substraction less 10.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 開始挑戰 ➕➖</a>
-                </div>
-            </div>
-            <!-- 數字小火車 5卡 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-train"></i></div>
-                    <div class="card-title">數字小火車 🚂 (5卡車廂)</div>
-                    <div class="card-desc">點擊數字卡片，補上缺漏的數字，學習數列規律。</div>
-                    <a href="0131_5_cars_1_missing.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 填數字 • 5卡車</a>
-                </div>
-            </div>
-            <!-- 數字小火車 10卡拖放 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-train"></i><i class="fas fa-arrows-alt"></i></div>
-                    <div class="card-title">拖放小火車 🚞 (10卡)</div>
-                    <div class="card-desc">拖曳數字卡片到正確車廂，建立完整規律！支援觸控拖曳。</div>
-                    <a href="0132_10_cars_5_missing.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 拖放填空 ✨</a>
-                </div>
-            </div>
-            <!-- 時鐘學習 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-clock"></i></div>
-                    <div class="card-title">睇鐘學時間 🕒</div>
-                    <div class="card-desc">看時鐘指針，選出正確時間，粵語&英式英語雙語朗讀。</div>
-                    <a href="0010_clock.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 認時間挑戰</a>
-                </div>
-            </div>
-            <!-- 數字排序 0-100 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-sort-amount-down-alt"></i></div>
-                    <div class="card-title">數字排排樂 🔢</div>
-                    <div class="card-desc">由小到大/大到小排列5個數字，訓練順序感。</div>
-                    <a href="0120_sorting_numbers.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 排序練習</a>
-                </div>
-            </div>
-            <!-- 10以內數的分解 (加法樹) -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-tree"></i></div>
-                    <div class="card-title">分解小樹屋 🌳 10以內</div>
-                    <div class="card-desc">利用數字鍵盤，完成加法合成與分解。</div>
-                    <a href="0125_addition_tree.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 數字分解</a>
-                </div>
-            </div>
-            <!-- 加減符號選擇 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-question-circle"></i></div>
-                    <div class="card-title">➕ 加號 or 減號 ➖</div>
-                    <div class="card-desc">判斷算式缺漏的運算符號，欣欣叻叻鼓勵回饋。</div>
-                    <a href="0130_plus_or_minus.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 符號神探</a>
-                </div>
-            </div>
-            <!-- 奇偶數小偵探 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
-                    <div class="card-title">奇偶小偵探 🔍</div>
-                    <div class="card-desc">判斷單數還是雙數，英式英文＋粵語發音，適合初學。</div>
-                    <a href="0100 odd even v3_andriod.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 單雙數測驗</a>
-                </div>
-            </div>
-            <!-- 加法替換填空 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-puzzle-piece"></i></div>
-                    <div class="card-title">加減填空樂 ✨</div>
-                    <div class="card-desc">填充算式中的未知數，支援直式/橫式排版。語音輔助。</div>
-                    <a href="0121 addition and substraction alternative.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 填空小高手</a>
-                </div>
-            </div>
-        </div>
+    <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-filter="all"><i class="fas fa-apple-alt"></i> 全部</button>
+        <button class="filter-btn" data-filter="math"><i class="fas fa-calculator"></i> 數學</button>
+        <button class="filter-btn" data-filter="english"><i class="fas fa-language"></i> 英文</button>
+        <button class="filter-btn" data-filter="chinese"><i class="fas fa-pen-fancy"></i> 中文</button>
+        <button class="filter-btn" data-filter="logic"><i class="fas fa-puzzle-piece"></i> 邏輯/方向</button>
     </div>
 
-    <!-- 英文語言區塊 -->
-    <div class="category-section">
-        <div class="category-title">
-            <i class="fas fa-language"></i> 
-            📖 英文樂園 · 句子/詞彙/Phonics
-            <span style="font-size: 0.8rem;">🇬🇧 英式發音 + 粵語對照</span>
-        </div>
-        <div class="game-grid">
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-book-open"></i></div>
-                    <div class="card-title">欣欣學英文 · 文章庫</div>
-                    <div class="card-desc">建立/閱讀英文文章，英式+粵語雙語朗讀句子。</div>
-                    <a href="0320_eng_article.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 英文文章樂園</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-pen-fancy"></i></div>
-                    <div class="card-title">字母填空 · 拼讀練習</div>
-                    <div class="card-desc">2~3個字母空缺，拼音/字詞理解，英粵雙語提示。</div>
-                    <a href="0310_eng_fill_in.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 填空挑戰 ✏️</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-head-side-vr"></i></div>
-                    <div class="card-title">欣欣記句子 · Phonics拼讀</div>
-                    <div class="card-desc">句子閃卡 + 自然發音拆解，聽音遊戲提升辨識力。</div>
-                    <a href="0300_eng_word_v2.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 聽音學英文</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 中文及認字區塊 (繁體+量詞+筆順) -->
-    <div class="category-section">
-        <div class="category-title">
-            <i class="fas fa-chinese-character"></i> 
-            🇭🇰 中文 · 粵語朗讀 · 閱讀與筆順
-        </div>
-        <div class="game-grid">
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-chalkboard-user"></i></div>
-                    <div class="card-title">筆順動畫教室 ✍️</div>
-                    <div class="card-desc">慢速筆順動畫，支援粵語發音，聽音認字遊戲。</div>
-                    <a href="0210_繁體中文 · 筆順動畫_android.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 寫字練習</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-book"></i></div>
-                    <div class="card-title">中文文章閱讀器</div>
-                    <div class="card-desc">自訂繁體文章，粵語&普通話朗讀，句子分段學習。</div>
-                    <a href="0220_article_Chinese_reading.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 愛閱讀 · 聽故事</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
-                    <div class="card-title">生活量詞趣味測驗</div>
-                    <div class="card-desc">超過40題量詞挑戰，動物/物品量詞，粵語發音解說。</div>
-                    <a href="0230_中文量詞.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 量詞小達人</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 認知 / 邏輯 / 專注力 -->
-    <div class="category-section">
-        <div class="category-title">
-            <i class="fas fa-brain"></i> 
-            🧩 邏輯·觀察·方位
-        </div>
-        <div class="game-grid">
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-ice-cream"></i></div>
-                    <div class="card-title">冰淇淋規律大挑戰</div>
-                    <div class="card-desc">觀察8個冰淇淋顏色規律，推測下一個口味！</div>
-                    <a href="0135_雪糕規律.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 找規律🍦</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-cubes"></i></div>
-                    <div class="card-title">層級疊疊樂 · 前後順序</div>
-                    <div class="card-desc">判斷圖形前後層級，建立空間概念。</div>
-                    <a href="0150_shape_stacking.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 疊疊樂</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-shapes"></i></div>
-                    <div class="card-title">數圖形小偵探 🔍</div>
-                    <div class="card-desc">重疊圖形計數，訓練觀察力與專注力。</div>
-                    <a href="0140_count_shapes_no.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 圖形數數</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-arrow-left"></i><i class="fas fa-arrow-right"></i></div>
-                    <div class="card-title">左右尋寶氣球🎈</div>
-                    <div class="card-desc">依照指令找出左/右或第幾個氣球，學習方向與序數。</div>
-                    <a href="0136_數氣球.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 左左右右</a>
-                </div>
-            </div>
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-hand-peace"></i>👈👉</div>
-                    <div class="card-title">左右配對 · 左定右？</div>
-                    <div class="card-desc">認讀中英文 “左/右”，點擊箭頭作答，語音即時回饋。</div>
-                    <a href="0020_lift_right_iphone.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 左右挑戰</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 額外創作/綜合區 (剩餘的檔案) -->
-    <div class="category-section">
-        <div class="category-title">
-            <i class="fas fa-gamepad"></i> 
-            🎮 綜合 · 更多樂趣
-        </div>
-        <div class="game-grid">
-            <!-- 冰淇淋已在上方 但再補一個已列過? 再補英文填空完整 還有一些未放: 例如五 cars missing, 已放, 加法替代已放 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="card-title">數學加減初階版</div>
-                    <div class="card-desc">簡易加減填充題 (≤10) ，活潑動畫與獎勵。</div>
-                    <a href="0121 addition and substraction alternative.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 輕鬆加減</a>
-                </div>
-            </div>
-            <!-- 筆順已放置, 但確保全部涵蓋 -->
-            <div class="game-card">
-                <div class="card-inner">
-                    <div class="card-icon"><i class="fas fa-sort-alpha-down"></i></div>
-                    <div class="card-title">英文句子填空樂</div>
-                    <div class="card-desc">2-3字母填空，匯入/匯出單字組，自訂學習庫。</div>
-                    <a href="0310_eng_fill_in.html" class="card-link" target="_blank"><i class="fas fa-play"></i> 進階填空</a>
-                </div>
-            </div>
-            <!-- 補上冰淇淋規律也有，但已經有 再加一個形狀疊疊樂已列，確定全部檔案都有對應 -->
-            <!-- 10 cars drag drop 已經加過，添加數氣球已列， 再補一支時鐘已有。 確保所有檔案連結正確 -->
-        </div>
-        <div style="background: #ffefdb; border-radius: 32px; padding: 16px; margin-top: 12px; text-align: center; font-weight: 600; color: #ad6b35;">
-            <i class="fas fa-info-circle"></i> 小提示：點擊任何遊戲卡片，就會在新分頁開啟！所有遊戲都支援觸控及語音功能，非常適合兒童自主學習。
-        </div>
+    <div id="gamesGrid" class="games-grid">
+        <!-- 動態載入卡片 JavaScript -->
     </div>
 
     <div class="footer-note">
-        🌈 爸爸媽媽哥哥愛欣欣｜多元智能發展 🌈 <br>
-        💡 每個遊戲都是獨立網頁，請確保所有 .html 檔案與 index 放在相同資料夾。 <br>
-        🎯 鼓勵欣欣大膽嘗試，答對會有「欣欣叻叻」鼓勵語音 + 驚喜動畫！
+        🌈 每個遊戲都獨立好玩，點擊「馬上玩」開心學習！ 🌈 <br>
+        💖 全部教材適用幼稚園/小學，粵語＋英語互動 💖
     </div>
 </div>
 
 <script>
-    // 簡易確保所有對外連結正確並防範控制台錯誤（僅做友善提醒）
-    (function() {
-        // 因為卡片連結都是相對路徑，若檔案不存在會顯示 404，使用者可確認已上傳對應html。
-        console.log("欣欣學習入口網站已啟動 — 點擊卡片展開歡樂學習旅程🧸");
-        const allLinks = document.querySelectorAll('.card-link');
-        allLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                // 無需額外動作，只是讓連結在新視窗打開（target="_blank"）
-                // 避免某些行動裝置不支持，但不影響體驗
+    // --------------------------------------------------------------
+    // 遊戲資料庫 (基於所有上傳檔案，正確對應檔名、標題、描述、分類)
+    // 檔名必須與實際檔案完全一致 (含空格、特殊字)
+    // --------------------------------------------------------------
+    const gamesData = [
+        // 數學類
+        { fileName: "0120 addition less 20 substraction less 10.html", title: "🧸 加減魔法師", desc: "加法 ≤ 20，減法 ≤ 10，每20題獲得驚喜動畫！", category: "math", icon: "fa-calculator" },
+        { fileName: "0120_sorting_numbers.html", title: "🔢 數字排排樂", desc: "0-100 以內數字排序，由小到大或由大到小挑戰", category: "math", icon: "fa-sort-amount-down" },
+        { fileName: "0130_plus_or_minus.html", title: "➕➖ 符號大挑戰", desc: "選出正確的加號或減號，填空算術遊戲", category: "math", icon: "fa-question-circle" },
+        { fileName: "0125_addition_tree.html", title: "🍎 10以內分解樹", desc: "數字拆解填空，訓練數感與組合能力", category: "math", icon: "fa-tree" },
+        { fileName: "0121 addition and substraction alternative.html", title: "🎈 填充題 ≤10", desc: "加減填充題，可愛視覺動畫輔助", category: "math", icon: "fa-puzzle-piece" },
+        { fileName: "0100 odd even v3_andriod.html", title: "🔍 奇偶小偵探", desc: "學習單數 (Odd) 與雙數 (Even)，語音互動", category: "math", icon: "fa-eye" },
+        { fileName: "0010_clock.html", title: "🕒 睇鐘學時間", desc: "認讀時鐘，15分鐘間隔，粵語+英語報時", category: "math", icon: "fa-clock" },
+        { fileName: "0132_10_cars_5_missing.html", title: "🚂 數字小火車 (10卡)", desc: "拖曳數字填補空缺，學習數列規律", category: "math", icon: "fa-train" },
+        { fileName: "0131_5_cars_1_missing.html", title: "🚂 數字小火車 (5卡)", desc: "5卡車廂，點選正確數字，簡單入門", category: "math", icon: "fa-subway" },
+        // 英文類
+        { fileName: "0320_eng_article.html", title: "📖 欣欣學英文 · 文章庫", desc: "英文文章閱讀 + 粵語/英語雙語朗讀 + 翻譯", category: "english", icon: "fa-book-open" },
+        { fileName: "0310_eng_fill_in.html", title: "📝 欣欣填空樂園", desc: "2-3字母填空遊戲，英式英語與粵語解釋", category: "english", icon: "fa-keyboard" },
+        { fileName: "0305_eng_word_and_artiicle.html", title: "🌱 慢速拼讀＋聽音遊戲", desc: "Phonics單字拆解+聽音選擇，超慢速友善", category: "english", icon: "fa-headphones" },
+        { fileName: "0300_eng_word_v2.html", title: "💬 開心記句子", desc: "句子拼讀、分組管理、聽音挑戰遊戲", category: "english", icon: "fa-smile" },
+        // 中文類
+        { fileName: "0230_中文量詞.html", title: "📦 生活量詞小測驗", desc: "50題量詞挑戰，認識「隻/個/條/張」", category: "chinese", icon: "fa-boxes" },
+        { fileName: "0220_article_Chinese_reading.html", title: "📚 欣欣學中文 · 粵普朗讀", desc: "繁體文章閱讀，支援粵語/普通話朗讀", category: "chinese", icon: "fa-comment-dots" },
+        { fileName: "0210_繁體中文 · 筆順動畫_android.html", title: "✍️ 慢速筆順練習", desc: "漢字動畫筆順 + 聽音認字遊戲", category: "chinese", icon: "fa-paint-brush" },
+        // 邏輯 / 方向 / 形狀 / 觀察
+        { fileName: "0140_count_shapes_no.html", title: "🔺 數圖形挑戰營", desc: "重疊圖形計數，訓練觀察與數數能力", category: "logic", icon: "fa-shapes" },
+        { fileName: "0150_shape_stacking.html", title: "🏗️ 層級疊疊樂", desc: "理解形狀前後順序 (上/中/下層)", category: "logic", icon: "fa-layer-group" },
+        { fileName: "0136_數氣球.html", title: "🎈 汽球尋寶遊戲", desc: "學習左/右方向及序數概念", category: "logic", icon: "fa-arrow-left" },
+        { fileName: "0135_雪糕規律.html", title: "🍦 冰淇淋規律", desc: "色彩/順序推理，找出下一個冰淇淋", category: "logic", icon: "fa-chart-line" },
+        { fileName: "0020_lift_right_iphone.html", title: "⇦ 左 or 右 ⇨", desc: "根據單字「LEFT / RIGHT」點選正確方向", category: "logic", icon: "fa-hand-peace" }
+    ];
+
+    // 輔助函式：處理檔名中的空格使其成為合法 URL
+    function encodeGameUrl(fileName) {
+        // 保留原始路徑，但將特殊字符編碼（例如空格->%20）
+        return encodeURI(fileName);
+    }
+
+    // 依照分類渲染卡片
+    function renderGames(filterCategory = "all") {
+        const container = document.getElementById('gamesGrid');
+        if (!container) return;
+        
+        const filtered = gamesData.filter(game => filterCategory === "all" || game.category === filterCategory);
+        
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="no-result"><i class="fas fa-face-frown"></i> 冇呢類遊戲住，揀其他分類啦 ✨</div>`;
+            return;
+        }
+        
+        let cardsHtml = '';
+        for (let game of filtered) {
+            const categoryClass = 
+                game.category === 'math' ? 'cat-math' :
+                game.category === 'english' ? 'cat-english' :
+                game.category === 'chinese' ? 'cat-chinese' : 'cat-logic';
+            
+            const categoryName = 
+                game.category === 'math' ? '🧮 數學' :
+                game.category === 'english' ? '🇬🇧 英文' :
+                game.category === 'chinese' ? '🇭🇰 中文' : '🧩 邏輯觀察';
+            
+            // 圖示動態
+            const iconClass = game.icon || (game.category === 'math' ? 'fa-calculator' : 'fa-gamepad');
+            
+            cardsHtml += `
+                <div class="game-card" data-category="${game.category}">
+                    <div class="card-category ${categoryClass}"></div>
+                    <div class="card-content">
+                        <div class="game-icon">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        <div class="game-title">${escapeHtml(game.title)}</div>
+                        <div class="game-desc">${escapeHtml(game.desc)}</div>
+                        <div class="card-footer">
+                            <span class="badge">${categoryName}</span>
+                            <button class="play-link" data-url="${encodeGameUrl(game.fileName)}">
+                                <i class="fas fa-play"></i> 馬上玩
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = cardsHtml;
+        
+        // 綁定每個按鈕的點擊事件 (事件委託也可以，但直接綁定清晰)
+        document.querySelectorAll('.play-link').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const url = btn.getAttribute('data-url');
+                if (url) {
+                    // 在新分頁開啟，保留總入口頁面方便快速回到選單
+                    window.open(url, '_blank');
+                }
             });
         });
-    })();
+    }
+    
+    // 簡單防XSS
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+    
+    // 篩選器互動
+    function initFilters() {
+        const btns = document.querySelectorAll('.filter-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.getAttribute('data-filter');
+                // 更新 active 樣式
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderGames(filter);
+            });
+        });
+    }
+    
+    // 確保所有外部文件存在提示（友善提醒: 若檔案遺失會跳錯，但實際都會在目錄）
+    window.addEventListener('load', () => {
+        renderGames('all');
+        initFilters();
+        // 加入小彩蛋：控制台輸出
+        console.log("🎉 欣欣學習樂園已載入！點擊卡片玩遊戲，記得將所有HTML檔案放在同一個資料夾唷～");
+        
+        // 檢查是否有任何遊戲無法點擊(只是提醒，不會中斷)
+        setTimeout(() => {
+            const links = document.querySelectorAll('.play-link');
+            if (links.length === 0) console.warn("沒有遊戲資料？請確認gamesData");
+        }, 100);
+    });
+    
+    // 為增進體驗，也支援整體卡片點擊(可選)，但避免干擾按鈕
+    document.addEventListener('click', (e) => {
+        const card = e.target.closest('.game-card');
+        if (card && !e.target.closest('.play-link')) {
+            const playBtn = card.querySelector('.play-link');
+            if (playBtn) {
+                playBtn.click();
+            }
+        }
+    });
 </script>
 </body>
 </html>
