@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>🌸 欣欣學中文 🌸 | 筆順 + 聽音遊戲 + 文章閱讀</title>
+    <title>🌸 欣欣學中文 🌸 | 筆順 + 聽音遊戲 + 文章閱讀 (超慢速朗讀)</title>
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -126,7 +126,7 @@
 <div class="container">
     <div class="header">
         <h1>🌸 欣欣學中文 🌸</h1>
-        <p>筆順動畫 + 聽音遊戲 + 粵普雙語文章閱讀</p>
+        <p>筆順動畫 + 聽音遊戲 + 粵普雙語文章閱讀 (超慢速朗讀)</p>
     </div>
 
     <!-- 主選單：群組與文章管理 -->
@@ -213,7 +213,7 @@
         </div>
     </div>
 
-    <!-- 模式三：文章閱讀 -->
+    <!-- 模式三：文章閱讀 (超慢速朗讀) -->
     <div id="articleView" class="main-view" style="display: none;">
         <div style="text-align: center;"><span class="progress-tag" id="articleProgress">句子 0 / 0</span></div>
         <div class="flashcard" style="text-align: left; padding: 25px 20px;">
@@ -224,8 +224,8 @@
             </div>
 
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                <button id="speakCantoBtn" class="btn btn-pink"><i class="fas fa-comment-dots"></i> 朗讀廣東話</button>
-                <button id="speakMandoBtn" class="btn btn-outline"><i class="fas fa-comment-dots"></i> 朗讀普通話</button>
+                <button id="speakCantoBtn" class="btn btn-pink"><i class="fas fa-comment-dots"></i> 朗讀廣東話 (超慢速)</button>
+                <button id="speakMandoBtn" class="btn btn-outline"><i class="fas fa-comment-dots"></i> 朗讀普通話 (超慢速)</button>
             </div>
         </div>
         <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
@@ -265,10 +265,13 @@
         let isGaming = false; let gameWordsPool = []; let gameTargetWord = ""; let gameRoundCount = 0;
         let articleSentences = []; let currentSentenceIdx = 0;
 
-        // --- 語音核心 (慢速適合幼稚園) ---
+        // --- 語音核心 (超慢速，特別為 K2 幼兒調校) ---
         const synth = window.speechSynthesis;
+        // 文章閱讀使用的極慢速率
+        const SLOW_RATE_ARTICLE = 0.42;   // 超慢，適合跟讀
+        const SLOW_RATE_CHAR = 0.50;       // 單字點擊稍慢但仍清晰
 
-        function speakCantonese(text, onBoundary, onEnd, rate = 0.55) {
+        function speakCantonese(text, onBoundary, onEnd, rate = SLOW_RATE_ARTICLE) {
             if(!synth) return;
             synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
@@ -284,7 +287,7 @@
             synth.speak(utter);
         }
 
-        function speakMandarin(text, onBoundary, onEnd, rate = 0.55) {
+        function speakMandarin(text, onBoundary, onEnd, rate = SLOW_RATE_ARTICLE) {
             if(!synth) return;
             synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
@@ -378,7 +381,6 @@
                 group.articleContent = document.getElementById('articleContentInput').value.trim();
                 saveGroups(); renderGroupPanels(); showPopup("💾 儲存成功！", "群組內容已更新。");
             } else if (currentGroupId) {
-                // 如果因為某種原因找不到群組，則創建一個新的
                 document.getElementById('newGroupBtn').click();
             }
         };
@@ -436,7 +438,6 @@
             document.getElementById('trainProgress').innerText = `${idx + 1} / ${trainingWords.length}`;
             const word = trainingWords[idx];
             
-            // 建立可個別點擊讀音的生字顯示
             const wordDisplayBox = document.getElementById('currentWordTarget');
             wordDisplayBox.innerHTML = '';
             for (let i = 0; i < word.length; i++) {
@@ -444,7 +445,7 @@
                 charSpan.className = 'clickable-char';
                 charSpan.innerText = word[i];
                 charSpan.onclick = () => {
-                    speakCantonese(word[i]); // 點擊個別漢字以廣東話讀出
+                    speakCantonese(word[i], null, null, SLOW_RATE_CHAR);
                 };
                 wordDisplayBox.appendChild(charSpan);
             }
@@ -453,14 +454,12 @@
             strokeArea.innerHTML = '';
             hanziWriters = [];
             
-            // 讀取速度設定
             const isSlow = document.getElementById('speedSlow').checked;
             const strokeAnimationSpeed = isSlow ? 0.4 : 0.9;
             const delayBetweenStrokes = isSlow ? 400 : 200;
 
             for (let i = 0; i < word.length; i++) {
                 const char = word[i];
-                // 過濾非中文字元
                 if (!/[\u4e00-\u9fa5]/.test(char)) continue;
 
                 const card = document.createElement('div');
@@ -511,7 +510,6 @@
                     });
                     hanziWriters.push(writer);
                     
-                    // 點擊卡片或重播按鈕
                     animateBtn.onclick = () => {
                         writer.cancelQuiz();
                         writer.animateCharacter();
@@ -521,7 +519,6 @@
                         writer.animateCharacter();
                     };
                     
-                    // 暫停按鈕切換邏輯
                     let isPaused = false;
                     pauseBtn.onclick = () => {
                         if (!isPaused) {
@@ -541,9 +538,7 @@
                     
                 } catch(e) { console.error("HanziWriter Error:", e); }
             }
-            
-            // 自動發音(廣東話)
-            setTimeout(() => speakCantonese(word), 300);
+            setTimeout(() => speakCantonese(word, null, null, SLOW_RATE_ARTICLE), 300);
         }
 
         document.getElementById('playAudioCantoBtn').onclick = () => speakCantonese(trainingWords[currentTrainIdx]);
@@ -551,7 +546,6 @@
         document.getElementById('prevWordBtn').onclick = () => loadStrokeWord(currentTrainIdx - 1);
         document.getElementById('nextWordBtn').onclick = () => loadStrokeWord(currentTrainIdx + 1);
         
-        // 速度切換時重新載入筆順
         document.getElementById('speedSlow').onchange = () => loadStrokeWord(currentTrainIdx);
         document.getElementById('speedNormal').onchange = () => loadStrokeWord(currentTrainIdx);
 
@@ -605,18 +599,17 @@
         function playGameAudio() {
             if(!isGaming) return;
             const lang = document.querySelector('input[name="gameLang"]:checked').value;
-            if(lang === 'canto') speakCantonese(gameTargetWord);
-            else speakMandarin(gameTargetWord);
+            if(lang === 'canto') speakCantonese(gameTargetWord, null, null, SLOW_RATE_ARTICLE);
+            else speakMandarin(gameTargetWord, null, null, SLOW_RATE_ARTICLE);
         }
         document.getElementById('playGameAudioBtn').onclick = playGameAudio;
 
 
-        // ==================== 模式三：文章逐句閱讀 ====================
+        // ==================== 模式三：文章逐句閱讀 (超慢速朗讀) ====================
         document.getElementById('startArticleBtn').onclick = () => {
             const group = groups.find(g => g.id === currentGroupId);
             if(!group || !group.articleContent) return alert('請先在主頁輸入「專屬閱讀文章」內容！');
             
-            // 按中文標點切分句子
             articleSentences = group.articleContent.match(/[^。！？.!?]+[。！？.!?]*/g) || [group.articleContent];
             articleSentences = articleSentences.map(s => s.trim()).filter(s => s);
             if(articleSentences.length === 0) return;
@@ -638,13 +631,12 @@
             for(let i=0; i<sentence.length; i++) {
                 const char = sentence[i];
                 if(/[\s\p{P}]+/u.test(char)) {
-                    // 標點符號不加點擊事件
                     displayBox.appendChild(document.createTextNode(char));
                     charsData.push(null);
                 } else {
                     const span = document.createElement('span');
                     span.className = 'char-span'; span.innerText = char;
-                    span.onclick = () => speakCantonese(char, null, null, 0.6); // 單字點擊預設廣東話
+                    span.onclick = () => speakCantonese(char, null, null, SLOW_RATE_CHAR);
                     displayBox.appendChild(span);
                     charsData.push(span);
                 }
@@ -652,7 +644,7 @@
             displayBox.charsData = charsData;
         }
 
-        // 朗讀廣東話 + 逐字高亮
+        // 朗讀廣東話 (超慢速)
         document.getElementById('speakCantoBtn').onclick = () => {
             const sentence = articleSentences[currentSentenceIdx];
             const charsData = document.getElementById('articleSentenceDisplay').charsData;
@@ -665,10 +657,10 @@
                         charsData[e.charIndex].classList.add('highlight');
                     }
                 }
-            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); });
+            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }, SLOW_RATE_ARTICLE);
         };
 
-        // 朗讀普通話 + 逐字高亮
+        // 朗讀普通話 (超慢速)
         document.getElementById('speakMandoBtn').onclick = () => {
             const sentence = articleSentences[currentSentenceIdx];
             const charsData = document.getElementById('articleSentenceDisplay').charsData;
@@ -681,7 +673,7 @@
                         charsData[e.charIndex].classList.add('highlight');
                     }
                 }
-            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); });
+            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }, SLOW_RATE_ARTICLE);
         };
 
         document.getElementById('prevArticleBtn').onclick = () => { if(currentSentenceIdx > 0) { currentSentenceIdx--; loadArticleSentence(); } };
