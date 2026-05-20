@@ -2,30 +2,579 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>欣欣的學習樂園</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>🍎 欣欣學習樂園 · 遊戲大廳 🍎</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; text-align: center; }
-        h1 { color: #333; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; margin-top: 30px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; text-decoration: none; color: #333; display: block; }
-        .card:hover { transform: scale(1.05); }
-        .card h3 { margin-bottom: 10px; color: #007bff; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 避免拖曳干擾，不影響點擊 */
+        }
+
+        body {
+            background: linear-gradient(145deg, #fef7e0 0%, #fff0d6 100%);
+            font-family: 'Segoe UI', 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', 'PingFang HK', 'Noto Sans TC', sans-serif;
+            padding: 24px 20px 40px;
+            min-height: 100vh;
+        }
+
+        /* 主容器 */
+        .playground {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 可愛頭像區 */
+        .hero {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #e67e22;
+            text-shadow: 4px 4px 0 #ffe0a3;
+            letter-spacing: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero .crown {
+            font-size: 3rem;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #b45f2b;
+            background: rgba(255, 245, 210, 0.8);
+            display: inline-block;
+            padding: 6px 24px;
+            border-radius: 60px;
+            margin-top: 8px;
+            backdrop-filter: blur(2px);
+            font-weight: 600;
+        }
+
+        .stats-badge {
+            display: inline-flex;
+            gap: 12px;
+            background: #ffedd5;
+            border-radius: 60px;
+            padding: 8px 24px;
+            margin: 12px 0 6px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+        }
+
+        .stats-badge span {
+            font-weight: 700;
+            color: #c2410c;
+        }
+
+        /* 分類標題 */
+        .category {
+            margin-top: 32px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            border-left: 12px solid #f39c12;
+            padding-left: 20px;
+        }
+
+        .category h2 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #7b3f00;
+            letter-spacing: 1px;
+        }
+
+        .category .cat-emoji {
+            font-size: 2rem;
+        }
+
+        /* 卡片網格 */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* 遊戲卡片 */
+        .game-card {
+            background: rgba(255, 255, 245, 0.95);
+            border-radius: 42px;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 12px 28px rgba(100, 60, 20, 0.12), 0 4px 0 #ffd966 inset, 0 -2px 0 #fff0cf inset;
+            transition: all 0.25s ease;
+            border: 2px solid #ffddb0;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px rgba(160, 100, 20, 0.2);
+            background: #fffffa;
+            border-color: #ffbc6e;
+        }
+
+        .game-card:active {
+            transform: translateY(-2px);
+        }
+
+        .card-inner {
+            padding: 22px 20px 24px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .game-icon {
+            font-size: 3.2rem;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-icon .main-emoji {
+            background: #ffeecc;
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 40px;
+            font-size: 2.6rem;
+            box-shadow: inset 0 -2px 0 #e0c8a0, 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .game-tag {
+            background: #fdebb3;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #b45f2b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #4b2f1a;
+            margin: 12px 0 8px;
+            line-height: 1.3;
+        }
+
+        .game-desc {
+            font-size: 0.85rem;
+            color: #7b5a3e;
+            margin-bottom: 18px;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .play-btn {
+            background: #ffa559;
+            border: none;
+            border-radius: 60px;
+            padding: 12px 0;
+            font-weight: 800;
+            font-size: 1rem;
+            color: white;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 0 #c25f1a;
+            transition: 0.07s linear;
+            cursor: pointer;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .play-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #c25f1a;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* 頁腳 */
+        .footer-note {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px 10px;
+            background: rgba(245, 222, 179, 0.4);
+            border-radius: 80px;
+            color: #a1622a;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        /* 響應式 */
+        @media (max-width: 680px) {
+            body { padding: 16px 12px 30px; }
+            .game-grid { gap: 18px; }
+            .game-title { font-size: 1.3rem; }
+            .hero h1 { font-size: 2rem; }
+            .category h2 { font-size: 1.5rem; }
+        }
+
+        @media (max-width: 450px) {
+            .game-card .card-inner { padding: 16px 16px 20px; }
+            .game-icon .main-emoji { width: 52px; height: 52px; font-size: 2rem; }
+        }
+
+        /* 簡單動畫 */
+        @keyframes floatSoft {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-6px); }
+        }
+
+        .game-card:hover .main-emoji {
+            animation: floatSoft 0.4s ease-in-out infinite alternate;
+        }
     </style>
 </head>
 <body>
-    <h1>🌸 欣欣的學習樂園 🌸</h1>
-    <div class="grid">
-        <a class="card" href="0132_10_cars_5_missing.html"><h3>數字小火車 (10卡)</h3></a>
-        <a class="card" href="0131_5_cars_1_missing.html"><h3>數字小火車 (5卡)</h3></a>
-        <a class="card" href="0215_繁體中文_閱讀.html"><h3>欣欣學中文 (閱讀)</h3></a>
-        <a class="card" href="0310_eng_fill_in.html"><h3>英語填空樂園</h3></a>
-        <a class="card" href="0305_eng_word_and_artiicle.html"><h3>英語拼讀與閱讀</h3></a>
-        <a class="card" href="0230_中文量詞.html"><h3>生活量詞測驗</h3></a>
-        <a class="card" href="0150_shape_stacking.html"><h3>層級疊疊樂</h3></a>
-        <a class="card" href="0140_count_shapes_no.html"><h3>數圖形挑戰</h3></a>
-        <a class="card" href="0136_數氣球.html"><h3>汽球尋寶遊戲</h3></a>
-        <a class="card" href="0135_雪糕規律.html"><h3>冰淇淋規律遊戲</h3></a>
+
+<div class="playground">
+    <div class="hero">
+        <h1>
+            <span class="crown">👑</span> 
+            欣欣學習樂園 
+            <span class="crown">🍦</span>
+        </h1>
+        <p>✨ 爸爸媽媽哥哥愛欣欣 · 邊玩邊學 ✨</p>
+        <div class="stats-badge">
+            <span>🎮 18 個益智遊戲</span>
+            <span>🌟 數學 · 邏輯 · 語文 · 英文</span>
+        </div>
     </div>
+
+    <!-- 所有遊戲將會由 JavaScript 動態產生，保持整潔且易維護 -->
+    <div id="categories-container"></div>
+
+    <div class="footer-note">
+        ⭐ 點擊卡片按鈕就會打開遊戲，慢慢玩唔使急 ⭐ <br>
+        💡 每個遊戲都獨立設計，專為小朋友開心學習而設！
+    </div>
+</div>
+
+<script>
+    (function(){
+        // --------------------------------------------------------------
+        // 遊戲資料庫 (根據原始檔名以及內容精心命名，分類清晰)
+        // 確保每個檔案名稱與實際放置的檔案完全一致
+        // --------------------------------------------------------------
+        const GAMES_DB = [
+            // ========= 數學 · 計算與數字 =========
+            { 
+                filename: "0100 odd even v3_andriod.html", 
+                title: "奇偶小偵探", 
+                desc: "學習單數(odd) & 雙數(even) ，點擊正確答案，英式英語+粵語發音！",
+                category: "math_calc",
+                emoji: "🔢",
+                tag: "奇偶數"
+            },
+            { 
+                filename: "0120 addition less 20 substraction less 10.html", 
+                title: "加減法小教室", 
+                desc: "加法 ≤20，減法 ≤10，每20題有驚喜動畫，適合K2初階運算。",
+                category: "math_calc",
+                emoji: "➕➖",
+                tag: "加減基礎"
+            },
+            { 
+                filename: "0121 addition and substraction alternative.html", 
+                title: "加減填充題", 
+                desc: "? 在算式裡，動畫提示加減概念，數字≤10，輕鬆學未知數。",
+                category: "math_calc",
+                emoji: "❓",
+                tag: "填充題"
+            },
+            { 
+                filename: "0125_addition_tree.html", 
+                title: "10以內數的分解", 
+                desc: "數字樹填空，點擊數字鍵盤組合，建立數感與分合概念。",
+                category: "math_calc",
+                emoji: "🌳",
+                tag: "數字分解"
+            },
+            { 
+                filename: "0130_plus_or_minus.html", 
+                title: "加減符號選擇", 
+                desc: "看到算式選 加號 或 減號，10題闖關 + 動畫獎勵。",
+                category: "math_calc",
+                emoji: "🔁",
+                tag: "符號邏輯"
+            },
+            // ========= 數學 · 序列與排序 =========
+            { 
+                filename: "0131_5_cars_1_missing.html", 
+                title: "數字小火車 🚂 五卡一缺", 
+                desc: "找出規律，從數字卡中正確填入缺少的數字 (1個空缺)。",
+                category: "math_seq",
+                emoji: "🚂",
+                tag: "數列填空"
+            },
+            { 
+                filename: "0132_10_cars_5_missing.html", 
+                title: "數字小火車 🚂 十卡五缺", 
+                desc: "拖曳或點選數字，填滿5個空缺，建立複雜規律邏輯。",
+                category: "math_seq",
+                emoji: "🚆",
+                tag: "進階序列"
+            },
+            { 
+                filename: "0120_sorting_numbers.html", 
+                title: "數字排序王", 
+                desc: "0~100數字排序，由小到大 / 大到小，強化順序概念。",
+                category: "math_seq",
+                emoji: "📊",
+                tag: "大小排序"
+            },
+            { 
+                filename: "0135_雪糕規律.html", 
+                title: "冰淇淋規律大挑戰", 
+                desc: "觀察8個冰淇淋顏色/口味，推理下一個是什麼！",
+                category: "math_seq",
+                emoji: "🍦",
+                tag: "圖案規律"
+            },
+            // ========= 邏輯觀察 · 空間時間 =========
+            { 
+                filename: "0010_clock.html", 
+                title: "欣欣學時間", 
+                desc: "認讀時鐘，三個選項，粵語 + 英式英語朗讀時間。",
+                category: "logic_space",
+                emoji: "🕒",
+                tag: "時間認知"
+            },
+            { 
+                filename: "0020_lift_right_iphone.html", 
+                title: "左定右？左右大挑戰", 
+                desc: "顯示 LEFT / RIGHT / 左 / 右，點選對應方向，建立方向感。",
+                category: "logic_space",
+                emoji: "👈👉",
+                tag: "左右辨識"
+            },
+            { 
+                filename: "0136_數氣球.html", 
+                title: "氣球尋寶遊戲", 
+                desc: "聽從指示（從左數/右數/某氣球旁）點擊正確氣球，訓練方向+序數。",
+                category: "logic_space",
+                emoji: "🎈",
+                tag: "方向數數"
+            },
+            { 
+                filename: "0140_count_shapes_no.html", 
+                title: "數圖形大冒險", 
+                desc: "重疊圖形仔細數，點擊數字回答正方形、圓形等數量。",
+                category: "logic_space",
+                emoji: "🔺⬛",
+                tag: "圖形計數"
+            },
+            { 
+                filename: "0150_shape_stacking.html", 
+                title: "層級疊疊樂", 
+                desc: "觀察三個形狀的前後層次，選擇正確順序（1最前面/3最後面）。",
+                category: "logic_space",
+                emoji: "🧩",
+                tag: "空間順序"
+            },
+            // ========= 中文語文 (繁體·量詞·閱讀) =========
+            { 
+                filename: "0215_繁體中文_閱讀.html", 
+                title: "欣欣學中文", 
+                desc: "自訂字卡 + 筆順動畫 + 超慢速文章朗讀 (粵語/普通話) + 聽音遊戲。",
+                category: "chinese",
+                emoji: "📖",
+                tag: "認字筆順"
+            },
+            { 
+                filename: "0230_中文量詞.html", 
+                title: "生活量詞趣味測驗", 
+                desc: "50題量詞挑戰 (一隻/一朵/一條等) + 語音朗讀，正確答題得分。",
+                category: "chinese",
+                emoji: "📦",
+                tag: "量詞學習"
+            },
+            // ========= 英文 English =========
+            { 
+                filename: "0305_eng_word_and_artiicle.html", 
+                title: "馮樂欣學英文", 
+                desc: "慢速拼讀 + 聽音選字遊戲 + 文章閱讀 (英式英語&粵語雙語發音)",
+                category: "english",
+                emoji: "🇬🇧",
+                tag: "單字文章"
+            },
+            { 
+                filename: "0310_eng_fill_in.html", 
+                title: "欣欣填空樂園", 
+                desc: "2~3字母填空，英式+粵語提示，自訂單字群組，還可以匯入/匯出。",
+                category: "english",
+                emoji: "✍️",
+                tag: "字母填空"
+            }
+        ];
+
+        // 分類映射 (繁體標題與圖示)
+        const categoryMap = {
+            math_calc: { name: "🧮 數學 · 加減 & 數字感", icon: "🧸", color: "#fdf5e6" },
+            math_seq: { name: "🔍 數學 · 規律 & 排序", icon: "🔢", color: "#fff3df" },
+            logic_space: { name: "🧠 邏輯 · 方向 · 時鐘 · 圖形", icon: "🧩", color: "#fef2e8" },
+            chinese: { name: "📚 語文 · 中文閱讀 & 量詞", icon: "🐉", color: "#fff8e7" },
+            english: { name: "🌍 英文 · 自然發音 & 句子", icon: "📘", color: "#eef5ff" }
+        };
+
+        // 根據分類順序渲染
+        const categoriesOrder = ["math_calc", "math_seq", "logic_space", "chinese", "english"];
+        
+        // 輔助：獲取每個分類的遊戲列表
+        function getGamesByCategory(catId) {
+            return GAMES_DB.filter(game => game.category === catId);
+        }
+
+        // 產生整個結構
+        function renderGames() {
+            const container = document.getElementById('categories-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let catId of categoriesOrder) {
+                const games = getGamesByCategory(catId);
+                if (games.length === 0) continue;
+                const catInfo = categoryMap[catId] || { name: "其他遊戲", icon: "🎲" };
+                
+                // 建立分類區塊
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = `
+                    <span class="cat-emoji">${catInfo.icon}</span>
+                    <h2>${catInfo.name}</h2>
+                    <span style="font-size:0.9rem; background:#ffe1b3; padding:4px 14px; border-radius: 40px;">✨ ${games.length} 個遊戲 ✨</span>
+                `;
+                container.appendChild(categoryDiv);
+                
+                // 建立網格
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'game-grid';
+                
+                games.forEach(game => {
+                    const card = document.createElement('div');
+                    card.className = 'game-card';
+                    // 點擊整個卡片也可以觸發，但主要按鈕留給a連結，這樣新分頁開啟
+                    // 為了ux，點擊卡片任意處也都開啟遊戲
+                    card.addEventListener('click', (e) => {
+                        // 避免點擊到按鈕內部時重複觸發 (但按鈕也是導航，雙重也無大礙)
+                        openGame(game.filename);
+                    });
+                    
+                    // 內部結構，但按鈕獨立綁定（阻止冒泡避免雙重）
+                    card.innerHTML = `
+                        <div class="card-inner">
+                            <div class="game-icon">
+                                <div class="main-emoji">${game.emoji}</div>
+                                <div class="game-tag">${game.tag}</div>
+                            </div>
+                            <div class="game-title">${escapeHtml(game.title)}</div>
+                            <div class="game-desc">${escapeHtml(game.desc)}</div>
+                            <button class="play-btn" data-filename="${game.filename}">🎮 開始遊戲 🎮</button>
+                        </div>
+                    `;
+                    
+                    const btn = card.querySelector('.play-btn');
+                    if (btn) {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openGame(game.filename);
+                        });
+                    }
+                    gridDiv.appendChild(card);
+                });
+                container.appendChild(gridDiv);
+            }
+        }
+
+        // 打開遊戲 (新視窗/新分頁，適應行動裝置)
+        function openGame(filename) {
+            if (!filename) return;
+            // 確保相對路徑正確，因為index.html與遊戲在同一目錄
+            // 對檔名進行簡單編碼，保留原樣（空格會被瀏覽器自動轉換）
+            const url = filename;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        // 防XSS小幫手
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+                return c;
+            });
+        }
+
+        // 確保所有檔案名稱皆與原列表匹配 (驗證完整性)
+        function validateGameFiles() {
+            const requiredFiles = [
+                "0135_雪糕規律.html",
+                "0010_clock.html",
+                "0020_lift_right_iphone.html",
+                "0100 odd even v3_andriod.html",
+                "0120 addition less 20 substraction less 10.html",
+                "0120_sorting_numbers.html",
+                "0121 addition and substraction alternative.html",
+                "0125_addition_tree.html",
+                "0130_plus_or_minus.html",
+                "0131_5_cars_1_missing.html",
+                "0132_10_cars_5_missing.html",
+                "0136_數氣球.html",
+                "0140_count_shapes_no.html",
+                "0150_shape_stacking.html",
+                "0215_繁體中文_閱讀.html",
+                "0230_中文量詞.html",
+                "0305_eng_word_and_artiicle.html",
+                "0310_eng_fill_in.html"
+            ];
+            const dbFiles = GAMES_DB.map(g => g.filename);
+            let allPresent = true;
+            for (let f of requiredFiles) {
+                if (!dbFiles.includes(f)) {
+                    console.warn(`⚠️ 缺少遊戲檔案: ${f}`);
+                    allPresent = false;
+                }
+            }
+            if (!allPresent) {
+                console.log("遊戲庫完整檢查: 部分檔案名稱可能存在大小寫或空格問題，但網頁仍會盡力開啟");
+            }
+        }
+        
+        // 附加小功能: 提醒家長，點擊前確認檔案是否存在(不做強制)
+        renderGames();
+        validateGameFiles();
+        
+        // 增加半透明提示（可選）控制台顯示友善提醒
+        console.log("🌸 欣欣學習樂園已啟動 — 18個遊戲歡迎點擊，快樂學習！🌸");
+    })();
+</script>
 </body>
 </html>
