@@ -269,7 +269,7 @@
 
         // --- 變數狀態 ---
         let trainingWords = []; let currentTrainIdx = 0;
-        let isGaming = false; let gameWordsPool = []; let gameTargetWord = ""; let gameRoundCount = 0;
+        let isGaming = false; let gameWordsPool = []; let gameTargetWord = ""; let gameRoundCount = 0; let currentGameTargets = [];
         let articleSentences = []; let articleTranslations = []; let currentSentenceIdx = 0;
 
         // --- 語音核心 (全局超慢速參數) ---
@@ -517,20 +517,22 @@
             const group = groups.find(g => g.id === currentGroupId);
             if(!group || group.words.length < 2) return alert("需要至少 2 個以上的單字才能玩遊戲喔！");
             gameWordsPool = group.words;
+            currentGameTargets = [...group.words].sort(() => Math.random() - 0.5);
             isGaming = true; gameRoundCount = 0;
             switchView('gameView');
             generateGameRound();
         };
 
         function generateGameRound() {
-            if(gameRoundCount >= 5) {
+            const totalRounds = currentGameTargets.length;
+            if(gameRoundCount >= totalRounds) {
                 isGaming = false;
-                showPopup("🏆 闖關成功！", "恭喜妳通過 5 關挑戰！");
+                showPopup("🏆 闖關成功！", `恭喜妳通過 ${totalRounds} 關挑戰！`);
                 setTimeout(() => switchView('inputView'), 2000);
                 return;
             }
-            document.getElementById('gameProgress').innerText = `第 ${gameRoundCount + 1} 關 / 共 5 關`;
-            gameTargetWord = gameWordsPool[Math.floor(Math.random() * gameWordsPool.length)];
+            document.getElementById('gameProgress').innerText = `第 ${gameRoundCount + 1} 關 / 共 ${totalRounds} 關`;
+            gameTargetWord = currentGameTargets[gameRoundCount];
             
             let options = [gameTargetWord];
             let distractors = gameWordsPool.filter(w => w !== gameTargetWord).sort(() => Math.random() - 0.5);
