@@ -52,6 +52,10 @@
         .btn-light { background: #a5d6a7; color: #1e4620; border: 2px solid #6da56d; box-shadow: 0 4px 6px rgba(50, 100, 30, 0.2); }
         .btn-light:hover { background: #81c784; }
         .btn-outline { background: transparent; border: 3px solid #388e3c; color: #1d6b23; }
+        .btn-pink { background: #ec407a; color: white; box-shadow: 0 5px 0 #ad1457; }
+        .btn-pink:hover { background: #f06292; }
+        .btn-outline-red { background: white; border: 3px solid #e57373; color: #d32f2f; }
+        .btn-outline-red:hover { background: #ffebee; }
 
         /* 輸入區塊 */
         .input-area {
@@ -148,7 +152,10 @@
     <!-- 主選單：群組與文章管理 -->
     <div id="inputView" class="main-view">
         <div class="group-panel">
-            <h3 style="color:#2e7d5e; margin-bottom:15px;"><i class="fas fa-tags"></i> 選擇學習群組：</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color:#2e7d5e; margin: 0;"><i class="fas fa-tags"></i> 選擇學習群組：</h3>
+                <button id="sortGroupsBtn" class="btn btn-outline" style="font-size: 0.9rem; padding: 6px 15px; border-radius: 20px;"><i class="fas fa-sort-alpha-down"></i> 群組排序</button>
+            </div>
             <div id="groupManagerPanel" style="display:flex; flex-wrap:wrap; max-height:200px; overflow-y:auto;"></div>
         </div>
 
@@ -194,8 +201,9 @@
             <div style="margin-top: 15px;"><span class="chinese-trans" id="currentChineseTarget">翻譯載入中...</span></div>
         </div>
         <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
-            <button class="btn btn-outline backToMainBtn"><i class="fas fa-home"></i> 返回主頁</button>
-            <button id="repeatSoundBtn" class="btn btn-light"><i class="fas fa-redo"></i> 重播慢速</button>
+            <button class="btn btn-outline backToMainBtn"><i class="fas fa-home"></i> 返回</button>
+            <button id="repeatSoundBtn" class="btn btn-light"><i class="fas fa-redo"></i> 重播</button>
+            <button id="addToFavBtn" class="btn btn-pink"><i class="fas fa-heart"></i> 加入最愛</button>
             <button id="nextWordBtn" class="btn btn-green">下一個 <i class="fas fa-arrow-right"></i></button>
         </div>
     </div>
@@ -240,10 +248,9 @@
 <script>
     (function() {
         // ======================== 為幼稚園小朋友調整的超慢速語音設定 ========================
-        // 讓每一個發音都非常清晰緩慢，幫助聽覺跟讀
-        const EXTRA_SLOW_EN_WORD = 0.55;      // 單字 / 短音節 (像是 Good morning, cat)
-        const EXTRA_SLOW_EN_SENTENCE = 0.62;  // 完整句子 (文章段落/長句子) 稍微再慢一點確保清楚
-        const EXTRA_SLOW_CANTONESE = 0.58;    // 廣東話語速調慢至非常和緩
+        const EXTRA_SLOW_EN_WORD = 0.55;      
+        const EXTRA_SLOW_EN_SENTENCE = 0.62;  
+        const EXTRA_SLOW_CANTONESE = 0.58;    
         
         // --- 資料結構 ---
         let groups = [];
@@ -286,7 +293,6 @@
             const ukVoice = voices.find(v => v.lang === 'en-GB' || v.lang.includes('en-GB') || v.name.includes('UK'));
             if(ukVoice) utter.voice = ukVoice;
             
-            // 使用傳入的超慢速率 (單字或句子專用)
             utter.rate = customRate; 
             if(onBoundary) utter.onboundary = onBoundary;
             if(onEnd) utter.onend = onEnd;
@@ -309,13 +315,11 @@
             synth.speak(utter);
         }
 
-        // 雙語慢速連讀邏輯 (單字卡用：極慢速英文 -> 停頓 -> 極慢速廣東話)
         function playWordAndTranslationSlow(wordText, translationText) {
-            // 英文使用單字/短句慢速 (0.55)  結束後延長停頓到 800ms 讓小朋友消化
             speakEnglish(wordText, null, () => {
                 setTimeout(() => {
                     speakCantonese(translationText, null, null, EXTRA_SLOW_CANTONESE);
-                }, 800);  // 停頓更久，適合幼童
+                }, 800);  
             }, EXTRA_SLOW_EN_WORD);
         }
 
@@ -386,6 +390,15 @@
             }
         }
 
+        // --- 按鈕事件綁定：群組排序 ---
+        document.getElementById('sortGroupsBtn').onclick = () => {
+            if(groups.length <= 1) return;
+            groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+            saveGroups();
+            renderGroupPanels();
+            showPopup("🔤 排序完成！", "群組已依名稱順序排列。");
+        };
+
         // --- 按鈕事件綁定：儲存群組 ---
         document.getElementById('saveGroupBtn').onclick = () => {
             if(!currentGroupId && groups.length === 0) return document.getElementById('newGroupBtn').click();
@@ -441,6 +454,18 @@
 
 
         // ==================== 模式一：字卡拼讀學習 (超慢速) ====================
+        function updateFavBtnUI(word) {
+            const favBtn = document.getElementById('addToFavBtn');
+            let favGroup = groups.find(g => g.name === "❤️ 我的最愛");
+            if (favGroup && favGroup.words.includes(word)) {
+                favBtn.innerHTML = '<i class="fas fa-eraser"></i> 移除最愛';
+                favBtn.className = 'btn btn-outline-red';
+            } else {
+                favBtn.innerHTML = '<i class="fas fa-heart"></i> 加入最愛';
+                favBtn.className = 'btn btn-pink';
+            }
+        }
+
         document.getElementById('startTrainBtn').onclick = () => {
             const group = groups.find(g => g.id === currentGroupId);
             if(!group || group.words.length === 0) return alert("目前群組沒有單字，請先輸入！");
@@ -460,7 +485,10 @@
             const word = trainingWords[idx];
             document.getElementById('currentWordTarget').innerText = word;
             
-            // Phonics 拆分 (點擊每個音節都用超慢速單字速度)
+            // 更新加入最愛/移除最愛按鈕 UI
+            updateFavBtnUI(word);
+            
+            // Phonics 拆分
             const phonicsContainer = document.getElementById('phonicsBlocksList');
             phonicsContainer.innerHTML = '';
             word.split(/(\s+|[,.!?])/).forEach(token => {
@@ -475,7 +503,7 @@
                 });
             });
 
-            // 翻譯 (顯示文字)
+            // 翻譯
             const transTarget = document.getElementById('currentChineseTarget');
             transTarget.innerText = "翻譯中...";
             const translatedText = await fetchTranslation(word);
@@ -497,7 +525,7 @@
             return res;
         }
 
-        // 手動點擊朗讀按鈕 (超慢速)
+        // 手動點擊朗讀按鈕
         document.getElementById('playPhonicsAudioBtn').onclick = () => {
             const word = trainingWords[currentTrainIdx];
             const trans = document.getElementById('currentChineseTarget').innerText;
@@ -509,6 +537,61 @@
             playWordAndTranslationSlow(word, trans);
         };
         
+        // 🌟 更新：加入最愛 / 移除最愛邏輯
+        document.getElementById('addToFavBtn').onclick = () => {
+            const word = trainingWords[currentTrainIdx];
+            if (!word) return;
+
+            let favGroup = groups.find(g => g.name === "❤️ 我的最愛");
+            let isFavorite = favGroup && favGroup.words.includes(word);
+
+            if (isFavorite) {
+                // 移除最愛
+                favGroup.words = favGroup.words.filter(w => w !== word);
+                saveGroups();
+                renderGroupPanels();
+                showPopup("✨ 成功解鎖！", "小朋友太棒了，已經記住這個單字囉！");
+
+                // 如果目前正在複習的就是「❤️ 我的最愛」群組
+                if (groups.find(g => g.id === currentGroupId) && groups.find(g => g.id === currentGroupId).name === "❤️ 我的最愛") {
+                    trainingWords = favGroup.words;
+                    if (trainingWords.length === 0) {
+                        setTimeout(() => {
+                            showPopup("🎉 恭喜過關！", "最愛清單的單字都學會囉！");
+                            switchView('inputView');
+                        }, 1800);
+                        return;
+                    }
+                    if (currentTrainIdx >= trainingWords.length) {
+                        currentTrainIdx = Math.max(0, trainingWords.length - 1);
+                    }
+                    setTimeout(() => loadFlashcard(currentTrainIdx), 500);
+                } else {
+                    updateFavBtnUI(word);
+                }
+            } else {
+                // 加入最愛
+                if (!favGroup) {
+                    const newId = Date.now() + 999;
+                    favGroup = {
+                        id: newId,
+                        name: "❤️ 我的最愛",
+                        words: [],
+                        articleTitle: "我的最愛單字",
+                        articleContent: "These are my favorite words."
+                    };
+                    groups.unshift(favGroup);
+                }
+                if (!favGroup.words.includes(word)) {
+                    favGroup.words.push(word);
+                    saveGroups();
+                    renderGroupPanels();
+                    showPopup("💖 已加入最愛！", "可以在主選單複習喔！");
+                }
+                updateFavBtnUI(word);
+            }
+        };
+
         document.getElementById('nextWordBtn').onclick = () => { currentTrainIdx++; loadFlashcard(currentTrainIdx); };
 
 
@@ -557,7 +640,6 @@
                 };
                 container.appendChild(btn);
             });
-            // 遊戲語音也使用超慢單字速度 (0.55)
             setTimeout(() => speakEnglish(gameTargetWord, null, null, EXTRA_SLOW_EN_WORD), 400); 
         }
         document.getElementById('playGameAudioBtn').onclick = () => { if(isGaming) speakEnglish(gameTargetWord, null, null, EXTRA_SLOW_EN_WORD); };
@@ -596,7 +678,6 @@
                 } else {
                     const span = document.createElement('span');
                     span.className = 'word-span'; span.innerText = w;
-                    // 點擊單詞朗讀也用超慢速單字速度 (0.55)
                     span.onclick = () => speakEnglish(w.replace(/[^a-zA-Z]/g, ''), null, null, EXTRA_SLOW_EN_WORD);
                     enBox.appendChild(span);
                     wordSpansData.push({ span: span, start: charOffset, end: charOffset + w.length });
@@ -622,7 +703,6 @@
             cnBox.cnCharsData = cnCharsData;
         }
 
-        // 朗讀英文 (整句使用超慢速句子速率 0.62)
         document.getElementById('speakEnBtn').onclick = () => {
             const sentence = articleSentences[currentSentenceIdx];
             const wordSpansData = document.getElementById('articleEnSentence').wordSpansData;
@@ -641,7 +721,6 @@
             }, () => { document.querySelectorAll('.word-span').forEach(s => s.classList.remove('highlight')); }, EXTRA_SLOW_EN_SENTENCE);
         };
 
-        // 朗讀廣東話 (超慢速廣東話 0.58)
         document.getElementById('speakCantoBtn').onclick = () => {
             const text = articleTranslations[currentSentenceIdx];
             if(!text) return;
