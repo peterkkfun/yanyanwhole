@@ -1,0 +1,663 @@
+[
+  {
+    "id": 1779268848723,
+    "name": "0000_school_animal",
+    "words": [
+      "kitten",
+      "rabbit",
+      "hamster",
+      "bird",
+      "goldfish",
+      "fly",
+      "swim"
+    ],
+    "articleTitle": "Let's read: Animal",
+    "articleContent": "I see a little kitten and a rabbit. The hamster is cute. Look at the bird and the goldfish. They can fly and swim."
+  },
+  {
+    "id": 1779268848724,
+    "name": "0000_School_family",
+    "words": [
+      "Brother",
+      "father",
+      "mother",
+      "sister"
+    ],
+    "articleTitle": "Let's read: Family",
+    "articleContent": "This is my family. I love my Brother. I love my father. I love my mother. I love my sister."
+  },
+  {
+    "id": 1779268848725,
+    "name": "0000_school_first day",
+    "words": [
+      "book",
+      "crayon",
+      "school bag",
+      "pencil",
+      "girl",
+      "boy"
+    ],
+    "articleTitle": "Let's read: First Day",
+    "articleContent": "It is my first day. I have a book and a crayon in my school bag. I have a pencil. I see a girl and a boy."
+  },
+  {
+    "id": 1779268848726,
+    "name": "0000_school_food",
+    "words": [
+      "rice",
+      "meat",
+      "vegetables",
+      "noodles",
+      "soup",
+      "sandwiches"
+    ],
+    "articleTitle": "Let's read: Food",
+    "articleContent": "I like to eat rice and meat. I eat vegetables and noodles. I drink soup. I like sandwiches."
+  },
+  {
+    "id": 1779268848727,
+    "name": "0000_school_number",
+    "words": [
+      "one",
+      "two",
+      "three",
+      "four",
+      "five",
+      "six",
+      "seven",
+      "eight",
+      "nine",
+      "ten"
+    ],
+    "articleTitle": "Let's read: Number",
+    "articleContent": "Let us count. One, two, three, four, five! Six, seven, eight, nine, ten! Good job."
+  },
+  {
+    "id": 1779268848728,
+    "name": "0000_school_occupation",
+    "words": [
+      "postman",
+      "doctor",
+      "nurse",
+      "driver",
+      "street cleaner",
+      "can",
+      "paper"
+    ],
+    "articleTitle": "Let's read: Occupation",
+    "articleContent": "The postman brings letters. The doctor and nurse help people. The driver drives the bus. The street cleaner cleans the street. Put the can and paper in the bin."
+  },
+  {
+    "id": 1779268848729,
+    "name": "0000_school_public transport",
+    "words": [
+      "bus",
+      "taxi",
+      "train",
+      "school bus",
+      "ferry"
+    ],
+    "articleTitle": "Let's read: Public Transport",
+    "articleContent": "I go to school by bus. I can take a taxi or a train. The school bus is yellow. The ferry goes on water."
+  },
+  {
+    "id": 1779268848730,
+    "name": "0000_school_weather",
+    "words": [
+      "sunny",
+      "windy",
+      "cloudy",
+      "rainy"
+    ],
+    "articleTitle": "Let's read: Weather",
+    "articleContent": "Look at the sky. It is sunny today. It can be windy or cloudy. Sometimes it is rainy."
+  },
+  {
+    "id": 1779268848731,
+    "name": "0100_HKUGAP_lesson_1",
+    "words": [
+      "Happy birthday",
+      "Get well soon",
+      "Robot",
+      "Teddy",
+      "Boat",
+      "Computer",
+      "Ball",
+      "Car"
+    ],
+    "articleTitle": "Let's read: Lesson 1",
+    "articleContent": "Happy birthday! Get well soon! I have a Robot and a Teddy. I play with a Boat and a Computer. I bounce the Ball. I drive the Car."
+  },
+  {
+    "id": 1779268848732,
+    "name": "0100_HKUGAP_lesson_2",
+    "words": [
+      "I go to school by bus.",
+      "A bus is stopping at the bus stop.",
+      "My father is a bus driver.",
+      "The bus is full of passengers.",
+      "Octopus card",
+      "get on",
+      "tap the card",
+      "queue",
+      "bus driver",
+      "bus stop",
+      "get off"
+    ],
+    "articleTitle": "Let's read: Lesson 2",
+    "articleContent": "I go to school by bus. A bus is stopping at the bus stop. My father is a bus driver. The bus is full of passengers. I use my Octopus card to get on. I tap the card. We queue up. The bus driver is nice. We wait at the bus stop and get off."
+  },
+  {
+    "id": 1779268848733,
+    "name": "英文大挑戰（一）",
+    "words": [
+      "cow",
+      "bird",
+      "duck",
+      "fish",
+      "one",
+      "two",
+      "three",
+      "four",
+      "five",
+      "car",
+      "taxi",
+      "ship",
+      "big",
+      "small",
+      "tall",
+      "short",
+      "red",
+      "blue",
+      "green",
+      "yellow",
+      "eyes",
+      "ears",
+      "nose",
+      "mouth",
+      "mother",
+      "father",
+      "sister",
+      "brother"
+    ],
+    "articleTitle": "Let's read: 英文大挑戰（一）",
+    "articleContent": "The cow, bird, duck, and fish are animals. I see one, two, three, four, five cars. I see a taxi and a ship. The car is big. The taxi is small. The tree is tall. The grass is short. I see red, blue, green, and yellow. I use my eyes, ears, nose, and mouth. I love my mother, father, sister, and brother."
+  },
+  {
+    "id": 1779268848734,
+    "name": "英文大挑戰（二）",
+    "words": [
+      "pet",
+      "dog",
+      "cat",
+      "rabbit",
+      "sky",
+      "sun",
+      "rain",
+      "cloud",
+      "six",
+      "seven",
+      "eight",
+      "nine",
+      "ten",
+      "pink",
+      "white",
+      "brown",
+      "eat",
+      "play",
+      "write",
+      "sleep",
+      "pen",
+      "pencil",
+      "name",
+      "school",
+      "bag",
+      "table",
+      "chair",
+      "homework"
+    ],
+    "articleTitle": "Let's read: 英文大挑戰（二）",
+    "articleContent": "I have a pet. It is a dog, a cat, or a rabbit. Look at the sky and sun. Sometimes there is rain and cloud. Count to six, seven, eight, nine, ten! The colors are pink, white, and brown. I eat, play, write, and sleep. I use a pen and pencil. I write my name at school. I pack my bag. I sit on a chair at the table to do my homework."
+  },
+  {
+    "id": 1779268848735,
+    "name": "actions",
+    "words": [
+      "push",
+      "pull",
+      "carry",
+      "turn on",
+      "open",
+      "close",
+      "play",
+      "move"
+    ],
+    "articleTitle": "Let's read: Actions",
+    "articleContent": "I push and pull the door. I carry my bag. I turn on the light. I open and close the book. I play and move around."
+  },
+  {
+    "id": 1779268848736,
+    "name": "activities",
+    "words": [
+      "bowling",
+      "cycling",
+      "flying a kite",
+      "hiking",
+      "swimming",
+      "play basketball",
+      "dancing",
+      "horse riding",
+      "play football"
+    ],
+    "articleTitle": "Let's read: Activities",
+    "articleContent": "We play bowling and go cycling. I like flying a kite and hiking. I go swimming. I play basketball and like dancing. I try horse riding and play football."
+  },
+  {
+    "id": 1779268848737,
+    "name": "adjective 1",
+    "words": [
+      "tall",
+      "short",
+      "long",
+      "big",
+      "small",
+      "thick",
+      "thin",
+      "heavy",
+      "light",
+      "opposite"
+    ],
+    "articleTitle": "Let's read: Adjective 1",
+    "articleContent": "The tree is tall. The boy is short. The snake is long. The elephant is big. The ant is small. The book is thick. The paper is thin. The rock is heavy. The feather is light. This is the opposite."
+  },
+  {
+    "id": 1779268848738,
+    "name": "adjective 2",
+    "words": [
+      "happy",
+      "sad",
+      "angry",
+      "scared",
+      "shy",
+      "glad",
+      "worried",
+      "excited",
+      "surprised"
+    ],
+    "articleTitle": "Let's read: Adjective 2",
+    "articleContent": "I am happy. Sometimes I am sad or angry. I am scared of the dark. I am shy to meet people. I am glad to see you. I am worried. I am excited to play. I am surprised."
+  },
+  {
+    "id": 1779268848739,
+    "name": "animal in zoo",
+    "words": [
+      "fox",
+      "peacok",
+      "horse",
+      "wolf",
+      "polar bear",
+      "leopard",
+      "penguin",
+      "kangaroo",
+      "squirrel"
+    ],
+    "articleTitle": "Let's read: Animal In Zoo",
+    "articleContent": "At the zoo, I see a fox and a peacok. I see a horse and a wolf. Look at the polar bear and leopard. The penguin is funny. The kangaroo jumps. The squirrel is fast."
+  },
+  {
+    "id": 1779268848740,
+    "name": "animals",
+    "words": [
+      "hen",
+      "cow",
+      "pig",
+      "dog",
+      "duck",
+      "goat",
+      "goose",
+      "horse",
+      "sheep"
+    ],
+    "articleTitle": "Let's read: Animals",
+    "articleContent": "The hen lays an egg. The cow gives milk. The pig is pink. The dog barks. The duck swims. The goat eats grass. The goose is white. The horse runs. The sheep is soft."
+  },
+  {
+    "id": 1779268848741,
+    "name": "colours",
+    "words": [
+      "golden",
+      "blue",
+      "pink",
+      "black",
+      "transparent",
+      "green",
+      "purple",
+      "grey",
+      "silver"
+    ],
+    "articleTitle": "Let's read: Colours",
+    "articleContent": "The sun is golden. The sky is blue. The pig is pink. The cat is black. The glass is transparent. The leaf is green. The flower is purple. The cloud is grey. The moon is silver."
+  },
+  {
+    "id": 1779268848742,
+    "name": "daily commodity",
+    "words": [
+      "mirror",
+      "soap",
+      "toothbrush",
+      "comb",
+      "shampoo",
+      "towel",
+      "battery",
+      "umbrella",
+      "tissue"
+    ],
+    "articleTitle": "Let's read: Daily Commodity",
+    "articleContent": "I look in the mirror. I wash with soap. I use a toothbrush and comb. I wash my hair with shampoo. I dry with a towel. The toy needs a battery. I use an umbrella in the rain. I wipe with a tissue."
+  },
+  {
+    "id": 1779268848743,
+    "name": "do things in family",
+    "words": [
+      "craft",
+      "puzzle",
+      "reading",
+      "colour",
+      "game",
+      "movie",
+      "magic",
+      "show",
+      "hide and seek"
+    ],
+    "articleTitle": "Let's read: Do Things In Family",
+    "articleContent": "I do a craft and a puzzle. I enjoy reading and colour the book. We play a game and watch a movie. I like magic. We watch a show. We play hide and seek."
+  },
+  {
+    "id": 1779268848744,
+    "name": "family",
+    "words": [
+      "brother",
+      "father",
+      "mother",
+      "sister",
+      "grandfather",
+      "grandmother",
+      "cousin",
+      "uncle",
+      "aunt"
+    ],
+    "articleTitle": "Let's read: Family",
+    "articleContent": "My brother and sister play with me. My father and mother love me. My grandfather and grandmother read to me. My cousin, uncle, and aunt visit us."
+  },
+  {
+    "id": 1779268848745,
+    "name": "feeling expressions",
+    "words": [
+      "happy",
+      "sad",
+      "angry",
+      "scared",
+      "shy",
+      "glad",
+      "worried",
+      "excited",
+      "surprised"
+    ],
+    "articleTitle": "Let's read: Feeling Expressions",
+    "articleContent": "I feel happy today. Do not be sad or angry. Are you scared or shy? I am glad. Do not be worried. I am excited. Are you surprised?"
+  },
+  {
+    "id": 1779268848746,
+    "name": "food 1",
+    "words": [
+      "fried rice",
+      "pizza",
+      "sandwich",
+      "spaghetti",
+      "sushi",
+      "bread",
+      "dessert",
+      "noodle",
+      "dim sum"
+    ],
+    "articleTitle": "Let's read: Food 1",
+    "articleContent": "I eat fried rice and pizza. I like a sandwich and spaghetti. I try sushi and bread. For dessert, I want a noodle and dim sum."
+  },
+  {
+    "id": 1779268848747,
+    "name": "fruit",
+    "words": [
+      "pear",
+      "grapes",
+      "mango",
+      "banana",
+      "pineapple",
+      "strawberry",
+      "star fruit",
+      "apple",
+      "watermelon"
+    ],
+    "articleTitle": "Let's read: Fruit",
+    "articleContent": "I eat a pear and grapes. I like mango and banana. The pineapple is sweet. The strawberry is red. The star fruit is yellow. I eat an apple and watermelon."
+  },
+  {
+    "id": 1779268848748,
+    "name": "greeting 1",
+    "words": [
+      "congratulations",
+      "happy new year",
+      "happy easter",
+      "happy mother's day",
+      "merry christmas",
+      "happy birthday"
+    ],
+    "articleTitle": "Let's read: Greeting 1",
+    "articleContent": "We say congratulations! We say happy new year! We say happy easter! We say happy mother's day! We say merry christmas! We say happy birthday!"
+  },
+  {
+    "id": 1779268848749,
+    "name": "greeting 2",
+    "words": [
+      "good bye",
+      "thank you",
+      "good afternoon",
+      "sorry",
+      "good morning",
+      "could you please",
+      "may I",
+      "good night",
+      "you are welcome"
+    ],
+    "articleTitle": "Let's read: Greeting 2",
+    "articleContent": "We say good bye and thank you. We say good afternoon and sorry. We say good morning. Could you please help me? May I play? Good night. You are welcome."
+  },
+  {
+    "id": 1779268848750,
+    "name": "head",
+    "words": [
+      "head",
+      "eye",
+      "ear",
+      "hair",
+      "nose",
+      "head",
+      "lip",
+      "mouth",
+      "face",
+      "chin"
+    ],
+    "articleTitle": "Let's read: Head",
+    "articleContent": "This is my head. I have an eye and an ear. I have hair and a nose. On my head, I have a lip and a mouth. This is my face and my chin."
+  },
+  {
+    "id": 1779268848751,
+    "name": "housework",
+    "words": [
+      "wash clothes",
+      "set the table",
+      "dust the furniture",
+      "iron clothes",
+      "make the bed",
+      "sweep the floor",
+      "wash dishes",
+      "mop the floor",
+      "tidy up the toys"
+    ],
+    "articleTitle": "Let's read: Housework",
+    "articleContent": "We wash clothes and set the table. We dust the furniture and iron clothes. We make the bed and sweep the floor. We wash dishes, mop the floor, and tidy up the toys."
+  },
+  {
+    "id": 1779268848752,
+    "name": "occupation 1",
+    "words": [
+      "postman",
+      "policeman",
+      "driver",
+      "fireman",
+      "pilot",
+      "chef",
+      "nurse",
+      "teacher",
+      "doctor"
+    ],
+    "articleTitle": "Let's read: Occupation 1",
+    "articleContent": "The postman brings mail. The policeman helps people. The driver drives the bus. The fireman stops the fire. The pilot flies a plane. The chef cooks food. The nurse and doctor help the sick. The teacher teaches."
+  },
+  {
+    "id": 1779268848753,
+    "name": "occupations 2",
+    "words": [
+      "engineer",
+      "actor",
+      "actress",
+      "architect",
+      "scientist",
+      "accountant",
+      "security guard",
+      "farmer",
+      "lecturer",
+      "lawyer"
+    ],
+    "articleTitle": "Let's read: Occupations 2",
+    "articleContent": "The engineer builds things. The actor and actress are on TV. The architect draws houses. The scientist does experiments. The accountant counts money. The security guard keeps us safe. The farmer grows food. The lecturer and lawyer talk a lot."
+  },
+  {
+    "id": 1779268848754,
+    "name": "questions",
+    "words": [
+      "what",
+      "why",
+      "when",
+      "where",
+      "who",
+      "how",
+      "whose",
+      "how much",
+      "which"
+    ],
+    "articleTitle": "Let's read: Questions",
+    "articleContent": "What is this? Why are you sad? When is it? Where is the dog? Who are you? How are you? Whose book is this? How much is it? Which one do you like?"
+  },
+  {
+    "id": 1779268848755,
+    "name": "season and time",
+    "words": [
+      "morning",
+      "noon",
+      "afternoon",
+      "night",
+      "midnight",
+      "spring",
+      "summer",
+      "autumn",
+      "winter"
+    ],
+    "articleTitle": "Let's read: Season And Time",
+    "articleContent": "In the morning, I wake up. At noon and afternoon, I play. At night and midnight, I sleep. The seasons are spring, summer, autumn, and winter."
+  },
+  {
+    "id": 1779268848756,
+    "name": "shapes",
+    "words": [
+      "square",
+      "oval",
+      "pentagon",
+      "rectangle",
+      "heart",
+      "triangle",
+      "circle",
+      "star",
+      "diamond"
+    ],
+    "articleTitle": "Let's read: Shapes",
+    "articleContent": "This is a square and an oval. I draw a pentagon and a rectangle. I draw a heart, a triangle, and a circle. Look at the star and the diamond."
+  },
+  {
+    "id": 1779268848757,
+    "name": "tableware",
+    "words": [
+      "knife",
+      "chopsticks",
+      "cup",
+      "fork",
+      "dish",
+      "soup bowl",
+      "spoon",
+      "teapot",
+      "napkin"
+    ],
+    "articleTitle": "Let's read: Tableware",
+    "articleContent": "I use a knife and chopsticks. I drink from a cup. I use a fork and a dish. I have a soup bowl and a spoon. Mom uses a teapot. I use a napkin."
+  },
+  {
+    "id": 1779268848758,
+    "name": "things to do",
+    "words": [
+      "sleep",
+      "wash face",
+      "wash hands",
+      "eat",
+      "change clothes",
+      "brush teeth",
+      "sit",
+      "exercise",
+      "take bath"
+    ],
+    "articleTitle": "Let's read: Things To Do",
+    "articleContent": "I sleep and wash face. I wash hands and eat. I change clothes and brush teeth. I sit, exercise, and take bath."
+  },
+  {
+    "id": 1779268848759,
+    "name": "vegetables",
+    "words": [
+      "potato",
+      "cabbage",
+      "broccoli",
+      "bean",
+      "cucumber",
+      "tomato",
+      "spinach",
+      "onion",
+      "pumpkin"
+    ],
+    "articleTitle": "Let's read: Vegetables",
+    "articleContent": "I eat potato and cabbage. I like broccoli and bean. I eat cucumber and tomato. I eat spinach, onion, and pumpkin."
+  },
+  {
+    "id": 1779268848760,
+    "name": "words about school",
+    "words": [
+      "classmate",
+      "teacher",
+      "principal",
+      "playground",
+      "school",
+      "classroom",
+      "homework",
+      "hall",
+      "blackboard"
+    ],
+    "articleTitle": "Let's read: Words About School",
+    "articleContent": "My classmate is nice. The teacher and principal are kind. We play on the playground at school. I sit in the classroom. I do my homework. We gather in the hall. The teacher writes on the blackboard."
+  }
+]
