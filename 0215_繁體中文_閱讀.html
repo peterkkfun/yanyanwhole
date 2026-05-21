@@ -132,7 +132,10 @@
     <!-- 主選單：群組與文章管理 -->
     <div id="inputView" class="main-view">
         <div class="group-panel">
-            <h3 style="color:#a1375e; margin-bottom:15px;"><i class="fas fa-tags"></i> 選擇學習群組：</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color:#a1375e; margin: 0;"><i class="fas fa-tags"></i> 選擇學習群組：</h3>
+                <button id="sortGroupsBtn" class="btn btn-outline" style="font-size: 0.9rem; padding: 6px 15px; border-radius: 20px;"><i class="fas fa-sort-alpha-down"></i> 群組排序</button>
+            </div>
             <div id="groupManagerPanel" style="display:flex; flex-wrap:wrap; max-height:200px; overflow-y:auto;"></div>
         </div>
 
@@ -195,7 +198,7 @@
 
     <!-- 模式二：聽音遊戲 -->
     <div id="gameView" class="main-view" style="display: none;">
-        <div style="text-align: center;"><span class="progress-tag" id="gameProgress">第一關：0 / 5</span></div>
+        <div style="text-align: center;"><span class="progress-tag" id="gameProgress">第一關：0 / 0</span></div>
         <div class="flashcard">
             <h3 style="color:#a1375e; margin-bottom:10px;">聽聲音，選出正確的詞語！</h3>
             
@@ -263,13 +266,13 @@
         // --- 變數狀態 ---
         let trainingWords = []; let currentTrainIdx = 0; let hanziWriters = [];
         let isGaming = false; let gameWordsPool = []; let gameTargetWord = ""; let gameRoundCount = 0;
+        let shuffledGameWords = []; // 新增：用於記錄打亂後的遊戲單字
         let articleSentences = []; let currentSentenceIdx = 0;
 
-        // --- 語音核心 (超慢速，特別為 K2 幼兒調校) ---
+        // --- 語音核心 (超慢速，特別為幼兒調校) ---
         const synth = window.speechSynthesis;
-        // 文章閱讀使用的極慢速率
-        const SLOW_RATE_ARTICLE = 0.42;   // 超慢，適合跟讀
-        const SLOW_RATE_CHAR = 0.50;       // 單字點擊稍慢但仍清晰
+        const SLOW_RATE_ARTICLE = 0.42;
+        const SLOW_RATE_CHAR = 0.50;
 
         function speakCantonese(text, onBoundary, onEnd, rate = SLOW_RATE_ARTICLE) {
             if(!synth) return;
@@ -370,6 +373,15 @@
             }
         }
 
+        // --- 按鈕事件綁定：群組排序 ---
+        document.getElementById('sortGroupsBtn').onclick = () => {
+            if(groups.length <= 1) return;
+            groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+            saveGroups();
+            renderGroupPanels();
+            showPopup("🔤 排序完成！", "群組已依名稱順序排列。");
+        };
+
         // --- 按鈕事件綁定：儲存群組 ---
         document.getElementById('saveGroupBtn').onclick = () => {
             if(!currentGroupId && groups.length === 0) return document.getElementById('newGroupBtn').click();
@@ -460,7 +472,7 @@
 
             for (let i = 0; i < word.length; i++) {
                 const char = word[i];
-                if (!/[\u4e00-\u9fa5]/.test(char)) continue;
+                if (!/[一-龥]/.test(char)) continue;
 
                 const card = document.createElement('div');
                 card.className = 'char-card';
@@ -538,7 +550,7 @@
                     
                 } catch(e) { console.error("HanziWriter Error:", e); }
             }
-            setTimeout(() => speakCantonese(word, null, null, SLOW_RATE_ARTICLE), 300);
+            // 取消了原來的自動播放，讓小朋友能先觀察文字
         }
 
         document.getElementById('playAudioCantoBtn').onclick = () => speakCantonese(trainingWords[currentTrainIdx]);
@@ -555,24 +567,28 @@
             const group = groups.find(g => g.id === currentGroupId);
             if(!group || group.words.length < 2) return alert("需要至少 2 個以上的詞語才能玩遊戲喔！");
             gameWordsPool = group.words;
+            
+            // 打亂該群組所有生字，準備全部考一次
+            shuffledGameWords = [...gameWordsPool].sort(() => Math.random() - 0.5);
+            
             isGaming = true; gameRoundCount = 0;
             switchView('gameView');
             generateGameRound();
         };
 
         function generateGameRound() {
-            if(gameRoundCount >= 5) {
+            if(gameRoundCount >= shuffledGameWords.length) {
                 isGaming = false;
-                showPopup("🏆 闖關成功！", "恭喜妳通過 5 關挑戰！");
+                showPopup("🏆 闖關成功！", `恭喜妳通過全部 ${shuffledGameWords.length} 關挑戰！`);
                 setTimeout(() => switchView('inputView'), 2000);
                 return;
             }
-            document.getElementById('gameProgress').innerText = `第 ${gameRoundCount + 1} 關 / 共 5 關`;
-            gameTargetWord = gameWordsPool[Math.floor(Math.random() * gameWordsPool.length)];
+            document.getElementById('gameProgress').innerText = `第 ${gameRoundCount + 1} 關 / 共 ${shuffledGameWords.length} 關`;
+            gameTargetWord = shuffledGameWords[gameRoundCount];
             
             let options = [gameTargetWord];
             let distractors = gameWordsPool.filter(w => w !== gameTargetWord).sort(() => Math.random() - 0.5);
-            options.push(...distractors.slice(0, 3));
+            options.push(...distractors.slice(0, 3)); // 若詞彙不夠4個，只會推入剩下的
             options.sort(() => Math.random() - 0.5);
 
             const container = document.getElementById('gameOptionsContainer');
