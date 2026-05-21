@@ -50,6 +50,8 @@
         .btn-orange { background: #ffb74d; color: white; box-shadow: 0 5px 0 #f57c00; }
         .btn-orange:hover { background: #ffa726; }
         .btn-outline { background: transparent; border: 3px solid #e57399; color: #b3406c; box-shadow: none;}
+        .btn-outline-red { background: white; border: 3px solid #e57373; color: #d32f2f; box-shadow: none; }
+        .btn-outline-red:hover { background: #ffebee; }
 
         .input-area {
             background: #fff0f5; border-radius: 40px; padding: 25px; margin-bottom: 20px; border: 2px dashed #ff98ae;
@@ -192,6 +194,7 @@
         <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
             <button class="btn btn-outline backToMainBtn"><i class="fas fa-home"></i> 返回主頁</button>
             <button id="prevWordBtn" class="btn btn-pink"><i class="fas fa-arrow-left"></i> 上一個</button>
+            <button id="addToFavBtn" class="btn btn-pink"><i class="fas fa-heart"></i> 加入最愛</button>
             <button id="nextWordBtn" class="btn btn-pink">下一個 <i class="fas fa-arrow-right"></i></button>
         </div>
     </div>
@@ -430,6 +433,18 @@
 
 
         // ==================== 模式一：筆順學習 ====================
+        function updateFavBtnUI(word) {
+            const favBtn = document.getElementById('addToFavBtn');
+            let favGroup = groups.find(g => g.name === "❤️ 我的最愛");
+            if (favGroup && favGroup.words.includes(word)) {
+                favBtn.innerHTML = '<i class="fas fa-eraser"></i> 移除最愛';
+                favBtn.className = 'btn btn-outline-red';
+            } else {
+                favBtn.innerHTML = '<i class="fas fa-heart"></i> 加入最愛';
+                favBtn.className = 'btn btn-pink';
+            }
+        }
+
         document.getElementById('startTrainBtn').onclick = () => {
             const group = groups.find(g => g.id === currentGroupId);
             if(!group || group.words.length === 0) return alert("目前群組沒有單字，請先輸入！");
@@ -449,6 +464,8 @@
             currentTrainIdx = idx;
             document.getElementById('trainProgress').innerText = `${idx + 1} / ${trainingWords.length}`;
             const word = trainingWords[idx];
+            
+            updateFavBtnUI(word);
             
             const wordDisplayBox = document.getElementById('currentWordTarget');
             wordDisplayBox.innerHTML = '';
@@ -558,6 +575,60 @@
         document.getElementById('prevWordBtn').onclick = () => loadStrokeWord(currentTrainIdx - 1);
         document.getElementById('nextWordBtn').onclick = () => loadStrokeWord(currentTrainIdx + 1);
         
+        document.getElementById('addToFavBtn').onclick = () => {
+            const word = trainingWords[currentTrainIdx];
+            if (!word) return;
+
+            let favGroup = groups.find(g => g.name === "❤️ 我的最愛");
+            let isFavorite = favGroup && favGroup.words.includes(word);
+
+            if (isFavorite) {
+                // 移除最愛
+                favGroup.words = favGroup.words.filter(w => w !== word);
+                saveGroups();
+                renderGroupPanels();
+                showPopup("✨ 成功解鎖！", "小朋友太棒了，已經記住這個詞語囉！");
+
+                // 如果目前正在複習的就是「❤️ 我的最愛」群組
+                if (groups.find(g => g.id === currentGroupId) && groups.find(g => g.id === currentGroupId).name === "❤️ 我的最愛") {
+                    trainingWords = favGroup.words;
+                    if (trainingWords.length === 0) {
+                        setTimeout(() => {
+                            showPopup("🎉 恭喜過關！", "最愛清單的詞語都學會囉！");
+                            switchView('inputView');
+                        }, 1800);
+                        return;
+                    }
+                    if (currentTrainIdx >= trainingWords.length) {
+                        currentTrainIdx = Math.max(0, trainingWords.length - 1);
+                    }
+                    setTimeout(() => loadStrokeWord(currentTrainIdx), 500);
+                } else {
+                    updateFavBtnUI(word);
+                }
+            } else {
+                // 加入最愛
+                if (!favGroup) {
+                    const newId = Date.now() + 999;
+                    favGroup = {
+                        id: newId,
+                        name: "❤️ 我的最愛",
+                        words: [],
+                        articleTitle: "我的最愛詞語",
+                        articleContent: "這些是我最喜歡的詞語。"
+                    };
+                    groups.unshift(favGroup); // 放最前
+                }
+                if (!favGroup.words.includes(word)) {
+                    favGroup.words.push(word);
+                    saveGroups();
+                    renderGroupPanels();
+                    showPopup("💖 已加入最愛！", "可以在主選單複習喔！");
+                }
+                updateFavBtnUI(word);
+            }
+        };
+
         document.getElementById('speedSlow').onchange = () => loadStrokeWord(currentTrainIdx);
         document.getElementById('speedNormal').onchange = () => loadStrokeWord(currentTrainIdx);
 
