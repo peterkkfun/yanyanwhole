@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📏 線條對比學習遊戲 📏</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', "PingFang HK", "Microsoft JhengHei", sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+            color: #2c3e50;
+        }
+
+        .header-banner {
+            width: 100%;
+            max-width: 700px;
+            background: #ffffff;
+            border-left: 8px solid #3498db;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 { margin: 0; font-size: 1.5em; color: #2c3e50; }
+        
+        .score-box {
+            background: #f1c40f;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .question-box {
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            border-bottom: 5px solid #ecf0f1;
+        }
+        
+        .question-box:active { transform: scale(0.98); }
+
+        .question-text {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .audio-hint {
+            color: #7f8c8d;
+            margin-top: 15px;
+            font-size: 1em;
+            display: inline-block;
+            background: #f7f9fa;
+            padding: 5px 15px;
+            border-radius: 15px;
+        }
+
+        .options-grid {
+            width: 100%;
+            max-width: 700px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 500px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .question-text { font-size: 2em; }
+            .option-card { height: 200px !important; }
+        }
+
+        .option-card {
+            background: #ffffff;
+            border: 4px solid #bdc3c7;
+            border-radius: 25px;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: #95a5a6;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .graphics-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .feedback-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6em;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            background: rgba(255,255,255,0.7);
+        }
+
+        .card-correct {
+            border-color: #2ecc71 !important;
+        }
+        
+        .card-wrong {
+            border-color: #e74c3c !important;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* 輔助文字 */
+        .card-label {
+            font-size: 1.5em;
+            color: #7f8c8d;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        /* 全螢幕遮罩 */
+        .screen-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #f0f4f8;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .btn {
+            font-size: 1.5em;
+            padding: 15px 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            margin-top: 20px;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        #confetti { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 5; }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <div id="start-screen" class="screen-overlay">
+        <h1 style="font-size: 2.5em; color: #2c3e50; margin-bottom: 10px;">📏 線條學對比</h1>
+        <p style="font-size: 1.3em; color: #7f8c8d; max-width: 500px; line-height: 1.5;">
+            不看可愛圖案，我們用「線條」來學習什麼是闊、窄、厚、薄！
+        </p>
+        <button class="btn" onclick="startGame()">開始遊戲 ▶️</button>
+    </div>
+
+    <div id="end-screen" class="screen-overlay" style="display: none;">
+        <h2 style="font-size: 2.5em; color: #2ecc71;">全部答對了！⭐️</h2>
+        <p style="font-size: 1.5em; color: #7f8c8d;">你對闊、窄、厚、薄的觀念非常清楚哦！</p>
+        <button class="btn" onclick="startGame()">再挑戰一次 🔄</button>
+    </div>
+
+    <div class="header-banner">
+        <h1>專注空間概念</h1>
+        <div class="score-box">⭐ <span id="score-text">0</span></div>
+    </div>
+
+    <div class="question-box" onclick="speakQuestion()">
+        <h2 class="question-text" id="question-label">載入中...</h2>
+        <div class="audio-hint">🔊 點擊這裡聽廣東話問題</div>
+    </div>
+
+    <div class="options-grid" id="options-container"></div>
+
+    <script>
+        // 完全使用 CSS 線條與區塊設計，去除任何 emoji
+        const lineConcepts = [
+            // 闊 vs 窄 (Wide vs Narrow)
+            // 變化 1：通道（兩條垂直線之間的距離）
+            {
+                type: "闊窄通道",
+                concepts: ["闊", "窄"],
+                speak: ["闊", "窄"],
+                visuals: [
+                    `<div style="display:flex; justify-content:space-between; width:160px; height:120px;">
+                        <div style="width:12px; background:#e67e22; border-radius:6px;"></div>
+                        <div style="flex-grow:1; background:rgba(230,126,34,0.1); margin:0 5px; display:flex; align-items:center; justify-content:center;"><span style="color:#e67e22; font-size:24px;">↔️</span></div>
+                        <div style="width:12px; background:#e67e22; border-radius:6px;"></div>
+                    </div>`,
+                    `<div style="display:flex; justify-content:space-between; width:45px; height:120px;">
+                        <div style="width:12px; background:#e67e22; border-radius:6px;"></div>
+                        <div style="flex-grow:1; background:rgba(230,126,34,0.1); margin:0 2px;"></div>
+                        <div style="width:12px; background:#e67e22; border-radius:6px;"></div>
+                    </div>`
+                ]
+            },
+            // 變化 2：空心方框（闊的框 vs 窄的框）
+            {
+                type: "闊窄方框",
+                concepts: ["闊", "窄"],
+                speak: ["闊", "窄"],
+                visuals: [
+                    `<div style="width:180px; height:80px; border:8px solid #16a085; border-radius:10px;"></div>`,
+                    `<div style="width:40px; height:80px; border:8px solid #16a085; border-radius:10px;"></div>`
+                ]
+            },
+
+            // 厚 vs 薄 (Thick vs Thin)
+            // 變化 1：單一線條的粗幼（厚薄）
+            {
+                type: "厚薄線條",
+                concepts: ["厚", "薄"],
+                speak: ["厚", "薄"],
+                visuals: [
+                    `<div style="width:150px; height:50px; background:#2980b9; border-radius:25px;"></div>`,
+                    `<div style="width:150px; height:6px; background:#2980b9; border-radius:3px;"></div>`
+                ]
+            },
+            // 變化 2：疊加的層數（多層為厚，單層為薄）
+            {
+                type: "厚薄堆疊",
+                concepts: ["厚", "薄"],
+                speak: ["厚", "薄"],
+                visuals: [
+                    `<div style="display:flex; flex-direction:column; gap:3px;">
+                        <div style="width:130px; height:12px; background:#8e44ad; border-radius:6px;"></div>
+                        <div style="width:130px; height:12px; background:#9b59b6; border-radius:6px;"></div>
+                        <div style="width:130px; height:12px; background:#8e44ad; border-radius:6px;"></div>
+                        <div style="width:130px; height:12px; background:#9b59b6; border-radius:6px;"></div>
+                        <div style="width:130px; height:12px; background:#8e44ad; border-radius:6px;"></div>
+                    </div>`,
+                    `<div style="display:flex; flex-direction:column; gap:3px;">
+                        <div style="width:130px; height:12px; background:#8e44ad; border-radius:6px;"></div>
+                    </div>`
+                ]
+            }
+        ];
+
+        let questionsList = [];
+        let currentQ = null;
+        let score = 0;
+        let isLocked = false;
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'none';
+            score = 0;
+            document.getElementById('score-text').innerText = score;
+            
+            // 產生題庫
+            questionsList = [];
+            lineConcepts.forEach(group => {
+                // 每組概念可以問兩種問題（例如問闊，或問窄）
+                questionsList.push({
+                    askText: group.concepts[0],
+                    askVoice: group.speak[0],
+                    correctVisual: group.visuals[0],
+                    wrongVisual: group.visuals[1]
+                });
+                questionsList.push({
+                    askText: group.concepts[1],
+                    askVoice: group.speak[1],
+                    correctVisual: group.visuals[1],
+                    wrongVisual: group.visuals[0]
+                });
+            });
+
+            // 打亂順序
+            questionsList.sort(() => Math.random() - 0.5);
+            loadNextQuestion();
+        }
+
+        function loadNextQuestion() {
+            if (questionsList.length === 0) {
+                showEndScreen();
+                return;
+            }
+            currentQ = questionsList.pop();
+            isLocked = false;
+
+            document.getElementById('question-label').innerText = `哪一邊比較「${currentQ.askText}」？`;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const isLeftCorrect = Math.random() > 0.5;
+
+            const card1 = createCard(currentQ.correctVisual, true);
+            const card2 = createCard(currentQ.wrongVisual, false);
+
+            if (isLeftCorrect) {
+                container.appendChild(card1);
+                container.appendChild(card2);
+            } else {
+                container.appendChild(card2);
+                container.appendChild(card1);
+            }
+
+            setTimeout(speakQuestion, 300);
+        }
+
+        function createCard(visualHtml, isCorrect) {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.innerHTML = `
+                <div class="graphics-container">${visualHtml}</div>
+                <div class="feedback-overlay">${isCorrect ? '✅' : '❌'}</div>
+            `;
+            card.onclick = () => handleAnswer(card, isCorrect);
+            return card;
+        }
+
+        function speakQuestion() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                // 廣東話口語
+                const phrase = `邊個比較 ${currentQ.askVoice} 呀？`;
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                utterance.lang = 'zh-HK';
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function handleAnswer(card, isCorrect) {
+            if (isLocked) return;
+            
+            const overlay = card.querySelector('.feedback-overlay');
+            overlay.style.opacity = '1';
+
+            if (isCorrect) {
+                isLocked = true;
+                card.classList.add('card-correct');
+                score++;
+                document.getElementById('score-text').innerText = score;
+                playTone(true);
+                shootConfetti();
+                
+                setTimeout(() => {
+                    loadNextQuestion();
+                }, 1500);
+            } else {
+                isLocked = true;
+                card.classList.add('card-wrong');
+                playTone(false);
+                
+                setTimeout(() => {
+                    card.classList.remove('card-wrong');
+                    overlay.style.opacity = '0';
+                    isLocked = false;
+                }, 800);
+            }
+        }
+
+        function showEndScreen() {
+            document.getElementById('end-screen').style.display = 'flex';
+            for(let i=0; i<3; i++) {
+                setTimeout(shootConfetti, i*500);
+            }
+        }
+
+        function playTone(isCorrect) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                if (isCorrect) {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+                    osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.4);
+                } else {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(200, ctx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.3);
+                }
+            } catch(e) {}
+        }
+
+        function shootConfetti() {
+            const canvas = document.getElementById('confetti');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            
+            const particles = [];
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: canvas.width / 2, y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 1) * 20,
+                    size: Math.random() * 8 + 4,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let active = false;
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.8; // gravity
+                    if (p.y < canvas.height) active = true;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                if (active) requestAnimationFrame(draw);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>
