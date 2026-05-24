@@ -2,334 +2,143 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>欣欣學習樂園 🎈 ｜ 數學・中文・英文・常識</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>欣欣學習工具列表</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
-
         body {
-            background: linear-gradient(145deg, #fef3e2 0%, #ffe6dc 100%);
-            font-family: 'Segoe UI', 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', 'PingFang HK', 'Noto Sans TC', sans-serif;
-            padding: 20px;
-            min-height: 100vh;
+            background: #fef5e7;
+            font-family: 'Segoe UI', 'Comic Neue', 'PingFang HK', sans-serif;
+            padding: 30px 20px;
         }
-
-        .learning-hub {
-            max-width: 1400px;
+        .container {
+            max-width: 800px;
             margin: 0 auto;
+            background: white;
+            border-radius: 40px;
+            padding: 30px 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid #ffddb0;
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #ff8c5a, #f45b69, #b9598b);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 2px 2px 12px rgba(0,0,0,0.05);
-            display: inline-block;
-        }
-        .header p {
-            background: #ffefcf;
-            display: inline-block;
-            padding: 6px 24px;
-            border-radius: 50px;
-            font-weight: bold;
-            color: #bc6f42;
-            margin-top: 8px;
-            font-size: 1rem;
-        }
-
-        .category {
-            margin-bottom: 40px;
-        }
-        .category-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: #ffe0b5;
-            display: inline-block;
-            padding: 8px 24px;
-            border-radius: 50px;
-            box-shadow: 0 4px 0 #c48a56;
-            color: #5a3a28;
-            margin-bottom: 20px;
-        }
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 22px;
-        }
-        .game-card {
-            background: rgba(255, 255, 240, 0.96);
-            border-radius: 48px;
-            padding: 20px 18px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
-            border: 3px solid #ffddb0;
-            text-align: center;
-            backdrop-filter: blur(2px);
-        }
-        .game-card:hover {
-            transform: translateY(-6px);
-            border-color: #ffa86a;
-            background: #fffdf5;
-        }
-        .card-icon {
-            font-size: 3.8rem;
-            margin-bottom: 10px;
-        }
-        .card-title {
-            font-size: 1.45rem;
-            font-weight: 800;
+        h1 {
+            font-size: 2rem;
             color: #d45a3a;
+            text-align: center;
+            margin-bottom: 8px;
         }
-        .card-desc {
-            font-size: 0.85rem;
-            color: #9c6a48;
-            margin-top: 5px;
+        .sub {
+            text-align: center;
+            color: #b87a54;
+            margin-bottom: 30px;
+            font-weight: 500;
         }
-
-        /* 模态框 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.2s ease;
-        }
-        .modal-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        .modal-container {
-            background: #fffcf0;
-            border-radius: 56px;
-            width: 95%;
-            max-width: 1300px;
-            height: 90vh;
+        .file-list {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 30px 45px rgba(0,0,0,0.3);
-            border: 5px solid #ffbc86;
+            gap: 10px;
         }
-        .modal-header {
-            padding: 16px 24px;
-            background: #ffe5cf;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #ffa96b;
+        .file-link {
+            display: block;
+            padding: 14px 20px;
+            background: #fffaf2;
+            border-radius: 60px;
+            text-decoration: none;
+            color: #4a2e1e;
+            font-weight: 600;
+            border: 2px solid #ffdfbf;
+            transition: 0.2s;
+            font-size: 1rem;
         }
-        .modal-title {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #b3512a;
+        .file-link:hover {
+            background: #ffe6d0;
+            border-color: #ffb87a;
+            transform: translateX(5px);
         }
-        .close-btn {
-            background: #ff7f5c;
-            border: none;
-            font-size: 1.8rem;
-            width: 48px;
-            height: 48px;
-            border-radius: 40px;
-            cursor: pointer;
-            color: white;
-            box-shadow: 0 3px 0 #bb4a2c;
-            transition: 0.05s linear;
+        .file-icon {
+            display: inline-block;
+            margin-right: 12px;
+            font-size: 1.4rem;
         }
-        .close-btn:active {
-            transform: translateY(3px);
-        }
-        .iframe-wrapper {
-            flex: 1;
-            background: #eef3ea;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-        }
-
         footer {
             text-align: center;
-            margin-top: 45px;
-            color: #bb7a52;
-            font-weight: 500;
-            padding: 15px;
-            border-top: 2px dashed #ffcd9e;
+            margin-top: 35px;
+            color: #c68b5a;
+            font-size: 0.85rem;
         }
-
-        @media (max-width: 600px) {
-            .card-title { font-size: 1.2rem; }
-            .category-title { font-size: 1.4rem; }
+        hr {
+            margin: 20px 0;
+            border: 1px dashed #ffd9b5;
         }
     </style>
 </head>
 <body>
-<div class="learning-hub">
-    <div class="header">
-        <h1>🌸 欣欣學習樂園 🌸</h1>
-        <p>✨ 數學·中文·英文·常識·邏輯 ✨ 爸爸媽媽哥哥一齊支持欣欣</p>
-    </div>
-
-    <div class="category">
-        <div class="category-title">🧸 數學妙妙屋 · 數數與運算</div>
-        <div class="card-grid" id="mathGrid"></div>
-    </div>
-    <div class="category">
-        <div class="category-title">📖 中文小書院 · 認字朗讀</div>
-        <div class="card-grid" id="chineseGrid"></div>
-    </div>
-    <div class="category">
-        <div class="category-title">🌍 英文樂園 · Phonics + 遊戲</div>
-        <div class="card-grid" id="englishGrid"></div>
-    </div>
-    <div class="category">
-        <div class="category-title">🧠 生活小百科 · 常識安全</div>
-        <div class="card-grid" id="generalGrid"></div>
-    </div>
-    <footer>💖 點擊任意卡片即可開啟遊戲/學習工具，全部離線可用 💖</footer>
-</div>
-
-<div id="appModal" class="modal-overlay">
-    <div class="modal-container">
-        <div class="modal-header">
-            <span class="modal-title" id="modalTitle">遊戲載入中</span>
-            <button class="close-btn" id="closeModalBtn">✕</button>
-        </div>
-        <div class="iframe-wrapper">
-            <iframe id="gameIframe" title="學習內容" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads"></iframe>
-        </div>
-    </div>
+<div class="container">
+    <h1>🌸 欣欣學習工具 🌸</h1>
+    <div class="sub">點擊名稱即可開始遊戲或練習</div>
+    <div class="file-list" id="fileList"></div>
+    <hr>
+    <footer>💡 請將所有 .html 檔案與本頁面放在同一個資料夾內，點擊即可開啟。</footer>
 </div>
 
 <script>
-    // 所有遊戲的 HTML 原始碼 (完整內嵌)
-    // 為了確保單文件可用，將每個提供的遊戲完整原始碼以字串形式嵌入。
-    // 以下是從用戶文件中提取的完整遊戲內容 (重點遊戲全收錄)
-    
-    // ---------- 1. 時鐘學習 ----------
-    const game_clock = `<!DOCTYPE html>
-<html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes"><title>欣欣學時間</title><style>*{margin:0;box-sizing:border-box}body{background:linear-gradient(145deg,#fef9e6,#fff5d7);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}.game-container{max-width:620px;background:#fff0e0;border-radius:64px;padding:28px 24px;text-align:center}h1{color:#a5550e}canvas{width:100%;max-width:300px;background:#fff9f0;border-radius:50%;margin:10px auto}.answers{display:flex;gap:16px;justify-content:center}.answer-btn{background:#ffe5b4;border-radius:80px;padding:16px 0;width:120px;font-size:2rem;font-weight:bold;cursor:pointer}.next-btn{background:#b0d9b1;padding:12px 28px;border-radius:50px;margin-top:20px}</style></head>
-<body><div class="game-container"><h1>🕒 睇鐘學時間</h1><canvas id="clockCanvas" width="320" height="320"></canvas><div class="answers"><button class="answer-btn" id="ans0">--:--</button><button class="answer-btn" id="ans1">--:--</button><button class="answer-btn" id="ans2">--:--</button></div><button class="next-btn" id="nextBtn">下一題</button></div>
-<script>(function(){const canvas=document.getElementById('clockCanvas'),ctx=canvas.getContext('2d');const btns=[document.getElementById('ans0'),document.getElementById('ans1'),document.getElementById('ans2')];let currentHour=3,currentMinute=0,correct='',ansOptions=[];const possibleMinutes=[0,15,30,45];const possibleHours=[1,2,3,4,5,6,7,8,9,10,11,12];function drawClock(hour,minute){const r=canvas.width/2;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.beginPath();ctx.arc(r,r,r-8,0,2*Math.PI);ctx.fillStyle='#fff9f0';ctx.fill();ctx.strokeStyle='#d49b5f';ctx.lineWidth=10;ctx.stroke();ctx.font='bold 28px "Segoe UI"';ctx.fillStyle='#3b280b';ctx.textAlign='center';ctx.textBaseline='middle';const nr=r-48;for(let i=1;i<=12;i++){let a=(i*30-90)*Math.PI/180;ctx.fillText(i,r+Math.cos(a)*nr,r+Math.sin(a)*nr);}let ha=((hour%12)*30+minute*0.5-90)*Math.PI/180;ctx.beginPath();ctx.moveTo(r,r);ctx.lineTo(r+Math.cos(ha)*(r*0.4),r+Math.sin(ha)*(r*0.4));ctx.lineWidth=12;ctx.stroke();let ma=(minute*6-90)*Math.PI/180;ctx.beginPath();ctx.moveTo(r,r);ctx.lineTo(r+Math.cos(ma)*(r*0.65),r+Math.sin(ma)*(r*0.65));ctx.lineWidth=8;ctx.stroke();}function formatTime(h,m){return h+':'+m.toString().padStart(2,'0');}function newQuestion(){const h=possibleHours[Math.floor(Math.random()*possibleHours.length)];const m=possibleMinutes[Math.floor(Math.random()*possibleMinutes.length)];currentHour=h;currentMinute=m;correct=formatTime(h,m);drawClock(h,m);let all=[];possibleHours.forEach(hr=>possibleMinutes.forEach(mn=>all.push(formatTime(hr,mn))));let others=all.filter(t=>t!==correct);let wrongs=others.sort(()=>Math.random()-0.5).slice(0,2);let opts=[correct,...wrongs];opts.sort(()=>Math.random()-0.5);ansOptions=opts;btns.forEach((b,i)=>{b.textContent=opts[i];b.dataset.value=opts[i];});}function handleAnswer(e){if(e.target.dataset.value===correct){e.target.style.background='#a5d6a5';setTimeout(()=>{newQuestion();e.target.style.background='';},800);}else{e.target.style.background='#ffb0b0';setTimeout(()=>e.target.style.background='',400);}}btns.forEach(b=>b.addEventListener('click',handleAnswer));document.getElementById('nextBtn').addEventListener('click',()=>newQuestion());newQuestion();})();<\/script></body></html>`;
-
-    // 2. 左右方向 game (左定右)
-    const game_leftright = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=yes"><title>左定右？</title><style>body{background:#f9e7b2;display:flex;justify-content:center;align-items:center;min-height:100vh}.game-box{background:#fffef0;border-radius:56px;padding:24px;text-align:center}.choices{display:flex;gap:20px;justify-content:center}.choice{font-size:5rem;padding:20px 40px;border-radius:40px;background:#ffdead;cursor:pointer}</style></head>
-<body><div class="game-box"><h1>⇦ LEFT · RIGHT ⇨</h1><div id="word-display" style="font-size:4rem;margin:20px">LEFT</div><div class="choices"><button class="choice" id="leftBtn">←</button><button class="choice" id="rightBtn">→</button></div><div id="praise" style="font-size:2rem;color:red"></div></div>
-<script>const words=['left','right','左','右'];let current='left',correct='left',score=0;const leftBtn=document.getElementById('leftBtn'),rightBtn=document.getElementById('rightBtn'),wordDiv=document.getElementById('word-display'),praiseDiv=document.getElementById('praise');function speakCanto(text){const u=new SpeechSynthesisUtterance(text);u.lang='zh-HK';u.rate=0.9;speechSynthesis.cancel();speechSynthesis.speak(u);}function newWord(){const idx=Math.floor(Math.random()*words.length);current=words[idx];wordDiv.innerText=current;correct=(current==='left'||current==='左')?'left':'right';praiseDiv.innerText='';}function checkAnswer(selected){if(selected===correct){praiseDiv.innerText='欣欣叻叻';speakCanto('欣欣叻叻');setTimeout(()=>{newWord();praiseDiv.innerText='';},1200);}else{praiseDiv.innerText='❌ 再試試';setTimeout(()=>praiseDiv.innerText='',800);}}leftBtn.onclick=()=>checkAnswer('left');rightBtn.onclick=()=>checkAnswer('right');newWord();<\/script></body></html>`;
-
-    // 3. 奇偶數字 (單雙數)
-    const game_odd_even = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no"><title>奇偶小偵探</title><style>body{background:#1e5a8a;display:flex;justify-content:center;align-items:center;min-height:100vh}.container{background:#fff8e0;border-radius:70px;padding:25px;text-align:center}.number{font-size:7rem;font-weight:800}.btn{padding:20px;font-size:2rem;margin:10px;border-radius:50px;background:#ffdd99;cursor:pointer}</style></head>
-<body><div class="container"><h1>🔢 奇偶小偵探</h1><div id="numDisplay" class="number">0</div><button id="oddBtn" class="btn">Odd 單數</button><button id="evenBtn" class="btn">Even 雙數</button><div id="msg"></div><button id="nextBtn">新數字</button></div>
-<script>let currentNumber=0,correctCount=0,total=0;const numDiv=document.getElementById('numDisplay'),odd=document.getElementById('oddBtn'),even=document.getElementById('evenBtn'),msgDiv=document.getElementById('msg'),nextBtn=document.getElementById('nextBtn');function speakBoth(num){const u1=new SpeechSynthesisUtterance(num);u1.lang='en-GB';const u2=new SpeechSynthesisUtterance(num);u2.lang='zh-HK';speechSynthesis.cancel();speechSynthesis.speak(u1);setTimeout(()=>speechSynthesis.speak(u2),400);}function newNumber(){currentNumber=Math.floor(Math.random()*100);numDiv.innerText=currentNumber;msgDiv.innerText='';speakBoth(currentNumber);}function check(isOdd){const actualEven=currentNumber%2===0;if((!isOdd&&actualEven)||(isOdd&&!actualEven)){msgDiv.innerText='✅ 正確！欣欣叻叻';speakBoth(actualEven?'even 雙數':'odd 單數');setTimeout(()=>newNumber(),1200);}else{msgDiv.innerText='❌ 再試試';}}odd.onclick=()=>check(true);even.onclick=()=>check(false);nextBtn.onclick=()=>newNumber();newNumber();<\/script></body></html>`;
-
-    // 4. 加法減法填充 (小於20)
-    const game_addition = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no"><title>加法減法</title><style>body{background:#fce4ec}.game{background:#fff;border-radius:48px;padding:25px;max-width:500px;margin:auto}.options{display:flex;gap:15px;justify-content:center}.option{font-size:3rem;width:100px;background:#70a1ff;border-radius:30px}</style></head>
-<body><div class="game"><h1>欣欣加減法</h1><div id="question" style="font-size:3rem">3 + 2 = ?</div><div class="options" id="options"></div><div id="feedback"></div></div>
-<script>let a,b,op,correct;function gen(){const isAdd=Math.random()>0.5;if(isAdd){a=Math.floor(Math.random()*11);let maxB=20-a;b=Math.floor(Math.random()*(maxB+1));correct=a+b;op='+';}else{a=Math.floor(Math.random()*11);b=Math.floor(Math.random()*(a+1));correct=a-b;op='-';}document.getElementById('question').innerHTML=\`\${a} \${op} \${b} = ?\`;let opts=[correct];while(opts.length<3){let w=Math.floor(Math.random()*21);if(!opts.includes(w))opts.push(w);}opts.sort(()=>Math.random()-0.5);const container=document.getElementById('options');container.innerHTML='';opts.forEach(v=>{let btn=document.createElement('button');btn.innerText=v;btn.className='option';btn.onclick=()=>{if(v===correct){document.getElementById('feedback').innerHTML='✅ 欣欣叻叻';speak('欣欣叻叻');setTimeout(gen,1500);}else{document.getElementById('feedback').innerHTML='❌ 再試';setTimeout(()=>document.getElementById('feedback').innerHTML='',800);}};container.appendChild(btn);});}function speak(t){const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';speechSynthesis.cancel();speechSynthesis.speak(u);}gen();<\/script></body></html>`;
-
-    // 5. 中文閱讀 + 筆順遊戲 (完整版 0215)
-    // 為了節省長度但必須提供完整可用，使用原始提供的繁體中文閱讀完整版
-    const game_chinese_reading = `<!DOCTYPE html>
-<html lang="zh-Hant"><head><meta charset="UTF-8"><title>欣欣學中文</title><script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script><style>body{background:#ffd1dc;font-family:sans-serif}</style></head>
-<body><div style="max-width:800px;margin:auto;background:white;border-radius:48px;padding:20px"><h1>🌸 欣欣學中文 🌸</h1><div id="groupPanel"></div><div><textarea id="wordInput" placeholder="蘋果,香蕉,學校"></textarea><button id="studyBtn">筆順學習</button></div><div id="strokeArea"></div></div>
-<script>const groups=[{id:1,name:"動物",words:["小狗","貓咪"],articleTitle:"動物園",articleContent:"我喜歡動物園。"}];let currentGroup=groups[0];function loadStroke(){const word=currentGroup.words[0];const area=document.getElementById('strokeArea');area.innerHTML='';for(let i=0;i<word.length;i++){const div=document.createElement('div');div.id='char'+i;div.style.width='120px';div.style.height='120px';area.appendChild(div);HanziWriter.create('char'+i,word[i],{width:120,height:120,strokeAnimationSpeed:0.8});}}document.getElementById('studyBtn').onclick=loadStroke;<\/script></body></html>`;
-    
-    // 6. 英文單字填空 (0310)
-    const game_eng_fill = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>欣欣字母填空</title><style>body{background:#b8e0c2}.game{background:#e6f3e6;border-radius:80px;padding:20px}.missing-box{width:60px;height:70px;font-size:2rem;text-align:center}</style></head>
-<body><div class="game"><h1>🌿 欣欣字母填空樂園</h1><div id="wordDisplay"></div><div id="missingArea"></div><button id="hintBtn">提示</button><button id="nextBtn">下一題</button></div>
-<script>const words=["cat","dog","sun","hat","bus"];let currentIndex=0,currentWord="",currentPattern=[],answers=[];function loadWord(){currentWord=words[currentIndex];let letters=currentWord.split('');let missingCount=2;let indices=[0,1,2].filter(i=>i<letters.length).sort(()=>Math.random()-0.5).slice(0,missingCount);currentPattern=letters.map((c,i)=>indices.includes(i)?'□':c);answers=indices.map(i=>letters[i]);const wordDiv=document.getElementById('wordDisplay');wordDiv.innerHTML=currentPattern.join(' ');const area=document.getElementById('missingArea');area.innerHTML='';answers.forEach((ans,idx)=>{let input=document.createElement('input');input.type='text';input.maxLength=1;input.className='missing-box';input.oninput=function(e){let val=e.target.value.toLowerCase();if(val===ans){input.disabled=true;checkAll();}};area.appendChild(input);});}function checkAll(){const inputs=document.querySelectorAll('.missing-box');let filled=true;for(let i=0;i<inputs.length;i++){if(inputs[i].value.toLowerCase()!==answers[i])filled=false;}if(filled){alert('欣欣叻叻！');setTimeout(()=>{currentIndex=(currentIndex+1)%words.length;loadWord();},800);}}loadWord();<\/script></body></html>`;
-
-    // 7. 量詞遊戲 (0230)
-    const game_measure = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>生活量詞小測驗</title><style>body{background:#f0f8ff}.quiz{max-width:600px;margin:auto;background:white;border-radius:30px;padding:20px}.option{display:block;margin:10px;padding:10px;background:#e6f7ff}</style></head>
-<body><div class="quiz"><h1>🌟 量詞小挑戰</h1><div id="question"></div><div id="options"></div><div id="result"></div></div>
-<script>const data=[{q:"一 (  ) 小貓",ans:"隻",opts:["隻","張","本"]},{q:"一 (  ) 花",ans:"朵",opts:["朵","個","條"]},{q:"一 (  ) 蘋果",ans:"個",opts:["個","條","張"]}];let idx=0;function load(){const q=data[idx];document.getElementById('question').innerHTML=q.q;const box=document.getElementById('options');box.innerHTML='';q.opts.forEach(opt=>{let btn=document.createElement('button');btn.innerText=opt;btn.onclick=()=>{if(opt===q.ans){document.getElementById('result').innerHTML='✅ 叻叻！';speak('欣欣叻叻');setTimeout(()=>{idx=(idx+1)%data.length;load();},1500);}else{document.getElementById('result').innerHTML='❌ 再試';setTimeout(()=>document.getElementById('result').innerHTML='',800);}};box.appendChild(btn);});}function speak(t){const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';speechSynthesis.speak(u);}load();<\/script></body></html>`;
-
-    // 8. 常識問答 (0420)
-    const game_common = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>常識問答</title><style>body{background:#f0f8ff}</style></head>
-<body><div style="max-width:600px;margin:auto;background:white;border-radius:40px;padding:20px"><h1>🌟 小朋友常識問答</h1><div id="qText"></div><button id="showAns">顯示答案</button><div id="aText"></div><button id="next">下一題</button></div>
-<script>const qa=[{q:"一日有多少小時？",a:"24小時"},{q:"中秋節會吃什麼？",a:"月餅"},{q:"香港的士有幾種顏色？",a:"紅色、綠色、藍色"}];let idx=0;function show(){document.getElementById('qText').innerText=qa[idx].q;document.getElementById('aText').innerText='';}document.getElementById('showAns').onclick=()=>document.getElementById('aText').innerText=qa[idx].a;document.getElementById('next').onclick=()=>{idx=(idx+1)%qa.length;show();};show();<\/script></body></html>`;
-
-    // 再補充幾個重要遊戲：雪糕規律、數氣球、排序數字，確保核心內容覆蓋
-    const game_pattern = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>雪糕規律</title><style>.scoop{width:40px;height:40px;border-radius:50%;display:inline-block}</style></head>
-<body><div><h2>🍦 冰淇淋規律</h2><div id="pattern"></div><div id="options"></div></div><script>const levels=[[['red','yellow'],['red','yellow'],['red','yellow']],['red','yellow','red','yellow']];let lvl=0;function render(){const seq=levels[lvl];const patDiv=document.getElementById('pattern');patDiv.innerHTML=seq.map(c=>\`<div style="background:\${c};width:40px;height:40px;display:inline-block;margin:4px"></div>\`).join('');}render();<\/script></body></html>`;
-    
-    // 建立遊戲清單
-    const gamesList = [
-        { name: "⏰ 睇鐘學時間", icon: "🕒", desc: "認讀時鐘，點選正確時間", category: "math", content: game_clock },
-        { name: "👈 左定右?", icon: "⬅️", desc: "學習左右方向", category: "math", content: game_leftright },
-        { name: "🔢 單數雙數", icon: "🔢", desc: "分辨奇數偶數", category: "math", content: game_odd_even },
-        { name: "➕ 加減小挑戰", icon: "🧮", desc: "20以內加減法", category: "math", content: game_addition },
-        { name: "🍦 規律冰淇淋", icon: "🍦", desc: "觀察顏色規律", category: "math", content: game_pattern },
-        { name: "📖 中文小學堂", icon: "📚", desc: "筆順+文章閱讀", category: "chinese", content: game_chinese_reading },
-        { name: "📏 量詞遊戲", icon: "📦", desc: "學習一隻/一朵", category: "chinese", content: game_measure },
-        { name: "🌿 英文填空", icon: "🔤", desc: "2-3字母填空", category: "english", content: game_eng_fill },
-        { name: "🇬🇧 英文聽力", icon: "🎧", desc: "聽音選單字 (內嵌)", category: "english", content: `<iframe srcdoc='<html><body><h2>英文聽音遊戲</h2><button onclick="speechSynthesis.speak(new SpeechSynthesisUtterance(\'cat\'))">🐱 cat</button></body></html>' style="width:100%;height:100%"></iframe>` },
-        { name: "🧠 生活常識", icon: "💡", desc: "安全問答", category: "general", content: game_common },
-        { name: "🚦 情境應變", icon: "🆘", desc: "遇到困難怎麼辦", category: "general", content: `<iframe srcdoc='<html><body><h2>情境問答</h2><div>陌生人給糖果？</div><button onclick="alert(\'拒絕並離開\')">回答</button></body></html>'></iframe>` }
+    // 依照您提供的所有檔案名稱 (依實際上載檔案清單)
+    const allFiles = [
+        "0010_clock.html",
+        "0020_lift_right_iphone.html",
+        "0100 odd even v3_andriod.html",
+        "0120 addition less 20 substraction less 10.html",
+        "0120_sorting_numbers.html",
+        "0121 addition and substraction alternative.html",
+        "0125_addition_tree.html",
+        "0130_plus_or_minus.html",
+        "0131_5_cars_1_missing.html",
+        "0132_10_cars_5_missing.html",
+        "0135_雪糕規律.html",
+        "0136_數氣球.html",
+        "0140_count_shapes_no.html",
+        "0150_shape_stacking.html",
+        "0215_繁體中文_閱讀.html",
+        "0230_中文量詞.html",
+        "0305_eng_word_and_artiicle.html",
+        "0310_eng_fill_in.html",
+        "0410_厚薄窄闊學習遊戲.html",
+        "0420_常識問答.html",
+        "0430_情境問答遊戲.html"
     ];
 
-    function renderCards() {
-        const mathGrid = document.getElementById('mathGrid');
-        const chineseGrid = document.getElementById('chineseGrid');
-        const englishGrid = document.getElementById('englishGrid');
-        const generalGrid = document.getElementById('generalGrid');
-        mathGrid.innerHTML = ''; chineseGrid.innerHTML = ''; englishGrid.innerHTML = ''; generalGrid.innerHTML = '';
-        gamesList.forEach(game => {
-            const card = document.createElement('div');
-            card.className = 'game-card';
-            card.innerHTML = `<div class="card-icon">${game.icon}</div><div class="card-title">${game.name}</div><div class="card-desc">${game.desc}</div>`;
-            card.onclick = () => openGame(game.name, game.content);
-            if (game.category === 'math') mathGrid.appendChild(card);
-            else if (game.category === 'chinese') chineseGrid.appendChild(card);
-            else if (game.category === 'english') englishGrid.appendChild(card);
-            else generalGrid.appendChild(card);
-        });
+    const listContainer = document.getElementById('fileList');
+
+    // 可選：為每個檔案加一個小圖示 (根據檔名關鍵字)
+    function getIcon(filename) {
+        if (filename.includes('clock')) return '🕒';
+        if (filename.includes('left') || filename.includes('right')) return '⬅️';
+        if (filename.includes('odd') || filename.includes('even')) return '🔢';
+        if (filename.includes('addition') || filename.includes('substraction')) return '➕';
+        if (filename.includes('sorting')) return '🔢';
+        if (filename.includes('雪糕')) return '🍦';
+        if (filename.includes('氣球')) return '🎈';
+        if (filename.includes('shape') || filename.includes('圖形')) return '🔷';
+        if (filename.includes('中文') || filename.includes('量詞')) return '📖';
+        if (filename.includes('eng') || filename.includes('english')) return '🌍';
+        if (filename.includes('厚薄') || filename.includes('常識') || filename.includes('情境')) return '🧠';
+        return '📁';
     }
 
-    const modal = document.getElementById('appModal');
-    const iframe = document.getElementById('gameIframe');
-    const modalTitle = document.getElementById('modalTitle');
-    const closeBtn = document.getElementById('closeModalBtn');
-
-    function openGame(title, htmlContent) {
-        modalTitle.innerText = title;
-        // 使用 srcdoc 加載完整內容
-        iframe.srcdoc = htmlContent;
-        modal.classList.add('active');
-    }
-
-    closeBtn.onclick = () => {
-        modal.classList.remove('active');
-        iframe.srcdoc = '';
-    };
-    modal.onclick = (e) => {
-        if (e.target === modal) closeBtn.click();
-    };
-
-    renderCards();
+    allFiles.forEach(file => {
+        const link = document.createElement('a');
+        link.className = 'file-link';
+        link.href = file;
+        link.target = '_blank';
+        const icon = getIcon(file);
+        // 顯示美化名稱 (去掉 .html，保留原始名稱)
+        let displayName = file.replace('.html', '');
+        link.innerHTML = `<span class="file-icon">${icon}</span> ${displayName}`;
+        listContainer.appendChild(link);
+    });
 </script>
 </body>
 </html>
