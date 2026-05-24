@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>層級疊疊樂 - 兒童認知遊戲</title>
-    <script src="https://cdn.tailwindcss.com">
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -26,7 +25,8 @@
         .shape {
             position: absolute;
             transition: all 0.3s ease;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+            /* 使用 drop-shadow 取代 box-shadow，確保 clip-path 裁切的圖形也能有正確的陰影邊界 */
+            filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.35)) drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.2));
         }
         .shape-circle {
             border-radius: 50%;
@@ -40,8 +40,7 @@
             border-bottom-style: solid;
             border-left-color: transparent;
             border-right-color: transparent;
-            box-shadow: none;
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+            /* 移除原本的 filter 覆蓋，統一使用 .shape 的 drop-shadow */
         }
         .shape-star {
             clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
@@ -89,23 +88,9 @@
             animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         @keyframes shake {
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-            10%,
-            30%,
-            50%,
-            70%,
-            90% {
-                transform: translateX(-5px);
-            }
-            20%,
-            40%,
-            60%,
-            80% {
-                transform: translateX(5px);
-            }
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
         .animate-shake {
             animation: shake 0.5s;
@@ -173,7 +158,6 @@
 
         let currentLevelShapes = [];
         let userAnswers = {};
-        // 用來儲存每個形狀對應的按鈕群組 (用於清除選擇時找到正確的按鈕)
         const shapeBtnGroupMap = new Map();
 
         const mainContainer = document.getElementById('main-shape-container');
@@ -194,24 +178,63 @@
 
             currentLevelShapes = [];
 
-            for (let i = 0; i < 3; i++) {
-                const size = Math.floor(Math.random() * 60) + 100;
-                const maxPos = 300 - size;
-                const x = Math.floor(Math.random() * (maxPos * 0.6)) + (maxPos * 0.2);
-                const y = Math.floor(Math.random() * (maxPos * 0.6)) + (maxPos * 0.2);
+            // --- 新增：確保圖形不會完全重疊覆蓋的數學演算法 ---
+            let validPositions = false;
+            let shapePositions = [];
+            let loopAttempts = 0;
 
+            while (!validPositions && loopAttempts < 500) {
+                loopAttempts++;
+                shapePositions = [];
+                for (let i = 0; i < 3; i++) {
+                    const size = Math.floor(Math.random() * 40) + 100; // 尺寸控制在 100~140 之間
+                    const maxPos = 300 - size;
+                    // 將生成範圍稍微向中心靠攏，防止超出邊界
+                    const x = Math.floor(Math.random() * (maxPos * 0.8)) + (maxPos * 0.1);
+                    const y = Math.floor(Math.random() * (maxPos * 0.8)) + (maxPos * 0.1);
+                    
+                    // 計算圖形的視覺中心點 (Centroid)
+                    let cx = x + size / 2;
+                    let cy = y + size / 2;
+                    if (selectedShapes[i].type === 'triangle') cy = y + size * 0.66;
+                    if (selectedShapes[i].type === 'star') cy = y + size * 0.55;
+                    if (selectedShapes[i].type === 'pentagon') cy = y + size * 0.55;
+                    
+                    shapePositions.push({ x, y, size, cx, cy });
+                }
+
+                validPositions = true;
+                // 檢查任意兩個形狀之間的距離
+                for (let i = 0; i < 3; i++) {
+                    for (let j = i + 1; j < 3; j++) {
+                        const dist = Math.hypot(shapePositions[i].cx - shapePositions[j].cx, shapePositions[i].cy - shapePositions[j].cy);
+                        
+                        // 設定最小距離與最大距離 (防止太近導致完全覆蓋，或太遠導致完全沒重疊)
+                        const minDist = loopAttempts > 200 ? 30 : 55;
+                        const maxDist = loopAttempts > 200 ? 120 : 85;
+
+                        if (dist < minDist || dist > maxDist) {
+                            validPositions = false;
+                        }
+                    }
+                }
+            }
+
+            // 將計算好的安全座標寫入設定中
+            for (let i = 0; i < 3; i++) {
                 currentLevelShapes.push({
                     id: `shape-${i}`,
                     type: selectedShapes[i].type,
                     className: selectedShapes[i].class,
                     color: selectedColors[i],
-                    size: size,
-                    x: x,
-                    y: y,
+                    size: shapePositions[i].size,
+                    x: shapePositions[i].x,
+                    y: shapePositions[i].y,
                     zIndex: i + 1,
                     correctAnswer: 3 - i
                 });
             }
+            // ----------------------------------------------------
 
             let displayOrder = shuffleArray([...currentLevelShapes]);
 
@@ -234,8 +257,9 @@
                 } else {
                     shapeEl.style.backgroundColor = shapeData.color;
                 }
-                if (shapeData.type !== 'triangle' && shapeData.type !== 'star' && shapeData.type !== 'diamond' &&
-                    shapeData.type !== 'pentagon') {
+                
+                // 移除了原本僅針對正方形和圓形的 solid border，改為統一由 CSS 中的 drop-shadow 負責邊界陰影
+                if (shapeData.type !== 'triangle' && shapeData.type !== 'star' && shapeData.type !== 'diamond' && shapeData.type !== 'pentagon') {
                     shapeEl.style.border = "3px solid #333";
                 }
 
@@ -244,12 +268,10 @@
 
             displayOrder.forEach((shapeData) => {
                 const optionCol = document.createElement('div');
-                optionCol.className =
-                    'flex flex-col items-center bg-white p-4 rounded-xl shadow-md border-2 border-gray-100';
+                optionCol.className = 'flex flex-col items-center bg-white p-4 rounded-xl shadow-md border-2 border-gray-100';
 
                 const previewContainer = document.createElement('div');
-                previewContainer.className =
-                    'w-20 h-20 mb-4 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200';
+                previewContainer.className = 'w-20 h-20 mb-4 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200';
 
                 const previewShape = document.createElement('div');
                 if (shapeData.type === 'triangle') {
@@ -274,8 +296,7 @@
 
                 [1, 2, 3].forEach(num => {
                     const btn = document.createElement('button');
-                    btn.className =
-                        `number-btn w-12 h-12 rounded-full border-2 border-gray-300 text-xl font-bold text-gray-600 bg-white hover:bg-blue-50 focus:outline-none`;
+                    btn.className = `number-btn w-12 h-12 rounded-full border-2 border-gray-300 text-xl font-bold text-gray-600 bg-white hover:bg-blue-50 focus:outline-none`;
                     btn.textContent = num;
 
                     btn.onclick = () => selectAnswer(shapeData.id, num, btnGroup);
@@ -285,7 +306,6 @@
                 optionCol.appendChild(btnGroup);
                 optionsContainer.appendChild(optionCol);
 
-                // 儲存此形狀 ID 對應的按鈕群組
                 shapeBtnGroupMap.set(shapeData.id, btnGroup);
                 userAnswers[shapeData.id] = null;
             });
@@ -317,12 +337,10 @@
 
                 setTimeout(() => {
                     userAnswers[shapeId] = null;
-                    // 使用 Map 取出正確的按鈕群組來清除選擇
                     const btnGroup = shapeBtnGroupMap.get(shapeId);
                     if (btnGroup) {
                         const buttons = btnGroup.querySelectorAll('button');
-                        buttons.forEach(b => b.classList.remove('selected', 'bg-blue-500', 'text-white',
-                            'border-blue-600'));
+                        buttons.forEach(b => b.classList.remove('selected', 'bg-blue-500', 'text-white', 'border-blue-600'));
                     }
                 }, 800);
 
@@ -353,8 +371,7 @@
 
         function showMessage(text, colorClass) {
             messageBox.textContent = text;
-            messageBox.className =
-                `mt-6 text-center text-xl font-bold h-8 transition-opacity duration-300 opacity-100 ${colorClass}`;
+            messageBox.className = `mt-6 text-center text-xl font-bold h-8 transition-opacity duration-300 opacity-100 ${colorClass}`;
 
             clearTimeout(messageBox.timeoutId);
             messageBox.timeoutId = setTimeout(hideMessage, 4000);
