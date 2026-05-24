@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎈 欣欣學加減數 · 填充題 ≤10 🎈</title>
+    <title>🎈 欣欣學加減數 · 填充題 ≤15 🎈</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
@@ -380,15 +380,13 @@
 </head>
 <body>
 
-    <!-- 開始畫面 -->
     <div id="start-screen">
         <h1>🧸 欣欣學加減數</h1>
-        <p style="font-size: 1.6rem; color: #6c5ce7;">➕ ➖ 填充題 · 數字 ≤ 10</p>
+        <p style="font-size: 1.6rem; color: #6c5ce7;">➕ ➖ 填充混合題 · 數字 ≤ 15</p>
         <p style="font-size: 1.4rem; color: #e84393;">⭐ 每10題有驚喜動畫 ⭐</p>
         <button class="start-btn" onclick="startGame()">🎯 開始遊戲 🎯</button>
     </div>
 
-    <!-- 主要遊戲區 -->
     <div id="game-container">
         <h1>✨ 欣欣學加減 ✨</h1>
         
@@ -400,30 +398,25 @@
         <div class="controls-group">
             <button class="audio-btn" onclick="speakQuestion()">🔊 聽讀音</button>
             <button class="hint-btn" onclick="playHintAnimation()">💡 睇動畫</button>
-            <!-- 排版切換按鈕 -->
             <button class="layout-btn" id="layout-btn" onclick="toggleLayout()">📐 模式：隨機</button>
         </div>
 
-        <!-- 視覺化動畫區域 -->
         <div id="visual-container">
             <div class="hint-text" id="hint-text"></div>
             <div class="icons-area" id="icons-area"></div>
         </div>
 
-        <!-- 題目顯示區 -->
         <div class="question-box" id="question-display"></div>
         
         <div class="options" id="options-container"></div>
         <div class="footer-note">㊗️ 撳答案啦～</div>
     </div>
 
-    <!-- 普通答對橫幅 -->
     <div id="banner">
         <div class="banner-text">欣欣叻叻</div>
         <div class="stars">🌟👧🏻🌟</div>
     </div>
 
-    <!-- 10題獎勵專屬動畫橫幅 -->
     <div id="reward-banner">
         <div class="reward-text" id="reward-text-display">🎉 10題達成 🎉</div>
         <div class="reward-sub">欣欣好犀利呀！</div>
@@ -433,7 +426,6 @@
         <div style="margin-top: 30px; font-size: 2.2rem; color:#2c3e50;">繼續加油～</div>
     </div>
 
-    <!-- 彩帶動畫canvas -->
     <canvas id="confetti-canvas"></canvas>
 
     <script>
@@ -443,15 +435,12 @@
             let correctAnswer = 0;
             let isProcessing = false;
             let correctCount = 0;
-            const MILESTONE = 10;   // 為了保持小朋友興趣，降為每10題獎勵一次
+            const MILESTONE = 10;   
             
-            // 排版模式：'horizontal' (橫式), 'vertical' (直式), 'random' (隨機)
             let displayMode = 'random'; 
             
-            // 儲存當前題目的詳細數值供動畫與排版使用
             let currentQ = { type: 0, a: 0, b: 0, c: 0, ans: 0 };
             
-            // 動畫狀態控制
             let isAnimatingHint = false;
             let animationSessionId = 0;
             const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -516,19 +505,18 @@
                 nextQuestion();
             };
 
-            // ---------- 隨機生成填充題 (限制在 10 以內) ----------
+            // ---------- 隨機生成填充題 (限制在 15 以內) ----------
             function nextQuestion() {
                 isProcessing = false;
                 
-                // 重置並隱藏提示動畫
                 animationSessionId++;
                 isAnimatingHint = false;
                 visualContainer.style.display = 'none';
                 iconsArea.innerHTML = '';
                 hintText.innerText = '';
 
-                // 隨機選擇題型 0~6
-                const type = Math.floor(Math.random() * 7);
+                // 新增至 8 種題型 (0~7)
+                const type = Math.floor(Math.random() * 8);
 
                 switch(type) {
                     case 0: generateStandardAddition(); break;
@@ -538,23 +526,22 @@
                     case 4: generateSubtractionMissingMinuend(); break;
                     case 5: generateSubtractionMissingSubtrahend(); break;
                     case 6: generateTripleAddition(); break;
+                    case 7: generateMixed(); break; // 新增：混合題型
                 }
 
-                // 更新畫面顯示
                 renderQuestionDisplay();
                 generateOptions();
 
-                // 自動讀題（略延遲）
                 setTimeout(() => {
                     if (!isProcessing) speakQuestion();
                 }, 300);
             }
 
-            // ---------- 各題型生成器 ----------
+            // ---------- 各題型生成器 (更新為上限 15) ----------
             function generateStandardAddition() {
                 currentQ.type = 0;
-                currentQ.a = Math.floor(Math.random() * 11);
-                currentQ.b = Math.floor(Math.random() * (11 - currentQ.a));
+                currentQ.a = Math.floor(Math.random() * 16);
+                currentQ.b = Math.floor(Math.random() * (16 - currentQ.a));
                 currentQ.ans = currentQ.a + currentQ.b;
                 questionText = `${currentQ.a} + ${currentQ.b} = ?`;
                 correctAnswer = currentQ.ans;
@@ -562,8 +549,8 @@
 
             function generateAdditionMissingFirst() {
                 currentQ.type = 1;
-                currentQ.ans = Math.floor(Math.random() * 11); // ? 的值
-                currentQ.b = Math.floor(Math.random() * (11 - currentQ.ans));
+                currentQ.ans = Math.floor(Math.random() * 16); 
+                currentQ.b = Math.floor(Math.random() * (16 - currentQ.ans));
                 currentQ.c = currentQ.ans + currentQ.b;
                 questionText = `? + ${currentQ.b} = ${currentQ.c}`;
                 correctAnswer = currentQ.ans;
@@ -571,8 +558,8 @@
 
             function generateAdditionMissingSecond() {
                 currentQ.type = 2;
-                currentQ.a = Math.floor(Math.random() * 11);
-                currentQ.ans = Math.floor(Math.random() * (11 - currentQ.a)); // ? 的值
+                currentQ.a = Math.floor(Math.random() * 16);
+                currentQ.ans = Math.floor(Math.random() * (16 - currentQ.a)); 
                 currentQ.c = currentQ.a + currentQ.ans;
                 questionText = `${currentQ.a} + ? = ${currentQ.c}`;
                 correctAnswer = currentQ.ans;
@@ -580,7 +567,7 @@
 
             function generateStandardSubtraction() {
                 currentQ.type = 3;
-                currentQ.a = Math.floor(Math.random() * 11);
+                currentQ.a = Math.floor(Math.random() * 16);
                 currentQ.b = Math.floor(Math.random() * (currentQ.a + 1));
                 currentQ.ans = currentQ.a - currentQ.b;
                 questionText = `${currentQ.a} - ${currentQ.b} = ?`;
@@ -589,7 +576,7 @@
 
             function generateSubtractionMissingMinuend() {
                 currentQ.type = 4;
-                currentQ.ans = Math.floor(Math.random() * 11); // 原本總數 (被減數)
+                currentQ.ans = Math.floor(Math.random() * 16); 
                 currentQ.b = Math.floor(Math.random() * (currentQ.ans + 1));
                 currentQ.c = currentQ.ans - currentQ.b;
                 questionText = `? - ${currentQ.b} = ${currentQ.c}`;
@@ -598,8 +585,8 @@
 
             function generateSubtractionMissingSubtrahend() {
                 currentQ.type = 5;
-                currentQ.a = Math.floor(Math.random() * 11); // 原本總數
-                currentQ.ans = Math.floor(Math.random() * (currentQ.a + 1)); // 減去的數
+                currentQ.a = Math.floor(Math.random() * 16); 
+                currentQ.ans = Math.floor(Math.random() * (currentQ.a + 1)); 
                 currentQ.c = currentQ.a - currentQ.ans;
                 questionText = `${currentQ.a} - ? = ${currentQ.c}`;
                 correctAnswer = currentQ.ans;
@@ -607,35 +594,73 @@
 
             function generateTripleAddition() {
                 currentQ.type = 6;
-                currentQ.a = Math.floor(Math.random() * 11);      
-                currentQ.b = Math.floor(Math.random() * (11 - currentQ.a)); 
-                currentQ.c = Math.floor(Math.random() * (11 - currentQ.a - currentQ.b));
+                currentQ.a = Math.floor(Math.random() * 16);      
+                currentQ.b = Math.floor(Math.random() * (16 - currentQ.a)); 
+                currentQ.c = Math.floor(Math.random() * (16 - currentQ.a - currentQ.b));
                 currentQ.ans = currentQ.a + currentQ.b + currentQ.c;
                 questionText = `${currentQ.a} + ${currentQ.b} + ${currentQ.c} = ?`;
                 correctAnswer = currentQ.ans;
             }
 
-            // ---------- 渲染題目顯示 (處理橫/直式邏輯) ----------
+            // 新增：隨機混合運算 (加減符號及未知數?隨機出現)
+            function generateMixed() {
+                currentQ.type = 7;
+                let valid = false;
+                let n1, n2, n3, temp, ans, op1, op2;
+                
+                // 確保整個運算過程中沒有負數，且全在0~15範圍內
+                while (!valid) {
+                    n1 = Math.floor(Math.random() * 16);
+                    n2 = Math.floor(Math.random() * 16);
+                    n3 = Math.floor(Math.random() * 16);
+                    op1 = Math.random() > 0.5 ? '+' : '-';
+                    op2 = Math.random() > 0.5 ? '+' : '-';
+
+                    temp = op1 === '+' ? n1 + n2 : n1 - n2;
+                    if (temp < 0 || temp > 15) continue;
+
+                    ans = op2 === '+' ? temp + n3 : temp - n3;
+                    if (ans < 0 || ans > 15) continue;
+
+                    valid = true;
+                }
+
+                let missingPos = Math.floor(Math.random() * 4); // 0:n1, 1:n2, 2:n3, 3:ans
+                let q_n1_str = n1, q_n2_str = n2, q_n3_str = n3, q_ans_str = ans;
+
+                if (missingPos === 0) { q_n1_str = '?'; correctAnswer = n1; }
+                else if (missingPos === 1) { q_n2_str = '?'; correctAnswer = n2; }
+                else if (missingPos === 2) { q_n3_str = '?'; correctAnswer = n3; }
+                else { q_ans_str = '?'; correctAnswer = ans; }
+
+                currentQ.q_n1_str = q_n1_str;
+                currentQ.q_n2_str = q_n2_str;
+                currentQ.q_n3_str = q_n3_str;
+                currentQ.q_ans_str = q_ans_str;
+                currentQ.op1 = op1;
+                currentQ.op2 = op2;
+
+                questionText = `${q_n1_str} ${op1} ${q_n2_str} ${op2} ${q_n3_str} = ${q_ans_str}`;
+            }
+
+            // ---------- 渲染題目顯示 ----------
             function renderQuestionDisplay() {
                 let mode = displayMode;
                 if (mode === 'random') {
-                    // 隨機選取橫式或直式
                     mode = Math.random() > 0.5 ? 'horizontal' : 'vertical';
                 }
 
                 if (mode === 'horizontal') {
-                    // 橫式渲染
                     let horizontalHTML = questionText
                         .replace(/\?/g, '<span class="v-question">?</span>')
-                        .replace(/-/g, '−'); // 換成好看一點的減號
+                        .replace(/-/g, '−'); 
                     questionDisplay.innerHTML = horizontalHTML;
                 } else {
-                    // 直式渲染
                     questionDisplay.innerHTML = buildVerticalHTML(currentQ);
                 }
             }
 
-            // ---------- 建立直式的 HTML ----------
+            // ---------- 建立直式的 HTML (已支援 Type 7) ----------
             function buildVerticalHTML(q) {
                 let op = (q.type >= 3 && q.type <= 5) ? '−' : '+';
                 let html = '<div class="vertical-math">';
@@ -650,12 +675,18 @@
                 else if (q.type === 4) { row1 = '?'; row2 = q.b; row3 = q.c; op = '−'; }
                 else if (q.type === 5) { row1 = q.a; row2 = '?'; row3 = q.c; op = '−'; }
                 else if (q.type === 6) { row1 = q.a; row2 = q.b; row4 = q.c; row3 = '?'; op = '+'; }
+                else if (q.type === 7) { row3 = q.q_ans_str; }
 
-                // 處理三個數字相加 (題型6) 與 一般兩個數字的情況
                 if (q.type === 6) {
                     html += `<div class="v-op"></div><div class="v-num">${formatVal(row1)}</div>`;
                     html += `<div class="v-op">${op}</div><div class="v-num">${formatVal(row2)}</div>`;
                     html += `<div class="v-op">${op}</div><div class="v-num">${formatVal(row4)}</div>`;
+                } else if (q.type === 7) {
+                    let op1_disp = q.op1 === '-' ? '−' : '+';
+                    let op2_disp = q.op2 === '-' ? '−' : '+';
+                    html += `<div class="v-op"></div><div class="v-num">${formatVal(q.q_n1_str)}</div>`;
+                    html += `<div class="v-op">${op1_disp}</div><div class="v-num">${formatVal(q.q_n2_str)}</div>`;
+                    html += `<div class="v-op">${op2_disp}</div><div class="v-num">${formatVal(q.q_n3_str)}</div>`;
                 } else {
                     html += `<div class="v-op"></div><div class="v-num">${formatVal(row1)}</div>`;
                     html += `<div class="v-op">${op}</div><div class="v-num">${formatVal(row2)}</div>`;
@@ -667,11 +698,11 @@
                 return html;
             }
 
-            // 產生3個選項（正確答案加兩個錯誤選項，範圍0~10）
+            // 產生選項（更新為範圍 0~15）
             function generateOptions() {
                 let options = [correctAnswer];
                 while (options.length < 3) {
-                    let wrong = Math.floor(Math.random() * 11); // 只產生 0~10
+                    let wrong = Math.floor(Math.random() * 16); 
                     if (!options.includes(wrong)) options.push(wrong);
                 }
                 options.sort(() => Math.random() - 0.5);
@@ -699,7 +730,7 @@
                 
                 try {
                     switch(q.type) {
-                        case 0: // a + b = ans
+                        case 0:
                             hintText.innerText = `先放 ${q.a} 個蘋果🍎`;
                             for(let i=0; i<q.a; i++) {
                                 if (session !== animationSessionId) return;
@@ -721,7 +752,7 @@
                             hintText.innerText = `一共有幾多個呢？數數看！`;
                             break;
                             
-                        case 3: // a - b = ans
+                        case 3:
                             hintText.innerText = `原本有 ${q.a} 個蘋果🍎`;
                             for(let i=0; i<q.a; i++) {
                                 if (session !== animationSessionId) return;
@@ -748,7 +779,7 @@
                             hintText.innerText = `仲剩幾多個好嘅蘋果？`;
                             break;
                             
-                        case 1: // ? + b = c 
+                        case 1:
                             hintText.innerText = `目標要有 ${q.c} 個，後面已有 ${q.b} 個🍏`;
                             for(let i=0; i<q.c; i++) {
                                 if (session !== animationSessionId) return;
@@ -764,7 +795,7 @@
                             hintText.innerText = `前面空格仲差幾多個蘋果呢？`;
                             break;
                             
-                        case 2: // a + ? = c
+                        case 2:
                             hintText.innerText = `目標要有 ${q.c} 個，前面已有 ${q.a} 個🍎`;
                             for(let i=0; i<q.c; i++) {
                                 if (session !== animationSessionId) return;
@@ -780,7 +811,7 @@
                             hintText.innerText = `後面空格仲差幾多個蘋果呢？`;
                             break;
                             
-                        case 4: // ? - b = c 
+                        case 4:
                             hintText.innerText = `食咗 ${q.b} 個❌，仲剩 ${q.c} 個🍏`;
                             for(let i=0; i<q.b; i++) {
                                 if (session !== animationSessionId) return;
@@ -797,7 +828,7 @@
                             hintText.innerText = `將全部加埋，原本一共有幾多個？`;
                             break;
                             
-                        case 5: // a - ? = c
+                        case 5:
                             hintText.innerText = `原本有 ${q.a} 個蘋果🍎`;
                             for(let i=0; i<q.a; i++) {
                                 if (session !== animationSessionId) return;
@@ -821,7 +852,7 @@
                             hintText.innerText = `冇圈起嘅就係俾人食咗啦！數下有幾多個？`;
                             break;
                             
-                        case 6: // a + b + c = ans
+                        case 6:
                             hintText.innerText = `先放 ${q.a} 個🍎，再加 ${q.b} 個🍏`;
                             for(let i=0; i<q.a; i++) { if (session !== animationSessionId) return; iconsArea.innerHTML += `<span class="apple-icon">🍎</span>`; await sleep(200); }
                             if(q.b > 0) {
@@ -839,18 +870,23 @@
                             if (session !== animationSessionId) return;
                             hintText.innerText = `數下全部加埋有幾多個？`;
                             break;
+
+                        case 7: // 混合運算提示
+                            hintText.innerText = `呢條係混合計算題，我哋可以先計前面兩個數字，再慢慢計埋後面！`;
+                            iconsArea.innerHTML = `<span style="font-size:3rem;">🤔💭</span>`;
+                            await sleep(1000);
+                            break;
                     }
                 } catch(e) { console.error(e); } 
                 
                 isAnimatingHint = false;
             };
 
-            // ---------- 語音：粵語 + 英式英語 ----------
+            // ---------- 語音 ----------
             window.speakQuestion = function() {
                 if (isProcessing) return;
                 window.speechSynthesis.cancel();
 
-                // 朗讀字眼依舊根據原本字串
                 const cantoText = questionText
                     .replace(/\?/g, '幾多')
                     .replace(/\+/g, '加')
@@ -879,7 +915,6 @@
 
                 if (selected === correctAnswer) {
                     isProcessing = true;
-                    // 中斷進行中的動畫
                     animationSessionId++; 
                     
                     correctCount++;
@@ -913,7 +948,7 @@
                 }, 2500);
             }
 
-            // ---------- 精彩獎勵動畫 (10題倍數) ----------
+            // ---------- 精彩獎勵動畫 ----------
             function showRewardAnimation() {
                 window.speechSynthesis.cancel();
                 
