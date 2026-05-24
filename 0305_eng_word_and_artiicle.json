@@ -148,6 +148,20 @@
     "articleContent": "I go to school by bus. A bus is stopping at the bus stop. My father is a bus driver. The bus is full of passengers. I use my Octopus card to get on. I tap the card. We queue up. The bus driver is nice. We wait at the bus stop and get off."
   },
   {
+    "id": 1779553600478,
+    "name": "代名詞",
+    "words": [
+      "you",
+      "he",
+      "she",
+      "it",
+      "we",
+      "they"
+    ],
+    "articleTitle": "代名詞",
+    "articleContent": "I am a happy girl.\n\nLook at my family!\nThis is my daddy, he is tall.\nThis is my mummy, she is nice.\nThis is my puppy, it is small.\nWe love each other.\n\nLook at my friends at school!\nThey play toys with me.\nYou are my friend too.\nLet's play together!"
+  },
+  {
     "id": 1779268848733,
     "name": "英文大挑戰（一）",
     "words": [
@@ -218,6 +232,84 @@
     ],
     "articleTitle": "Let's read: 英文大挑戰（二）",
     "articleContent": "I have a pet. It is a dog, a cat, or a rabbit. Look at the sky and sun. Sometimes there is rain and cloud. Count to six, seven, eight, nine, ten! The colors are pink, white, and brown. I eat, play, write, and sleep. I use a pen and pencil. I write my name at school. I pack my bag. I sit on a chair at the table to do my homework."
+  },
+  {
+    "id": 1779554591589,
+    "name": "限定詞",
+    "words": [
+      "the",
+      "a",
+      "an",
+      "this",
+      "that",
+      "these",
+      "those",
+      "my",
+      "your",
+      "his",
+      "her",
+      "its",
+      "our",
+      "their",
+      "all",
+      "both",
+      "some",
+      "any",
+      "no",
+      "many",
+      "much",
+      "a lot of",
+      "lots of",
+      "few",
+      "a few",
+      "little",
+      "a little",
+      "each",
+      "every",
+      "last",
+      "next"
+    ],
+    "articleTitle": "限定詞",
+    "articleContent": "Look! This is a forest, and that is the big sun.\n\nToday is our picnic day. My son and my daughter are very happy. Each child has a bag. Look at these big bags and those small hats!\n\nIn the forest, we see his dog and her cat. The dog wags its tail. Both animals like to play.\n\n\"Do we have any apples?\" asks the boy.\n\"Yes!\" says the girl. \"We have a lot of sweet apples and lots of yummy bananas. But we only have a few cookies and few candies. There is no cake left.\"\n\nOh, look at the sky! There are some grey clouds. Is there much rain? No, just a little rain. All the birds fly away. Every animal runs home.\n\nLast time we got wet, but next time we will choose a sunny day! We love our picnic!"
+  },
+  {
+    "id": 1779553711613,
+    "name": "常用動詞",
+    "words": [
+      "run",
+      "jump",
+      "walk",
+      "sit",
+      "stand",
+      "eat",
+      "drink",
+      "sleep",
+      "read",
+      "write",
+      "draw",
+      "play",
+      "put",
+      "get"
+    ],
+    "articleTitle": "常用動詞",
+    "articleContent": "I get up in the morning.\nI stand up and walk to the kitchen.\nI eat my bread and drink my milk.\n\nThen, I go to school.\nI run and jump on the playground.\nI play with my happy friends.\n\nIn the classroom, I sit down.\nI read a storybook.\nI write my ABCs and draw a pretty flower.\nI put my pencil in the bag.\n\nAt night, I am tired.\nIt is time to sleep. Goodnight!"
+  },
+  {
+    "id": 1779553385594,
+    "name": "about my body",
+    "words": [
+      "finger",
+      "body",
+      "foot",
+      "head",
+      "neck",
+      "arm",
+      "leg",
+      "shoulder",
+      "toe"
+    ],
+    "articleTitle": "about my body",
+    "articleContent": "Look at me! This is my body.\n\nFrom top to bottom, I can move.\nThis is my head, and this is my neck.\nI can nod my head.\n\nThese are my shoulders, and these are my arms.\nAt the end of my arms, I have ten fingers.\nI can wave my fingers.\n\nLook down! This is my leg, and this is my foot.\nOn my foot, I have five small toes.\nI can wiggle my toes.\n\nI love my body!"
   },
   {
     "id": 1779268848735,
@@ -337,6 +429,23 @@
     ],
     "articleTitle": "Let's read: Colours",
     "articleContent": "The sun is golden. The sky is blue. The pig is pink. The cat is black. The glass is transparent. The leaf is green. The flower is purple. The cloud is grey. The moon is silver."
+  },
+  {
+    "id": 1779553271361,
+    "name": "Countries",
+    "words": [
+      "China",
+      "Italy",
+      "Japan",
+      "Singapore",
+      "Malaysia",
+      "Philippines",
+      "Canada",
+      "Spain",
+      "Brazil"
+    ],
+    "articleTitle": "Countries",
+    "articleContent": "I want to take a plane and travel the world.\n\nFirst, we travel in Asia:\nWe visit China and Japan.\nThen, we fly south to Singapore, Malaysia, and the Philippines.\n\nNext, we fly to Europe:\nWe see beautiful Spain and Italy.\n\nLast, we fly across the big ocean to America:\nWe visit Canada and Brazil.\n\nThe world is so big and fun!"
   },
   {
     "id": 1779268848742,
@@ -659,5 +768,21 @@
     ],
     "articleTitle": "Let's read: Words About School",
     "articleContent": "My classmate is nice. The teacher and principal are kind. We play on the playground at school. I sit in the classroom. I do my homework. We gather in the hall. The teacher writes on the blackboard."
+  },
+  {
+    "id": 1779555011998,
+    "name": "verb to be",
+    "words": [
+      "am",
+      "is",
+      "are",
+      "was",
+      "were",
+      "been",
+      "being",
+      "be"
+    ],
+    "articleTitle": "verb to be",
+    "articleContent": "I am a little girl, and this is my cat, Lily. She is very soft. We are best friends!\n\nYesterday, the birds were in the tree. Lily was very excited! She wanted to be a bird and fly.\n\n\"Look! I am being a bird!\" Lily thought. She jumped up high, but—oh no!—she fell into the mud.\n\nNow, her white paws have been dirty all morning. But Lily is still happy. She purrs and says, \"Miau!\"\n\nWe are both happy every day!"
   }
 ]
