@@ -438,7 +438,10 @@
     <button class="level-btn" data-level="4">第4級: 5分鐘</button>
   </div>
 
-  <button class="demo-btn" id="demoBtn">▶️ 認識指針 (睇賽跑)</button>
+  <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+    <button class="demo-btn" id="demoBtn" style="margin-bottom: 0;">▶️ 認識指針 (睇賽跑)</button>
+    <button class="demo-btn" id="toggleMinutesBtn" style="margin-bottom: 0; background: #ffdfba; border-color: #f4a261; color: #d35400; box-shadow: 0 4px 0 #e67e22;">🙈 隱藏分鐘</button>
+  </div>
   
   <div class="demo-tools hidden" id="demoTools">
     <div class="demo-row">
@@ -506,6 +509,7 @@
     const speedSlider = document.getElementById('speedSlider');
     const pauseBtn = document.getElementById('pauseBtn');
     const labelBtn = document.getElementById('labelBtn');
+    const toggleMinutesBtn = document.getElementById('toggleMinutesBtn');
     const digitalTimeDisplay = document.getElementById('digitalTimeDisplay');
     const timeLabels = document.getElementById('timeLabels');
     
@@ -530,6 +534,7 @@
     let lastFrameTime = 0;
     let isPaused = false;
     let isShowLabels = true;
+    let isShowMinuteNumbers = true;
 
     // 學習難度設定
     const levelConfig = {
@@ -570,12 +575,10 @@
       return `${hour}:${paddedMin}`;
     }
 
+    // 修改此函數以符合使用者要求
     function getCantoneseTimePhrase(hour, minute) {
-      if (minute === 0) return `${hour}點正`;
-      if (minute === 30) return `${hour}點半`;
-      if (minute === 15) return `${hour}點三`;
-      if (minute === 45) return `${hour}點九`;
-      return `${hour}點${minute}分`;
+      if (minute === 0) return `${hour}時正`;
+      return `${hour}時${minute}分`;
     }
 
     function getBritishTimePhrase(hour, minute) {
@@ -674,16 +677,18 @@
       ctx.fill();
       
       // 1. 繪製外圍分鐘/秒鐘數字 (5, 10, 15, ..., 60)
-      ctx.font = 'bold 14px "Segoe UI", "Roboto", sans-serif';
-      ctx.fillStyle = '#b36b00'; 
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const outerNumberRadius = radius - 34; // 緊貼刻度內側
-      for (let i = 1; i <= 12; i++) {
-        let angle = (i * 30 - 90) * Math.PI / 180;
-        let numX = cx + Math.cos(angle) * outerNumberRadius;
-        let numY = cy + Math.sin(angle) * outerNumberRadius;
-        ctx.fillText((i * 5).toString(), numX, numY);
+      if (isShowMinuteNumbers) {
+        ctx.font = 'bold 14px "Segoe UI", "Roboto", sans-serif';
+        ctx.fillStyle = '#b36b00'; 
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const outerNumberRadius = radius - 34; // 緊貼刻度內側
+        for (let i = 1; i <= 12; i++) {
+          let angle = (i * 30 - 90) * Math.PI / 180;
+          let numX = cx + Math.cos(angle) * outerNumberRadius;
+          let numY = cy + Math.sin(angle) * outerNumberRadius;
+          ctx.fillText((i * 5).toString(), numX, numY);
+        }
       }
 
       // 2. 繪製主小時數字 (1-12)
@@ -848,6 +853,17 @@
       } else {
         labelBtn.textContent = "🙈 顯示標記";
       }
+    });
+
+    toggleMinutesBtn.addEventListener('click', () => {
+      isShowMinuteNumbers = !isShowMinuteNumbers;
+      if (isShowMinuteNumbers) {
+        toggleMinutesBtn.textContent = "🙈 隱藏分鐘";
+      } else {
+        toggleMinutesBtn.textContent = "👁️ 顯示分鐘";
+      }
+      const s = isDemonstrating ? (virtualTime % 60) : 0;
+      drawClock(currentHour, currentMinute, s, isDemonstrating);
     });
 
     function generateNewQuestion() {
