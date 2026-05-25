@@ -46,6 +46,35 @@
       word-break: keep-all;
     }
 
+    /* 統計顯示區 */
+    .stats-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .stat-badge {
+      background: #ffffff;
+      border: 2px dashed #ffb347;
+      color: #d87c00;
+      padding: 6px 20px;
+      border-radius: 30px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 6px rgba(255, 179, 71, 0.2);
+      transition: transform 0.2s;
+    }
+
+    @keyframes scorePop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); background-color: #ffeba1; color: #b35e00; border-color: #ff9f1c; }
+      100% { transform: scale(1); }
+    }
+
+    .score-pop {
+      animation: scorePop 0.5s ease;
+    }
+
     /* 學習階段選擇器 */
     .level-container {
       display: flex;
@@ -390,12 +419,17 @@
       .time-labels { font-size: 1.1rem; width: 180px; }
       .level-btn { font-size: 0.95rem; padding: 6px 10px; }
       .legend-item { font-size: 1rem; }
+      .stat-badge { font-size: 1rem; padding: 4px 16px; }
     }
   </style>
 </head>
 <body>
 <div class="game-container">
   <h1>🕒 睇鐘學時間</h1>
+  
+  <div class="stats-container">
+    <span class="stat-badge" id="scoreDisplay">⭐ 答對：0 題</span>
+  </div>
 
   <div class="level-container" id="levelContainer">
     <button class="level-btn active" data-level="1">第1級: 整點</button>
@@ -459,6 +493,7 @@
     const canvas = document.getElementById('clockCanvas');
     const ctx = canvas.getContext('2d');
     const banner = document.getElementById('praiseBanner');
+    const scoreDisplay = document.getElementById('scoreDisplay');
     const ansBtns = [
       document.getElementById('ans0'),
       document.getElementById('ans1'),
@@ -485,6 +520,7 @@
     let correctAnswerStr = '';
     let isCorrectAnswered = false;
     let isSpeaking = false;
+    let score = 0; // 新增：記錄答對題數
     let speechSynth = window.speechSynthesis;
     
     // 動畫狀態
@@ -761,6 +797,7 @@
         demoLegend.classList.remove('hidden'); 
         digitalTimeDisplay.classList.remove('hidden');
         timeLabels.classList.remove('hidden'); 
+        scoreDisplay.parentElement.style.display = 'none'; // 動畫模式隱藏分數
         
         answersContainer.style.display = 'none';
         actionArea.style.display = 'none';
@@ -783,6 +820,7 @@
         demoLegend.classList.add('hidden'); 
         digitalTimeDisplay.classList.add('hidden');
         timeLabels.classList.add('hidden'); 
+        scoreDisplay.parentElement.style.display = 'flex'; // 恢復顯示分數
         
         answersContainer.style.display = 'flex';
         actionArea.style.display = 'flex';
@@ -898,6 +936,14 @@
       if (isCorrectAnswered || isSpeaking) return;
       isCorrectAnswered = true;
       isSpeaking = true;
+      
+      // 更新分數
+      score++;
+      scoreDisplay.textContent = `⭐ 答對：${score} 題`;
+      // 觸發放大閃爍動畫
+      scoreDisplay.classList.remove('score-pop');
+      void scoreDisplay.offsetWidth; // 觸發重繪 (reflow) 讓動畫可以重新播放
+      scoreDisplay.classList.add('score-pop');
       
       ansBtns.forEach(btn => {
         btn.disabled = true;
