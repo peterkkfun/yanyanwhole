@@ -215,7 +215,7 @@
       display: none !important;
     }
 
-    /* 新增：時分秒標籤 */
+    /* 時分秒標籤 */
     .time-labels {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -430,6 +430,7 @@
     <canvas id="clockCanvas" width="340" height="340"></canvas>
   </div>
   
+  <!-- 跳字時鐘與中文標籤 -->
   <div id="digitalTimeDisplay" class="digital-time hidden">12:00:00</div>
   <div id="timeLabels" class="time-labels hidden">
     <span>時</span>
@@ -471,7 +472,7 @@
     const pauseBtn = document.getElementById('pauseBtn');
     const labelBtn = document.getElementById('labelBtn');
     const digitalTimeDisplay = document.getElementById('digitalTimeDisplay');
-    const timeLabels = document.getElementById('timeLabels'); // 新增：取得標籤容器
+    const timeLabels = document.getElementById('timeLabels');
     
     const levelBtns = document.querySelectorAll('.level-btn');
     const answersContainer = document.getElementById('answersContainer');
@@ -549,7 +550,7 @@
       return `${hour} ${minute}`;
     }
 
-    // ---------- 智慧避讓標記 (文字永遠往指針外側延伸) ----------
+    // ---------- 智慧避讓標記 ----------
     function drawSmartLabel(text, rad, tipDist, color) {
       let align = 'center';
       let baseline = 'middle';
@@ -608,11 +609,10 @@
       ctx.fillStyle = '#fff9f0';
       ctx.fill();
 
-      // 新增：繪製 60 個刻度
+      // 繪製 60 個刻度
       for (let i = 0; i < 60; i++) {
         let angle = (i * 6 - 90) * Math.PI / 180;
         let isMajor = i % 5 === 0;
-        // 5分鐘的主刻度長一點，其餘刻度短一點
         let startDist = isMajor ? radius - 22 : radius - 15; 
         let endDist = radius - 8;
         
@@ -637,12 +637,23 @@
       ctx.fillStyle = '#7b4a1e';
       ctx.fill();
       
-      // 數字
-      ctx.font = 'bold 26px "Segoe UI", "Roboto", sans-serif';
-      ctx.fillStyle = '#3b280b';
+      // 1. 繪製外圍分鐘/秒鐘數字 (5, 10, 15, ..., 60)
+      ctx.font = 'bold 14px "Segoe UI", "Roboto", sans-serif';
+      ctx.fillStyle = '#b36b00'; 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      const numberRadius = radius - 45;
+      const outerNumberRadius = radius - 34; // 緊貼刻度內側
+      for (let i = 1; i <= 12; i++) {
+        let angle = (i * 30 - 90) * Math.PI / 180;
+        let numX = cx + Math.cos(angle) * outerNumberRadius;
+        let numY = cy + Math.sin(angle) * outerNumberRadius;
+        ctx.fillText((i * 5).toString(), numX, numY);
+      }
+
+      // 2. 繪製主小時數字 (1-12)
+      ctx.font = 'bold 26px "Segoe UI", "Roboto", sans-serif';
+      ctx.fillStyle = '#3b280b';
+      const numberRadius = radius - 56; // 稍微往內移，與外圍數字錯開
       for (let i = 1; i <= 12; i++) {
         let angle = (i * 30 - 90) * Math.PI / 180;
         let numX = cx + Math.cos(angle) * numberRadius;
@@ -749,7 +760,7 @@
         demoTools.classList.remove('hidden'); 
         demoLegend.classList.remove('hidden'); 
         digitalTimeDisplay.classList.remove('hidden');
-        timeLabels.classList.remove('hidden'); // 顯示時分秒標籤
+        timeLabels.classList.remove('hidden'); 
         
         answersContainer.style.display = 'none';
         actionArea.style.display = 'none';
@@ -771,7 +782,7 @@
         demoTools.classList.add('hidden'); 
         demoLegend.classList.add('hidden'); 
         digitalTimeDisplay.classList.add('hidden');
-        timeLabels.classList.add('hidden'); // 隱藏時分秒標籤
+        timeLabels.classList.add('hidden'); 
         
         answersContainer.style.display = 'flex';
         actionArea.style.display = 'flex';
@@ -860,7 +871,7 @@
         utterCanto.rate = 0.9;
         
         const utterEng = new SpeechSynthesisUtterance(britishText);
-        utterEng.lang = 'en-GB'; // 確保使用英式發音
+        utterEng.lang = 'en-GB'; 
         utterEng.rate = 0.9;
         
         utterCanto.onend = () => speechSynth.speak(utterEng);
