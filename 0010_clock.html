@@ -436,6 +436,7 @@
     <button class="level-btn" data-level="2">第2級: 半點</button>
     <button class="level-btn" data-level="3">第3級: 15/45分</button>
     <button class="level-btn" data-level="4">第4級: 5分鐘</button>
+    <button class="level-btn" data-level="5">綜合: 整/半/15/45分</button>
   </div>
 
   <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
@@ -467,7 +468,6 @@
     <canvas id="clockCanvas" width="340" height="340"></canvas>
   </div>
   
-  <!-- 跳字時鐘與中文標籤 -->
   <div id="digitalTimeDisplay" class="digital-time hidden">12:00:00</div>
   <div id="timeLabels" class="time-labels hidden">
     <span>時</span>
@@ -536,12 +536,13 @@
     let isShowLabels = true;
     let isShowMinuteNumbers = true;
 
-    // 學習難度設定
+    // 學習難度設定 (已加入第5級)
     const levelConfig = {
       1: [0],                                     
       2: [30],                                    
       3: [15, 45],                                
-      4: [5, 10, 20, 25, 35, 40, 50, 55]          
+      4: [5, 10, 20, 25, 35, 40, 50, 55],
+      5: [0, 15, 30, 45]
     };
     
     let possibleMinutes = levelConfig[1]; 
