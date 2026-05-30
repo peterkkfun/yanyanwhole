@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>➕➖ 數學加減遊戲 | 欣欣叻叻 🌟</title>
+  <style>
+    :root {
+      --bg: #fff8f0;
+      --card-bg: #ffffff;
+      --primary: #ff6b8a;
+      --secondary: #ffa94d;
+      --accent-green: #51cf66;
+      --accent-orange: #ff922b;
+      --text-dark: #3d3d3d;
+      --text-light: #6b6b6b;
+      --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.08);
+      --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.10);
+      --shadow-btn: 0 6px 20px rgba(0, 0, 0, 0.13);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+      --font-title: 'Trebuchet MS', 'PingFang HK', 'Noto Sans HK', 'Microsoft JhengHei', sans-serif;
+      --font-body: 'PingFang HK', 'Noto Sans HK', 'Microsoft JhengHei', 'Segoe UI', sans-serif;
+      --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: linear-gradient(160deg, #fff3e0 0%, #fce4ec 25%, #fff8e1 50%, #f3e5f5 75%, #e8f5e9 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .bg-decoration {
+      position: fixed; pointer-events: none; z-index: 0; font-size: 3rem;
+      animation: floatAround 18s infinite ease-in-out; opacity: 0.55; filter: blur(0.5px);
+    }
+    .bg-decoration:nth-child(1) { top: 6%; left: 5%; animation-delay: 0s; font-size: 3.5rem; }
+    .bg-decoration:nth-child(2) { top: 12%; right: 8%; animation-delay: -5s; font-size: 2.8rem; }
+    .bg-decoration:nth-child(3) { bottom: 14%; left: 7%; animation-delay: -10s; font-size: 3.2rem; }
+    .bg-decoration:nth-child(4) { bottom: 8%; right: 6%; animation-delay: -14s; font-size: 3rem; }
+    .bg-decoration:nth-child(5) { top: 45%; left: 2%; animation-delay: -3s; font-size: 2.4rem; }
+    .bg-decoration:nth-child(6) { top: 40%; right: 3%; animation-delay: -9s; font-size: 2.6rem; }
+
+    @keyframes floatAround {
+      0%,100%{transform:translateY(0) translateX(0) rotate(0deg) scale(1);}
+      15%{transform:translateY(-28px) translateX(16px) rotate(8deg) scale(1.08);}
+      30%{transform:translateY(-10px) translateX(-14px) rotate(-5deg) scale(0.94);}
+      45%{transform:translateY(20px) translateX(-20px) rotate(6deg) scale(1.05);}
+      60%{transform:translateY(-18px) translateX(22px) rotate(-7deg) scale(0.96);}
+      75%{transform:translateY(14px) translateX(-8px) rotate(4deg) scale(1.03);}
+      90%{transform:translateY(-6px) translateX(10px) rotate(-3deg) scale(0.98);}
+    }
+
+    .game-container {
+      position: relative; z-index: 1; width: 100%; max-width: 560px;
+      background: var(--card-bg); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card); padding: 28px 24px 32px;
+      display: flex; flex-direction: column; align-items: center; gap: 22px;
+      transition: all 0.35s var(--transition-smooth); border: 3px solid #ffe0c0;
+    }
+    .game-container::before {
+      content: ''; position: absolute; top: -3px; left: 30px; right: 30px;
+      height: 7px; background: linear-gradient(90deg, #ff6b8a, #ffa94d, #ffd43b, #ffa94d, #ff6b8a);
+      border-radius: 0 0 20px 20px; z-index: 2;
+    }
+
+    .header { text-align: center; padding-top: 6px; }
+    .header .icon-row { font-size: 2.6rem; animation: bounceIcon 1.8s infinite ease-in-out; display: inline-block; }
+    @keyframes bounceIcon {
+      0%,100%{transform:translateY(0);} 30%{transform:translateY(-14px);} 50%{transform:translateY(0);} 70%{transform:translateY(-7px);} 85%{transform:translateY(0);}
+    }
+    .header h1 {
+      font-family: var(--font-title); font-size: 2rem; font-weight: 800; color: #e8596e;
+      letter-spacing: 0.03em; margin: 2px 0 0; text-shadow: 2px 2px 0px #ffe0e6;
+    }
+    .header .subtitle { font-size: 0.9rem; color: #c08a6b; font-weight: 500; letter-spacing: 0.04em; }
+
+    .stats-row {
+      display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; width: 100%;
+    }
+    .stat-badge {
+      background: #fff5f0; border-radius: 30px; padding: 8px 18px; font-weight: 600;
+      font-size: 0.9rem; color: #b45f3a; display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06); border: 1px solid #f0d8c8;
+    }
+    .stat-badge .stat-emoji { font-size: 1.2rem; }
+    .stat-badge strong { color: #d45d2c; font-size: 1.05rem; margin: 0 2px; }
+
+    .score-progress-row {
+      display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; width: 100%;
+    }
+    .score-badge {
+      background: linear-gradient(135deg, #fff5e6, #ffe8d6); border-radius: 30px;
+      padding: 10px 20px; font-weight: 700; font-size: 1.05rem; color: #e67a3c;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 3px 12px rgba(255,150,60,0.18); border: 2px solid #ffd4b8;
+    }
+    .score-badge .star-icon { font-size: 1.4rem; }
+    .progress-dots { display: flex; gap: 8px; align-items: center; }
+    .progress-dot {
+      width: 26px; height: 26px; border-radius: 50%; background: #f0e0d0;
+      transition: all 0.4s var(--transition-bounce); display: flex; align-items: center;
+      justify-content: center; font-size: 0.7rem; font-weight: 700; color: #fff;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+    }
+    .progress-dot.completed { background: #51cf66; box-shadow: 0 3px 10px rgba(81,207,102,0.4); transform: scale(1.1); }
+    .progress-dot.current { background: #ffa94d; box-shadow: 0 3px 14px rgba(255,169,77,0.5); animation: pulseDot 1.2s infinite ease-in-out; }
+    @keyframes pulseDot {
+      0%,100%{box-shadow:0 3px 14px rgba(255,169,77,0.5);}
+      50%{box-shadow:0 3px 24px rgba(255,169,77,0.8),0 0 0 8px rgba(255,169,77,0.13);}
+    }
+
+    .question-card {
+      background: linear-gradient(135deg, #fffefb, #fffaf5); border-radius: var(--radius-md);
+      padding: 24px 20px 22px; width: 100%; text-align: center; box-shadow: var(--shadow-soft);
+      border: 2.5px dashed #f0d8c0; position: relative; transition: all 0.3s var(--transition-smooth);
+    }
+    .question-card.shake { animation: shakeCard 0.55s ease; }
+    @keyframes shakeCard {
+      0%,100%{transform:translateX(0);} 12%{transform:translateX(-7px);} 25%{transform:translateX(7px);} 37%{transform:translateX(-5px);} 50%{transform:translateX(5px);} 62%{transform:translateX(-3px);} 75%{transform:translateX(3px);} 87%{transform:translateX(-1px);}
+    }
+    .question-number { font-size: 0.95rem; color: #b8957e; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .equation {
+      display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
+      font-size: 3.4rem; font-weight: 800; color: #4a3728; letter-spacing: 0.02em;
+    }
+    @media (max-width: 480px) { .equation { font-size: 2.6rem; gap: 10px; } }
+    @media (max-width: 400px) { .equation { font-size: 2.3rem; gap: 8px; } }
+    .equation .num { display: inline-block; min-width: 70px; text-align: center; color: #3d2b1a; font-family: var(--font-title); }
+    @media (max-width: 480px) { .equation .num { min-width: 58px; } }
+    @media (max-width: 400px) { .equation .num { min-width: 50px; } }
+    .equation .blank-box {
+      display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px;
+      border-radius: var(--radius-sm); background: #fff; border: 3px solid #ffb380;
+      color: #ff7f3b; font-size: 2.6rem; font-weight: 700;
+      animation: glowBlank 2s infinite ease-in-out; transition: all 0.3s var(--transition-bounce);
+    }
+    @media (max-width: 480px) { .equation .blank-box { width: 64px; height: 64px; font-size: 2rem; } }
+    @media (max-width: 400px) { .equation .blank-box { width: 54px; height: 54px; font-size: 1.8rem; } }
+    .equation .blank-box.correct-flash { background: #d4fcdc; border-color: #51cf66; color: #2d9d3f; animation: popFlash 0.5s var(--transition-bounce); }
+    .equation .blank-box.wrong-flash { background: #ffe0e0; border-color: #ff6b6b; color: #d93030; animation: shakeCard 0.45s ease; }
+    @keyframes glowBlank {
+      0%,100%{box-shadow:0 0 8px rgba(255,150,60,0.3),0 0 20px rgba(255,150,60,0.08);}
+      50%{box-shadow:0 0 18px rgba(255,150,60,0.5),0 0 35px rgba(255,150,60,0.15);}
+    }
+    @keyframes popFlash {
+      0%{transform:scale(1);} 30%{transform:scale(1.25);} 60%{transform:scale(0.92);} 100%{transform:scale(1);}
+    }
+    .equation .equals { color: #6b5040; font-weight: 700; }
+    .equation .result-num { color: #2d7d3f; font-weight: 800; font-family: var(--font-title); font-size: inherit; }
+
+    .btn-row { display: flex; gap: 20px; width: 100%; justify-content: center; flex-wrap: wrap; }
+    @media (max-width: 400px) { .btn-row { gap: 14px; } }
+    .btn-operator {
+      flex: 1; min-width: 120px; max-width: 180px; padding: 18px 20px; font-size: 2rem;
+      font-weight: 800; border: none; border-radius: 50px; cursor: pointer; letter-spacing: 0.04em;
+      transition: all 0.25s var(--transition-bounce); box-shadow: var(--shadow-btn);
+      position: relative; overflow: hidden; font-family: var(--font-title); color: #fff;
+      -webkit-tap-highlight-color: transparent; outline: none; display: flex;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    @media (max-width: 400px) { .btn-operator { font-size: 1.5rem; padding: 14px 16px; min-width: 90px; max-width: 140px; } }
+    .btn-plus { background: linear-gradient(135deg, #51cf66, #3db850); box-shadow: 0 8px 24px rgba(81,207,102,0.35); }
+    .btn-plus:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(81,207,102,0.45); background: linear-gradient(135deg, #5edb72, #45c058); }
+    .btn-plus:active { transform: translateY(-1px) scale(0.96); box-shadow: 0 5px 16px rgba(81,207,102,0.3); transition: all 0.1s ease; }
+    .btn-minus { background: linear-gradient(135deg, #ff922b, #f07b1a); box-shadow: 0 8px 24px rgba(255,146,43,0.35); }
+    .btn-minus:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(255,146,43,0.45); background: linear-gradient(135deg, #ff9e42, #f58220); }
+    .btn-minus:active { transform: translateY(-1px) scale(0.96); box-shadow: 0 5px 16px rgba(255,146,43,0.3); transition: all 0.1s ease; }
+    .btn-operator:disabled { pointer-events: none; opacity: 0.55; filter: grayscale(20%); transform: none !important; }
+    .btn-operator .btn-emoji { font-size: 1.6rem; }
+    @media (max-width: 400px) { .btn-operator .btn-emoji { font-size: 1.2rem; } }
+
+    .feedback-overlay {
+      position: fixed; top:0; left:0; right:0; bottom:0; pointer-events: none; z-index: 100;
+      display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease;
+    }
+    .feedback-overlay.active { opacity: 1; }
+    .feedback-banner {
+      background: linear-gradient(135deg, #fff9e6, #fffef8); border-radius: 30px; padding: 22px 38px;
+      text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); border: 4px solid #ffd43b;
+      animation: popInBanner 0.55s var(--transition-bounce); position: relative;
+    }
+    @keyframes popInBanner {
+      0%{transform:scale(0.2) rotate(-12deg);opacity:0;} 60%{transform:scale(1.1) rotate(2deg);opacity:1;} 80%{transform:scale(0.94) rotate(-1deg);} 100%{transform:scale(1) rotate(0deg);opacity:1;}
+    }
+    .feedback-banner .praise-text {
+      font-size: 2.8rem; font-weight: 900; color: #e8596e; letter-spacing: 0.06em;
+      font-family: var(--font-title); text-shadow: 2px 2px 0px #ffe0c0; white-space: nowrap;
+    }
+    @media (max-width: 400px) { .feedback-banner .praise-text { font-size: 2rem; } .feedback-banner { padding: 16px 24px; border-radius: 22px; } }
+    .feedback-banner .praise-emoji { font-size: 3rem; display: block; animation: bounceEmoji 0.6s var(--transition-bounce) infinite alternate; }
+    @keyframes bounceEmoji { 0%{transform:translateY(0) scale(1);} 100%{transform:translateY(-16px) scale(1.15);} }
+
+    .particle {
+      position: fixed; pointer-events: none; z-index: 101; font-size: 1.5rem;
+      animation: particleFly 1.4s ease-out forwards;
+    }
+    @keyframes particleFly {
+      0%{transform:translate(0,0) scale(0) rotate(0deg);opacity:1;}
+      30%{transform:translate(var(--dx30),var(--dy30)) scale(1.4) rotate(120deg);opacity:1;}
+      100%{transform:translate(var(--dx),var(--dy)) scale(0) rotate(360deg);opacity:0;}
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #ff6b8a, #e8596e); color: #fff; border: none;
+      padding: 14px 32px; border-radius: 50px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+      letter-spacing: 0.04em; box-shadow: 0 8px 24px rgba(255,107,138,0.35);
+      transition: all 0.25s var(--transition-bounce); font-family: var(--font-body);
+    }
+    .btn-restart:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(255,107,138,0.45); }
+    .btn-restart:active { transform: scale(0.95); }
+
+    .hint-text {
+      font-size: 0.9rem; color: #b8957e; text-align: center; min-height: 22px; font-weight: 500;
+      transition: all 0.25s ease;
+    }
+    .hint-text.error { color: #e8596e; font-weight: 700; animation: shakeCard 0.4s ease; }
+
+    .summary-overlay {
+      position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.55);
+      z-index: 90; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+    }
+    .summary-overlay.active { opacity: 1; pointer-events: auto; }
+    .summary-card {
+      background: #fff; border-radius: var(--radius-lg); padding: 30px 24px; text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3); max-width: 400px; width: 90%;
+      animation: popInBanner 0.55s var(--transition-bounce); border: 4px solid #ffd43b;
+    }
+    .summary-card .trophy { font-size: 4rem; animation: bounceEmoji 0.8s ease-in-out infinite alternate; }
+    .summary-card h2 { font-family: var(--font-title); font-size: 1.8rem; color: #e8596e; margin: 8px 0; }
+    .summary-card .final-score { font-size: 3rem; font-weight: 900; color: #ff922b; font-family: var(--font-title); }
+    .summary-card .final-stats { font-size: 1rem; color: #6b5040; margin: 10px 0; display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+    .summary-card .btn-replay {
+      margin-top: 16px; background: linear-gradient(135deg, #51cf66, #3db850); color: #fff;
+      border: none; padding: 14px 36px; border-radius: 50px; font-size: 1.2rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.04em; box-shadow: 0 8px 24px rgba(81,207,102,0.35);
+      transition: all 0.25s var(--transition-bounce); font-family: var(--font-body);
+    }
+    .summary-card .btn-replay:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(81,207,102,0.45); }
+    .summary-card .btn-replay:active { transform: scale(0.94); }
+  </style>
+</head>
+<body>
+<span class="bg-decoration">🌟</span>
+<span class="bg-decoration">⭐</span>
+<span class="bg-decoration">🎈</span>
+<span class="bg-decoration">💫</span>
+<span class="bg-decoration">🌈</span>
+<span class="bg-decoration">✨</span>
+
+<div class="feedback-overlay" id="feedbackOverlay">
+  <div class="feedback-banner">
+    <span class="praise-emoji">🎉</span>
+    <span class="praise-text">欣欣叻叻</span>
+  </div>
+</div>
+
+<div class="summary-overlay" id="summaryOverlay">
+  <div class="summary-card">
+    <div class="trophy">🏆</div>
+    <h2>全部完成！</h2>
+    <p style="font-size:1.1rem; color:#6b5040;">你嘅得分係：</p>
+    <div class="final-score" id="finalScore">10 / 10</div>
+    <div class="final-stats" id="finalStats">
+      <span>✅ 完成 <strong id="finalCompleted">0</strong> 題</span>
+      <span>❌ 答錯 <strong id="finalWrong">0</strong> 次</span>
+    </div>
+    <p style="color:#b8957e; margin:6px 0;">欣欣真係好叻呀！</p>
+    <button class="btn-replay" onclick="restartGame()">🔄 再玩一次</button>
+  </div>
+</div>
+
+<div class="game-container" id="gameContainer">
+  <div class="header">
+    <span class="icon-row">🧮</span>
+    <h1>數學加減遊戲</h1>
+    <p class="subtitle">揀啱符號，欣欣叻叻！</p>
+  </div>
+
+  <!-- 統計資料：已完成題數及答錯次數 -->
+  <div class="stats-row">
+    <div class="stat-badge">
+      <span class="stat-emoji">✅</span> 完成 <strong id="completedCount">0</strong> 題
+    </div>
+    <div class="stat-badge">
+      <span class="stat-emoji">❌</span> 答錯 <strong id="wrongCount">0</strong> 次
+    </div>
+  </div>
+
+  <div class="score-progress-row">
+    <div class="score-badge">
+      <span class="star-icon">⭐</span>
+      <span>得分：<strong id="scoreDisplay">0</strong></span>
+    </div>
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+
+  <div class="question-card" id="questionCard">
+    <div class="question-number" id="questionNumber">第 1 題</div>
+    <div class="equation">
+      <span class="num" id="numA">5</span>
+      <span class="blank-box" id="blankBox">?</span>
+      <span class="num" id="numB">5</span>
+      <span class="equals">=</span>
+      <span class="result-num" id="numResult">10</span>
+    </div>
+  </div>
+
+  <div class="btn-row" id="btnRow">
+    <button class="btn-operator btn-plus" id="btnPlus" onclick="submitAnswer('+')">
+      <span class="btn-emoji">➕</span> 加號
+    </button>
+    <button class="btn-operator btn-minus" id="btnMinus" onclick="submitAnswer('-')">
+      <span class="btn-emoji">➖</span> 減號
+    </button>
+  </div>
+
+  <p class="hint-text" id="hintText">撳一下啱嘅符號啦～</p>
+</div>
+
+<script>
+  (function() {
+    const TOTAL_QUESTIONS = 10;
+    const MAX_NUMBER = 99;
+    const MIN_NUMBER = 0;
+    const CORRECT_DELAY_MS = 1700;
+
+    // DOM 元素
+    const numAEl = document.getElementById('numA');
+    const numBEl = document.getElementById('numB');
+    const numResultEl = document.getElementById('numResult');
+    const blankBox = document.getElementById('blankBox');
+    const questionCard = document.getElementById('questionCard');
+    const questionNumberEl = document.getElementById('questionNumber');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const hintText = document.getElementById('hintText');
+    const btnRow = document.getElementById('btnRow');
+    const btnPlus = document.getElementById('btnPlus');
+    const btnMinus = document.getElementById('btnMinus');
+    const feedbackOverlay = document.getElementById('feedbackOverlay');
+    const summaryOverlay = document.getElementById('summaryOverlay');
+    const finalScoreEl = document.getElementById('finalScore');
+    const finalCompletedEl = document.getElementById('finalCompleted');
+    const finalWrongEl = document.getElementById('finalWrong');
+    const progressDotsContainer = document.getElementById('progressDots');
+    const gameContainer = document.getElementById('gameContainer');
+    const praiseBanner = feedbackOverlay.querySelector('.feedback-banner');
+    const praiseEmoji = praiseBanner.querySelector('.praise-emoji');
+    const completedCountEl = document.getElementById('completedCount');
+    const wrongCountEl = document.getElementById('wrongCount');
+
+    // 遊戲狀態
+    let currentQuestionIndex = 0;
+    let score = 0;               // 答對題數（等同完成題數）
+    let totalWrong = 0;         // 累計答錯次數
+    let currentCorrectAnswer = null;
+    let isAnswering = false;
+    let questions = [];
+    let speechSynth = null;
+    let cantoneseVoice = null;
+    let speechReady = false;
+
+    // 初始化語音
+    function initSpeech() {
+      if (!('speechSynthesis' in window)) return;
+      speechSynth = window.speechSynthesis;
+      function findCantoneseVoice() {
+        const voices = speechSynth.getVoices();
+        for (const voice of voices) {
+          if (voice.lang === 'zh-HK' || voice.lang.startsWith('zh-HK')) { cantoneseVoice = voice; return; }
+        }
+        for (const voice of voices) {
+          if (voice.lang.includes('HK') || voice.name.includes('Cantonese') || voice.name.includes('Sin-Ji') || voice.name.includes('粵語')) { cantoneseVoice = voice; return; }
+        }
+        for (const voice of voices) {
+          if (voice.lang === 'zh-TW' || voice.lang.startsWith('zh-TW') || voice.lang === 'zh-Hant') { cantoneseVoice = voice; return; }
+        }
+      }
+      findCantoneseVoice();
+      if (speechSynth.getVoices().length === 0) {
+        speechSynth.addEventListener('voiceschanged', () => { findCantoneseVoice(); });
+      }
+      speechReady = true;
+    }
+
+    function speakPraise() {
+      if (!speechSynth || !speechReady) return;
+      if (speechSynth.speaking) { speechSynth.cancel(); }
+      const utterance = new SpeechSynthesisUtterance('欣欣叻叻');
+      utterance.lang = 'zh-HK'; utterance.rate = 0.9; utterance.pitch = 1.15; utterance.volume = 1;
+      if (cantoneseVoice) { utterance.voice = cantoneseVoice; }
+      setTimeout(() => { try { speechSynth.speak(utterance); } catch(e) {} }, 80);
+    }
+
+    function updateStatsDisplay() {
+      completedCountEl.textContent = score;
+      wrongCountEl.textContent = totalWrong;
+    }
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateSubtractionQuestion() {
+      let aVal = getRandomInt(MIN_NUMBER, MAX_NUMBER);
+      let bVal = getRandomInt(MIN_NUMBER, aVal);
+      let resVal = aVal - bVal;
+      return { a: aVal, b: bVal, result: resVal, correctOp: '-' };
+    }
+
+    function generateQuestion() {
+      const isAddition = Math.random() < 0.5;
+      if (isAddition) {
+        let a = getRandomInt(MIN_NUMBER, MAX_NUMBER);
+        let maxB = MAX_NUMBER - a;
+        if (maxB < MIN_NUMBER) {
+          return generateSubtractionQuestion();
+        }
+        let b = getRandomInt(MIN_NUMBER, Math.min(maxB, MAX_NUMBER));
+        let result = a + b;
+        return { a, b, result, correctOp: '+' };
+      } else {
+        return generateSubtractionQuestion();
+      }
+    }
+
+    function generateAllQuestions() {
+      questions = [];
+      for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+        questions.push(generateQuestion());
+      }
+    }
+
+    function renderQuestion() {
+      if (currentQuestionIndex >= TOTAL_QUESTIONS) { showSummary(); return; }
+      const q = questions[currentQuestionIndex];
+      currentCorrectAnswer = q.correctOp;
+      numAEl.textContent = q.a;
+      numBEl.textContent = q.b;
+      numResultEl.textContent = q.result;
+      blankBox.textContent = '?';
+      blankBox.className = 'blank-box';
+      questionNumberEl.textContent = `第 ${currentQuestionIndex + 1} 題`;
+      hintText.textContent = '撳一下啱嘅符號啦～';
+      hintText.className = 'hint-text';
+      questionCard.classList.remove('shake');
+      isAnswering = false;
+      btnPlus.disabled = false;
+      btnMinus.disabled = false;
+      btnRow.style.pointerEvents = 'auto';
+      updateProgressDots();
+      updateStatsDisplay();
+    }
+
+    function createProgressDots() {
+      progressDotsContainer.innerHTML = '';
+      for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'progress-dot';
+        dot.textContent = i + 1;
+        dot.dataset.index = i;
+        progressDotsContainer.appendChild(dot);
+      }
+    }
+
+    function updateProgressDots() {
+      const dots = progressDotsContainer.querySelectorAll('.progress-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.remove('completed', 'current');
+        if (index < currentQuestionIndex) {
+          dot.classList.add('completed');
+          dot.textContent = '✓';
+        } else if (index === currentQuestionIndex) {
+          dot.classList.add('current');
+          dot.textContent = index + 1;
+        } else {
+          dot.textContent = index + 1;
+        }
+      });
+    }
+
+    function submitAnswer(userOp) {
+      if (isAnswering) return;
+      if (currentQuestionIndex >= TOTAL_QUESTIONS) return;
+      isAnswering = true;
+      btnPlus.disabled = true;
+      btnMinus.disabled = true;
+      btnRow.style.pointerEvents = 'none';
+
+      if (userOp === currentCorrectAnswer) {
+        handleCorrectAnswer(userOp);
+      } else {
+        handleWrongAnswer(userOp);
+      }
+    }
+
+    function handleCorrectAnswer(userOp) {
+      score++;
+      scoreDisplay.textContent = score;
+      blankBox.textContent = userOp;
+      blankBox.className = 'blank-box correct-flash';
+      hintText.textContent = '';
+      hintText.className = 'hint-text';
+      questionCard.classList.remove('shake');
+      updateStatsDisplay();
+      showPraiseFeedback();
+      speakPraise();
+      spawnParticles();
+      updateProgressDots();
+      setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex >= TOTAL_QUESTIONS) {
+          showSummary();
+        } else {
+          renderQuestion();
+        }
+      }, CORRECT_DELAY_MS);
+    }
+
+    function handleWrongAnswer(userOp) {
+      totalWrong++;
+      updateStatsDisplay();
+      questionCard.classList.add('shake');
+      blankBox.className = 'blank-box wrong-flash';
+      hintText.textContent = '❌ 唔啱呀，再試下啦！';
+      hintText.className = 'hint-text error';
+      blankBox.textContent = userOp;
+      setTimeout(() => {
+        blankBox.textContent = '?';
+        blankBox.className = 'blank-box';
+      }, 500);
+      setTimeout(() => {
+        questionCard.classList.remove('shake');
+        hintText.textContent = '再揀一次啦～💪';
+        hintText.className = 'hint-text';
+        isAnswering = false;
+        btnPlus.disabled = false;
+        btnMinus.disabled = false;
+        btnRow.style.pointerEvents = 'auto';
+      }, 600);
+    }
+
+    function showPraiseFeedback() {
+      const emojis = ['🎉', '🌟', '💯', '🎊', '🥳', '👏', '💖', '✨', '🏅', '🎯'];
+      praiseEmoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      feedbackOverlay.classList.add('active');
+      praiseBanner.style.animation = 'none';
+      void praiseBanner.offsetWidth;
+      praiseBanner.style.animation = 'popInBanner 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      setTimeout(() => { feedbackOverlay.classList.remove('active'); }, CORRECT_DELAY_MS - 200);
+    }
+
+    function spawnParticles() {
+      const particleEmojis = ['⭐', '🌟', '✨', '💫', '🎉', '💖', '🌈', '🎀', '💝', '🪅'];
+      const count = 14;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('span');
+        particle.className = 'particle';
+        particle.textContent = particleEmojis[Math.floor(Math.random() * particleEmojis.length)];
+        particle.style.left = centerX + 'px';
+        particle.style.top = centerY + 'px';
+        particle.style.fontSize = (1.2 + Math.random() * 2.2) + 'rem';
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 80 + Math.random() * 220;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance - 40;
+        particle.style.setProperty('--dx', dx + 'px');
+        particle.style.setProperty('--dy', dy + 'px');
+        particle.style.setProperty('--dx30', dx*0.3 + 'px');
+        particle.style.setProperty('--dy30', dy*0.3 + 'px');
+        particle.style.animationDuration = (1 + Math.random() * 1.6) + 's';
+        particle.style.animationDelay = Math.random() * 0.2 + 's';
+        document.body.appendChild(particle);
+        const totalDuration = parseFloat(particle.style.animationDuration) + parseFloat(particle.style.animationDelay);
+        setTimeout(() => { if (particle.parentNode) particle.parentNode.removeChild(particle); }, (totalDuration * 1000) + 200);
+      }
+    }
+
+    function showSummary() {
+      finalScoreEl.textContent = `${score} / ${TOTAL_QUESTIONS}`;
+      finalCompletedEl.textContent = score;
+      finalWrongEl.textContent = totalWrong;
+      summaryOverlay.classList.add('active');
+      btnPlus.disabled = true;
+      btnMinus.disabled = true;
+      btnRow.style.pointerEvents = 'none';
+      hintText.textContent = '';
+      hintText.className = 'hint-text';
+      blankBox.textContent = '🎉';
+      blankBox.className = 'blank-box correct-flash';
+      if (score === TOTAL_QUESTIONS) {
+        setTimeout(() => {
+          if (speechSynth && speechReady) {
+            const u = new SpeechSynthesisUtterance('欣欣全部啱晒，好叻呀');
+            u.lang = 'zh-HK'; u.rate = 0.85; u.pitch = 1.2;
+            if (cantoneseVoice) u.voice = cantoneseVoice;
+            try { speechSynth.speak(u); } catch(e) {}
+          }
+        }, 500);
+      }
+      setTimeout(() => spawnParticles(), 300);
+      setTimeout(() => spawnParticles(), 700);
+    }
+
+    function restartGame() {
+      summaryOverlay.classList.remove('active');
+      feedbackOverlay.classList.remove('active');
+      currentQuestionIndex = 0;
+      score = 0;
+      totalWrong = 0;
+      scoreDisplay.textContent = '0';
+      isAnswering = false;
+      btnPlus.disabled = false;
+      btnMinus.disabled = false;
+      btnRow.style.pointerEvents = 'auto';
+      blankBox.textContent = '?';
+      blankBox.className = 'blank-box';
+      hintText.textContent = '撳一下啱嘅符號啦～';
+      hintText.className = 'hint-text';
+      questionCard.classList.remove('shake');
+      updateStatsDisplay();
+      generateAllQuestions();
+      createProgressDots();
+      renderQuestion();
+      gameContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function handleKeyboard(e) {
+      if (isAnswering) return;
+      if (currentQuestionIndex >= TOTAL_QUESTIONS) {
+        if (e.key === 'r' || e.key === 'R' || e.key === 'Enter') { restartGame(); }
+        return;
+      }
+      if (e.key === '+' || e.key === '=') { e.preventDefault(); submitAnswer('+'); }
+      else if (e.key === '-' || e.key === '_') { e.preventDefault(); submitAnswer('-'); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); submitAnswer('+'); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); submitAnswer('-'); }
+    }
+
+    document.addEventListener('keydown', handleKeyboard);
+    document.addEventListener('dblclick', function(e) {
+      if (e.target.closest('.btn-operator') || e.target.closest('.btn-replay') || e.target.closest('.btn-restart')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    function initGame() {
+      initSpeech();
+      generateAllQuestions();
+      createProgressDots();
+      renderQuestion();
+      scoreDisplay.textContent = '0';
+      updateStatsDisplay();
+      window.submitAnswer = submitAnswer;
+      window.restartGame = restartGame;
+    }
+
+    initGame();
+  })();
+</script>
+</body>
+</html>

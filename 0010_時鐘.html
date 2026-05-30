@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.5"/>
+  <title>欣欣學時間 · 大字時鐘 (橫向平板優化版)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fef9e6 0%, #fff5d7 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .game-container {
+      max-width: 1024px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 6px 12px rgba(0, 0, 0, 0.08);
+      padding: 24px 32px;
+      border: 2px solid #ffdfb3;
+      text-align: center;
+    }
+
+    /* 頂部標題與統計區 */
+    .header-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px dashed #ffdfb3;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #a5550e;
+      text-shadow: 2px 2px 0 #ffe5b4;
+      letter-spacing: 2px;
+      word-break: keep-all;
+    }
+
+    .stats-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .stat-badge {
+      background: #ffffff;
+      border: 2px dashed #ffb347;
+      color: #d87c00;
+      padding: 6px 20px;
+      border-radius: 30px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 6px rgba(255, 179, 71, 0.2);
+      transition: transform 0.2s;
+    }
+
+    @keyframes scorePop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); background-color: #ffeba1; color: #b35e00; border-color: #ff9f1c; }
+      100% { transform: scale(1); }
+    }
+
+    .score-pop {
+      animation: scorePop 0.5s ease;
+    }
+
+    /* 主要橫向雙欄佈局 */
+    .main-layout {
+      display: flex;
+      flex-direction: row;
+      gap: 32px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    /* 左欄：時鐘顯示區 */
+    .left-panel {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 20px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 223, 179, 0.5);
+    }
+
+    /* 右欄：操作與互動區 */
+    .right-panel {
+      flex: 1.3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 420px;
+    }
+
+    /* 學習階段選擇器 */
+    .level-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      width: 100%;
+    }
+
+    .level-btn {
+      background: #fff9f0;
+      border: 2px solid #edc48b;
+      color: #8b5a2b;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 3px 0 #edc48b;
+    }
+
+    .level-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #edc48b;
+    }
+
+    .level-btn.active {
+      background: #ffb347;
+      color: #fff;
+      border-color: #d98c21;
+      box-shadow: 0 3px 0 #b36b00;
+    }
+
+    /* 模式切換按鈕 */
+    .mode-btn {
+      background: #e6f7ff;
+      border: 2px solid #69b1ff;
+      color: #0050b3;
+      font-size: 1.05rem;
+      font-weight: bold;
+      padding: 8px 24px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #4096ff;
+      margin-bottom: 14px;
+      transition: all 0.2s;
+      width: 100%;
+      max-width: 360px;
+    }
+    .mode-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #4096ff;
+    }
+
+    /* 按鈕行控制 */
+    .control-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    /* 動畫觸發按鈕 */
+    .demo-btn {
+      background: #aadaff;
+      border: 3px solid #5ca0d3;
+      color: #1a4d75;
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 8px 16px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #3a7eb0;
+      transition: 0.1s;
+      letter-spacing: 1px;
+    }
+
+    .demo-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #3a7eb0;
+    }
+
+    .demo-btn.stop-mode {
+      background: #ffb0b0;
+      border-color: #d35c5c;
+      color: #751a1a;
+      box-shadow: 0 4px 0 #b03a3a;
+    }
+
+    /* 動畫控制工具區 */
+    .demo-tools {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+      background: #fff0d4;
+      padding: 10px 16px;
+      border-radius: 20px;
+      border: 2px dashed #edc48b;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .demo-tools.hidden {
+      display: none !important;
+    }
+
+    .demo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .demo-row label, .demo-row span {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #a5550e;
+    }
+
+    .demo-row input[type="range"] {
+      width: 120px;
+      accent-color: #ff9f1c;
+      cursor: pointer;
+    }
+
+    /* 附加控制按鈕 */
+    .tool-btn {
+      background: #ffb347;
+      border: 2px solid #d98c21;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #b36b00;
+      transition: all 0.1s;
+    }
+
+    .tool-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #b36b00;
+    }
+    
+    .tool-btn.paused {
+      background: #4CAF50;
+      border-color: #2E7D32;
+      box-shadow: 0 3px 0 #1B5E20;
+    }
+
+    /* 固定教學圖例 */
+    .legend-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #ffffff;
+      padding: 10px 16px;
+      border-radius: 16px;
+      border: 3px solid #ffdfb3;
+      margin-bottom: 12px;
+      text-align: left;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 360px;
+    }
+    
+    .legend-box.hidden {
+      display: none !important;
+    }
+
+    .legend-item {
+      font-size: 1rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 數字時鐘顯示 */
+    .digital-time {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #3b280b;
+      font-family: 'Courier New', monospace;
+      background: #fff9f0;
+      border: 4px solid #edc48b;
+      padding: 6px 20px;
+      border-radius: 20px;
+      margin: 10px auto 0 auto;
+      width: fit-content;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05), 0 4px 0 #d9b382;
+      letter-spacing: 4px;
+    }
+
+    .digital-time.hidden {
+      display: none !important;
+    }
+
+    /* 時分秒標籤 */
+    .time-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      width: 200px;
+      margin: 4px auto 0 auto;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #8b5a2b;
+    }
+
+    .time-labels.hidden {
+      display: none !important;
+    }
+
+    .banner {
+      background: #ffb347;
+      background-image: radial-gradient(circle at 20% 30%, #ffd966, #ff9f1c);
+      color: #2d1b0a;
+      font-size: 3rem;
+      font-weight: 900;
+      padding: 8px 24px;
+      border-radius: 40px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 0 #b35e00, 0 10px 15px rgba(0,0,0,0.1);
+      border: 3px solid #ffefc0;
+      text-shadow: 2px 2px 0 #ffdd99;
+      letter-spacing: 6px;
+      transform: rotate(-1deg);
+      transition: all 0.25s;
+      line-height: 1.2;
+      width: fit-content;
+    }
+
+    .banner.hidden {
+      display: none !important;
+    }
+
+    /* 更新時鐘外框與畫布的樣式 */
+    .clock-wrapper {
+      background: #fef7e9;
+      border-radius: 50%;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto;
+      box-shadow: inset 0 -4px 0 #d9b382, 0 12px 20px -8px rgba(100, 50, 10, 0.15);
+      border: 4px solid #edc48b;
+      position: relative;
+      width: 100%;
+      max-width: 340px; 
+      aspect-ratio: 1 / 1;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%; 
+      background: #fff9f0;
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px #fbe6c2, 0 6px 0 #b28142;
+    }
+
+    /* 選擇題區塊 */
+    .answers {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin: 10px 0;
+      width: 100%;
+    }
+
+    .answer-btn {
+      background: #ffe5b4;
+      border: 4px solid #cb8b3a;
+      color: #3b280b;
+      font-size: 2rem;
+      font-weight: bold;
+      padding: 14px 0;
+      width: 125px;
+      border-radius: 80px;
+      box-shadow: 0 6px 0 #9e601c, 0 4px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.08s;
+      font-family: 'Segoe UI', 'Courier New', monospace;
+      letter-spacing: 1px;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .answer-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 3px 0 #9e601c, 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* 鍵盤輸入區塊 */
+    .keyboard-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin: 5px 0;
+      width: 100%;
+    }
+
+    .input-display {
+      font-size: 2.6rem;
+      font-weight: bold;
+      color: #3b280b;
+      font-family: 'Courier New', monospace;
+      background: #ffffff;
+      border: 4px dashed #cb8b3a;
+      padding: 6px 30px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      min-width: 180px;
+      text-align: center;
+      letter-spacing: 4px;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.08);
+      transition: all 0.2s;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 290px;
+      width: 100%;
+    }
+
+    .key-btn {
+      background: #fff;
+      border: 3px solid #edc48b;
+      color: #8b5a2b;
+      font-size: 1.6rem;
+      font-weight: bold;
+      padding: 10px 0;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #d9b382;
+      transition: all 0.1s;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .key-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #d9b382;
+    }
+
+    .key-submit-btn {
+      background: #ffb347;
+      border-color: #d98c21;
+      color: white;
+      box-shadow: 0 4px 0 #b36b00;
+      grid-column: span 3;
+      font-size: 1.4rem;
+      padding: 12px 0;
+    }
+
+    .key-submit-btn:active {
+      box-shadow: 0 1px 0 #b36b00;
+    }
+
+    /* 共用正確與錯誤特效 */
+    .correct-highlight {
+      background: #a5d6a5 !important;
+      border-color: #2e7d32 !important;
+      box-shadow: 0 4px 0 #1b5e20, 0 4px 8px rgba(0,100,0,0.2) !important;
+      transform: translateY(3px);
+      color: #1a3b1a !important;
+    }
+
+    .disabled-true, .answer-btn:disabled, .key-btn:disabled {
+      opacity: 0.7;
+      filter: grayscale(0.2);
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #9e601c, 0 4px 8px rgba(0,0,0,0.1);
+      pointer-events: none;
+    }
+
+    .bump-flash {
+      animation: bumpFlash 0.35s ease-in-out;
+      background-color: #ffaaaa !important;
+      border-color: #b00020 !important;
+      box-shadow: 0 4px 0 #7a0015, 0 4px 8px rgba(180,0,0,0.3) !important;
+    }
+
+    @keyframes bumpFlash {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-12px); }
+      40% { transform: translateX(12px); }
+      60% { transform: translateX(-7px); }
+      80% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .action-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 14px;
+      width: 100%;
+    }
+
+    .next-btn {
+      background: #b0d9b1;
+      border: 3px solid #3f7840;
+      color: #1e421f;
+      font-size: 1.4rem;
+      font-weight: bold;
+      padding: 10px 32px;
+      border-radius: 50px;
+      box-shadow: 0 5px 0 #2b5e2c, 0 4px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.1s;
+      border-bottom: 5px solid #1f4a20;
+      letter-spacing: 2px;
+    }
+
+    .next-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #1f4a20, 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      transform: translateY(5px);
+      box-shadow: 0 2px 0 #1f4a20;
+      pointer-events: none;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: #ae6b2b;
+      font-weight: 500;
+      font-size: 0.95rem;
+      border-top: 1px dotted #ffdfb3;
+      padding-top: 10px;
+      width: 100%;
+    }
+
+    /* 響應式佈局：當螢幕過窄時自動回復直向 */
+    @media (max-width: 880px) {
+      body {
+        padding: 10px;
+      }
+      .game-container {
+        padding: 16px 16px;
+      }
+      .main-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+      .left-panel {
+        width: 100%;
+        max-width: 450px;
+        padding: 16px 12px;
+      }
+      .right-panel {
+        width: 100%;
+        min-height: auto;
+      }
+      .header-panel {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header-panel">
+    <h1>🕒 睇鐘學時間</h1>
+    <div class="stats-container">
+      <span class="stat-badge" id="scoreDisplay">⭐ 答對：0 題</span>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    
+    <div class="left-panel">
+      <div id="praiseBanner" class="banner hidden">欣欣叻叻</div>
+      <div class="clock-wrapper">
+        <canvas id="clockCanvas" width="340" height="340"></canvas>
+      </div>
+      <div id="digitalTimeDisplay" class="digital-time hidden">12:00:00</div>
+      <div id="timeLabels" class="time-labels hidden">
+        <span>時</span>
+        <span>分</span>
+        <span>秒</span>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      
+      <div class="level-container" id="levelContainer">
+        <button class="level-btn active" data-level="1">第1級: 整點</button>
+        <button class="level-btn" data-level="2">第2級: 半點</button>
+        <button class="level-btn" data-level="3">第3級: 15/45分</button>
+        <button class="level-btn" data-level="4">第4級: 5分鐘</button>
+        <button class="level-btn" data-level="5">綜合: 整/半/15/45分</button>
+      </div>
+
+      <button class="mode-btn" id="modeToggleBtn">🔄 切換至：鍵盤輸入模式</button>
+
+      <div class="control-row">
+        <button class="demo-btn" id="demoBtn">▶️ 認識指針 (睇賽跑)</button>
+        <button class="demo-btn" id="toggleMinutesBtn" style="background: #ffdfba; border-color: #f4a261; color: #d35400; box-shadow: 0 4px 0 #e67e22;">🙈 隱藏分鐘</button>
+      </div>
+      
+      <div class="demo-tools hidden" id="demoTools">
+        <div class="demo-row">
+          <label for="speedSlider">🐢 實際速度</label>
+          <input type="range" id="speedSlider" min="0" max="100" value="0">
+          <span>飛速 🐇</span>
+        </div>
+        <div class="demo-row">
+          <button class="tool-btn" id="pauseBtn">⏸️ 暫停</button>
+          <button class="tool-btn" id="labelBtn">👁️ 隱藏標記</button>
+        </div>
+      </div>
+
+      <div class="legend-box hidden" id="demoLegend">
+        <div class="legend-item" style="color: #1565C0;">🟦 時針：走得最慢、長度最短</div>
+        <div class="legend-item" style="color: #2E7D32;">🟩 分針：中等速度、長度在中間</div>
+        <div class="legend-item" style="color: #C62828;">🟥 秒針：跑得最快、長度最長</div>
+      </div>
+
+      <div class="answers" id="answersContainer">
+        <button class="answer-btn" id="ans0" data-value="">--:--</button>
+        <button class="answer-btn" id="ans1" data-value="">--:--</button>
+        <button class="answer-btn" id="ans2" data-value="">--:--</button>
+      </div>
+
+      <div class="keyboard-area" id="keyboardArea">
+        <div id="inputDisplay" class="input-display">--:--</div>
+        <div class="keypad">
+          <button class="key-btn" data-key="1">1</button>
+          <button class="key-btn" data-key="2">2</button>
+          <button class="key-btn" data-key="3">3</button>
+          <button class="key-btn" data-key="4">4</button>
+          <button class="key-btn" data-key="5">5</button>
+          <button class="key-btn" data-key="6">6</button>
+          <button class="key-btn" data-key="7">7</button>
+          <button class="key-btn" data-key="8">8</button>
+          <button class="key-btn" data-key="9">9</button>
+          <button class="key-btn" data-key=":">:</button>
+          <button class="key-btn" data-key="0">0</button>
+          <button class="key-btn" data-key="backspace">⌫</button>
+          <button class="key-btn key-submit-btn" id="keypadSubmitBtn">✅ 確定</button>
+        </div>
+      </div>
+
+      <div class="action-area" id="actionArea">
+        <button class="next-btn" id="newQuestionBtn" aria-label="下一題">⏩ 下一題</button>
+      </div>
+      
+      <div class="footer-note" id="footerNote">
+        <span>✅ 循序漸進學睇鐘 · ㊗️ 欣欣叻叻！</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    const canvas = document.getElementById('clockCanvas');
+    const ctx = canvas.getContext('2d');
+    const banner = document.getElementById('praiseBanner');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    
+    // 介面與按鈕
+    const ansBtns = [
+      document.getElementById('ans0'),
+      document.getElementById('ans1'),
+      document.getElementById('ans2')
+    ];
+    const newBtn = document.getElementById('newQuestionBtn');
+    const demoBtn = document.getElementById('demoBtn');
+    const demoTools = document.getElementById('demoTools');
+    const demoLegend = document.getElementById('demoLegend');
+    const speedSlider = document.getElementById('speedSlider');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const labelBtn = document.getElementById('labelBtn');
+    const toggleMinutesBtn = document.getElementById('toggleMinutesBtn');
+    const digitalTimeDisplay = document.getElementById('digitalTimeDisplay');
+    const timeLabels = document.getElementById('timeLabels');
+    const modeToggleBtn = document.getElementById('modeToggleBtn');
+    
+    // 區塊
+    const levelBtns = document.querySelectorAll('.level-btn');
+    const answersContainer = document.getElementById('answersContainer');
+    const keyboardArea = document.getElementById('keyboardArea');
+    const actionArea = document.getElementById('actionArea');
+    const footerNote = document.getElementById('footerNote');
+
+    // 鍵盤相關元素
+    const inputDisplay = document.getElementById('inputDisplay');
+    const keyBtns = document.querySelectorAll('.key-btn');
+    const keypadSubmitBtn = document.getElementById('keypadSubmitBtn');
+
+    // 狀態變量
+    let currentHour = 3;
+    let currentMinute = 0;
+    let correctAnswerStr = '';
+    let isCorrectAnswered = false;
+    let isSpeaking = false;
+    let score = 0;
+    let speechSynth = window.speechSynthesis;
+    
+    // 模式狀態
+    let inputMode = 'mc'; // 'mc' 或 'keyboard'
+    let currentTyped = '';
+    
+    // 動畫狀態
+    let isDemonstrating = false;
+    let demoAnimationId;
+    let virtualTime = 0; 
+    let lastFrameTime = 0;
+    let isPaused = false;
+    let isShowLabels = true;
+    let isShowMinuteNumbers = true;
+
+    // 學習難度設定
+    const levelConfig = {
+      1: [0],                                     
+      2: [30],                                    
+      3: [15, 45],                                
+      4: [5, 10, 20, 25, 35, 40, 50, 55],
+      5: [0, 15, 30, 45]
+    };
+    
+    let possibleMinutes = levelConfig[1]; 
+    const possibleHours = [1,2,3,4,5,6,7,8,9,10,11,12];
+
+    function formatDigitalTime(h, m, s) {
+      const displayH = h === 0 ? 12 : h; 
+      const pad = num => Math.floor(num).toString().padStart(2, '0');
+      return `${pad(displayH)}:${pad(m)}:${pad(s)}`;
+    }
+
+    function playBumpSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 180;
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.15);
+        setTimeout(() => audioCtx.close(), 200);
+      } catch (e) { }
+    }
+
+    function formatDisplayTime(hour, minute) {
+      const paddedMin = minute.toString().padStart(2, '0');
+      return `${hour}:${paddedMin}`;
+    }
+
+    function getCantoneseTimePhrase(hour, minute) {
+      if (minute === 0) return `${hour}時正`;
+      return `${hour}時${minute}分`;
+    }
+
+    function getBritishTimePhrase(hour, minute) {
+      if (minute === 0) return `${hour} o'clock`;
+      if (minute === 15) return `quarter past ${hour}`;
+      if (minute === 30) return `half past ${hour}`;
+      if (minute === 45) return `quarter to ${(hour % 12) + 1}`;
+      return `${hour} ${minute}`;
+    }
+
+    function drawSmartLabel(text, rad, tipDist, color) {
+      let align = 'center';
+      let baseline = 'middle';
+      let offsetX = 0;
+      let offsetY = 0;
+      const push = 14; 
+
+      const cos = Math.cos(rad);
+      const sin = Math.sin(rad);
+
+      if (cos > 0.1) { align = 'left'; offsetX = push; }
+      else if (cos < -0.1) { align = 'right'; offsetX = -push; }
+
+      if (sin > 0.1) { baseline = 'top'; offsetY = push; }
+      else if (sin < -0.1) { baseline = 'bottom'; offsetY = -push; }
+
+      let cx = canvas.width / 2;
+      let cy = canvas.height / 2;
+      let x = cx + cos * tipDist + offsetX;
+      let y = cy + sin * tipDist + offsetY;
+
+      ctx.font = 'bold 16px "Segoe UI", sans-serif';
+      
+      const textWidth = ctx.measureText(text).width;
+      if (align === 'left' && x + textWidth > canvas.width - 5) x = canvas.width - textWidth - 5;
+      if (align === 'right' && x - textWidth < 5) x = textWidth + 5;
+      if (align === 'center') {
+         if (x - textWidth/2 < 5) x = textWidth/2 + 5;
+         if (x + textWidth/2 > canvas.width - 5) x = canvas.width - textWidth/2 - 5;
+      }
+      if (baseline === 'top' && y + 18 > canvas.height - 5) y = canvas.height - 23;
+      if (baseline === 'bottom' && y - 18 < 5) y = 23;
+
+      ctx.textAlign = align;
+      ctx.textBaseline = baseline;
+      
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.lineJoin = 'round';
+      ctx.strokeText(text, x, y);
+      
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, y);
+    }
+
+    function drawClock(h, m, s, isDemo) {
+      const radius = canvas.width / 2 - 10; 
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius - 8, 0, 2 * Math.PI);
+      ctx.fillStyle = '#fff9f0';
+      ctx.fill();
+
+      for (let i = 0; i < 60; i++) {
+        let angle = (i * 6 - 90) * Math.PI / 180;
+        let isMajor = i % 5 === 0;
+        let startDist = isMajor ? radius - 22 : radius - 15; 
+        let endDist = radius - 8;
+        
+        ctx.beginPath();
+        ctx.lineWidth = isMajor ? 4 : 2;
+        ctx.strokeStyle = isMajor ? '#a5550e' : '#d49b5f';
+        ctx.moveTo(cx + Math.cos(angle) * startDist, cy + Math.sin(angle) * startDist);
+        ctx.lineTo(cx + Math.cos(angle) * endDist, cy + Math.sin(angle) * endDist);
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius - 8, 0, 2 * Math.PI);
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = '#d49b5f';
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.arc(cx, cy, 7, 0, 2 * Math.PI);
+      ctx.fillStyle = '#7b4a1e';
+      ctx.fill();
+      
+      if (isShowMinuteNumbers) {
+        ctx.font = 'bold 14px "Segoe UI", "Roboto", sans-serif';
+        ctx.fillStyle = '#b36b00'; 
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const outerNumberRadius = radius - 34;
+        for (let i = 1; i <= 12; i++) {
+          let angle = (i * 30 - 90) * Math.PI / 180;
+          let numX = cx + Math.cos(angle) * outerNumberRadius;
+          let numY = cy + Math.sin(angle) * outerNumberRadius;
+          ctx.fillText((i * 5).toString(), numX, numY);
+        }
+      }
+
+      ctx.font = 'bold 26px "Segoe UI", "Roboto", sans-serif';
+      ctx.fillStyle = '#3b280b';
+      const numberRadius = radius - 56;
+      for (let i = 1; i <= 12; i++) {
+        let angle = (i * 30 - 90) * Math.PI / 180;
+        let numX = cx + Math.cos(angle) * numberRadius;
+        let numY = cy + Math.sin(angle) * numberRadius;
+        ctx.fillText(i.toString(), numX, numY);
+      }
+
+      let sec = s;
+      let min = m + (sec / 60);
+      let hr = (h % 12) + (min / 60);
+
+      let hourAngle = hr * 30 - 90;
+      let hourRad = hourAngle * Math.PI / 180;
+      let hourLength = radius * 0.45;
+      let hourX = cx + Math.cos(hourRad) * hourLength;
+      let hourY = cy + Math.sin(hourRad) * hourLength;
+      
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(hourX, hourY);
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = '#1565C0'; 
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      let minuteAngle = min * 6 - 90;
+      let minuteRad = minuteAngle * Math.PI / 180;
+      let minuteLength = radius * 0.7;
+      let minX = cx + Math.cos(minuteRad) * minuteLength;
+      let minY = cy + Math.sin(minuteRad) * minuteLength;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(minX, minY);
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#2E7D32'; 
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      let secX, secY, secondRad, secondLength;
+      if (isDemo) {
+        let secondAngle = sec * 6 - 90;
+        secondRad = secondAngle * Math.PI / 180;
+        secondLength = radius * 0.82;
+        secX = cx + Math.cos(secondRad) * secondLength;
+        secY = cy + Math.sin(secondRad) * secondLength;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(secX, secY);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#C62828'; 
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6, 0, 2*Math.PI);
+      ctx.fillStyle = '#C62828';
+      ctx.fill();
+
+      if (isDemo && isShowLabels) {
+        drawSmartLabel("時針", hourRad, hourLength, "#1565C0");
+        drawSmartLabel("分針", minuteRad, minuteLength, "#2E7D32");
+        drawSmartLabel("秒針", secondRad, secondLength, "#C62828");
+      }
+    }
+
+    function animationLoop(timestamp) {
+      if (!isDemonstrating) return;
+      if (!lastFrameTime) lastFrameTime = timestamp;
+      
+      const deltaMs = timestamp - lastFrameTime; 
+      lastFrameTime = timestamp;
+      
+      if (!isPaused) {
+        const rawSpeed = parseInt(speedSlider.value, 10);
+        const speedMultiplier = 1 + Math.pow(rawSpeed / 100, 3) * 3599; 
+        virtualTime += (deltaMs / 1000) * speedMultiplier; 
+      }
+      
+      let s = virtualTime % 60;
+      let m = Math.floor(virtualTime / 60) % 60;
+      let h = Math.floor(virtualTime / 3600) % 12;
+      
+      digitalTimeDisplay.textContent = formatDigitalTime(h, m, s);
+      drawClock(h, m, s, true);
+      
+      demoAnimationId = requestAnimationFrame(animationLoop);
+    }
+
+    function toggleDemo() {
+      isDemonstrating = !isDemonstrating;
+      if (isDemonstrating) {
+        demoBtn.textContent = "⏹️ 停止動畫，返回學習";
+        demoBtn.classList.add('stop-mode');
+        
+        demoTools.classList.remove('hidden'); 
+        demoLegend.classList.remove('hidden'); 
+        digitalTimeDisplay.classList.remove('hidden');
+        timeLabels.classList.remove('hidden'); 
+        scoreDisplay.parentElement.style.display = 'none'; 
+        modeToggleBtn.style.display = 'none';
+        
+        answersContainer.style.display = 'none';
+        keyboardArea.style.display = 'none';
+        actionArea.style.display = 'none';
+        footerNote.style.display = 'none';
+        banner.classList.add('hidden');
+        
+        isPaused = false;
+        pauseBtn.textContent = "⏸️ 暫停";
+        pauseBtn.classList.remove('paused');
+        
+        virtualTime = currentHour * 3600 + currentMinute * 60; 
+        lastFrameTime = 0; 
+        demoAnimationId = requestAnimationFrame(animationLoop);
+      } else {
+        cancelAnimationFrame(demoAnimationId);
+        demoBtn.textContent = "▶️ 認識指針 (睇賽跑)";
+        demoBtn.classList.remove('stop-mode');
+        
+        demoTools.classList.add('hidden'); 
+        demoLegend.classList.add('hidden'); 
+        digitalTimeDisplay.classList.add('hidden');
+        timeLabels.classList.add('hidden'); 
+        scoreDisplay.parentElement.style.display = 'flex'; 
+        modeToggleBtn.style.display = 'block';
+        
+        if (inputMode === 'mc') {
+          answersContainer.style.display = 'flex';
+        } else {
+          keyboardArea.style.display = 'flex';
+        }
+        
+        actionArea.style.display = 'flex';
+        footerNote.style.display = 'block';
+        
+        drawClock(currentHour, currentMinute, 0, false); 
+      }
+    }
+
+    pauseBtn.addEventListener('click', () => {
+      isPaused = !isPaused;
+      if (isPaused) {
+        pauseBtn.textContent = "▶️ 繼續";
+        pauseBtn.classList.add('paused');
+      } else {
+        pauseBtn.textContent = "⏸️ 暫停";
+        pauseBtn.classList.remove('paused');
+      }
+    });
+
+    labelBtn.addEventListener('click', () => {
+      isShowLabels = !isShowLabels;
+      if (isShowLabels) {
+        labelBtn.textContent = "👁️ 隱藏標記";
+      } else {
+        labelBtn.textContent = "🙈 顯示標記";
+      }
+    });
+
+    toggleMinutesBtn.addEventListener('click', () => {
+      isShowMinuteNumbers = !isShowMinuteNumbers;
+      if (isShowMinuteNumbers) {
+        toggleMinutesBtn.textContent = "🙈 隱藏分鐘";
+      } else {
+        toggleMinutesBtn.textContent = "👁️ 顯示分鐘";
+      }
+      const s = isDemonstrating ? (virtualTime % 60) : 0;
+      drawClock(currentHour, currentMinute, s, isDemonstrating);
+    });
+
+    modeToggleBtn.addEventListener('click', () => {
+      if (inputMode === 'mc') {
+        inputMode = 'keyboard';
+        modeToggleBtn.textContent = "🔄 切換至：選擇題模式";
+        answersContainer.style.display = 'none';
+        keyboardArea.style.display = 'flex';
+      } else {
+        inputMode = 'mc';
+        modeToggleBtn.textContent = "🔄 切換至：鍵盤輸入模式";
+        answersContainer.style.display = 'flex';
+        keyboardArea.style.display = 'none';
+      }
+      if (speechSynth.speaking) speechSynth.cancel();
+      generateNewQuestion();
+    });
+
+    function updateKeyboardDisplay() {
+      inputDisplay.textContent = currentTyped || '--:--';
+    }
+
+    function generateNewQuestion() {
+      if (speechSynth.speaking) speechSynth.cancel();
+      
+      isCorrectAnswered = false;
+      isSpeaking = false;
+      banner.classList.add('hidden');
+      
+      // 重置選擇題
+      ansBtns.forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('bump-flash', 'correct-highlight');
+        btn.style.background = '';
+      });
+
+      // 重置鍵盤輸入
+      currentTyped = '';
+      updateKeyboardDisplay();
+      inputDisplay.classList.remove('correct-highlight', 'bump-flash');
+      inputDisplay.style.background = '';
+      keyBtns.forEach(btn => btn.disabled = false);
+
+      const randomHour = possibleHours[Math.floor(Math.random() * possibleHours.length)];
+      const randomMinute = possibleMinutes[Math.floor(Math.random() * possibleMinutes.length)];
+      currentHour = randomHour;
+      currentMinute = randomMinute;
+      correctAnswerStr = formatDisplayTime(currentHour, currentMinute);
+      
+      drawClock(currentHour, currentMinute, 0, false);
+      
+      // 生成選擇題選項
+      const allPossible = [];
+      possibleHours.forEach(h => {
+        possibleMinutes.forEach(m => {
+          allPossible.push({ hour: h, minute: m, display: formatDisplayTime(h, m) });
+        });
+      });
+      
+      const otherOptions = allPossible.filter(opt => opt.display !== correctAnswerStr);
+      const shuffled = [...otherOptions].sort(() => Math.random() - 0.5);
+      const wrongOptions = shuffled.slice(0, 2);
+      
+      const correctOption = { hour: currentHour, minute: currentMinute, display: correctAnswerStr };
+      let options = [correctOption, ...wrongOptions];
+      
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      
+      ansBtns.forEach((btn, idx) => {
+        if (idx < options.length) {
+          const opt = options[idx];
+          btn.textContent = opt.display;
+          btn.dataset.value = opt.display;
+        }
+      });
+    }
+
+    function speakTimeCantoneseAndBritish(hour, minute) {
+      return new Promise((resolve) => {
+        const cantoneseText = getCantoneseTimePhrase(hour, minute);
+        const britishText = getBritishTimePhrase(hour, minute);
+        
+        const utterCanto = new SpeechSynthesisUtterance(cantoneseText);
+        utterCanto.lang = 'zh-HK';
+        utterCanto.rate = 0.9;
+        
+        const utterEng = new SpeechSynthesisUtterance(britishText);
+        utterEng.lang = 'en-GB'; 
+        utterEng.rate = 0.9;
+        
+        utterCanto.onend = () => speechSynth.speak(utterEng);
+        utterEng.onend = () => resolve();
+        utterEng.onerror = () => resolve();
+        utterCanto.onerror = () => speechSynth.speak(utterEng);
+        
+        speechSynth.speak(utterCanto);
+      });
+    }
+
+    function speakPraiseCantonese() {
+      return new Promise((resolve) => {
+        const utter = new SpeechSynthesisUtterance('欣欣叻叻');
+        utter.lang = 'zh-HK';
+        utter.rate = 0.95;
+        utter.onend = () => resolve();
+        utter.onerror = () => resolve();
+        speechSynth.speak(utter);
+      });
+    }
+
+    async function handleCorrect(selectedElement) {
+      if (isCorrectAnswered || isSpeaking) return;
+      isCorrectAnswered = true;
+      isSpeaking = true;
+      
+      score++;
+      scoreDisplay.textContent = `⭐ 答對：${score} 題`;
+      scoreDisplay.classList.remove('score-pop');
+      void scoreDisplay.offsetWidth; 
+      scoreDisplay.classList.add('score-pop');
+      
+      if (inputMode === 'mc') {
+        ansBtns.forEach(btn => btn.disabled = true);
+      } else {
+        keyBtns.forEach(btn => btn.disabled = true);
+      }
+      
+      selectedElement.classList.add('correct-highlight');
+      
+      try { await speakTimeCantoneseAndBritish(currentHour, currentMinute); } catch (e) {}
+      
+      banner.classList.remove('hidden');
+      try { await speakPraiseCantonese(); } catch (e) {}
+      
+      setTimeout(() => {
+        if (speechSynth.speaking) speechSynth.cancel();
+        generateNewQuestion();
+        isSpeaking = false;
+      }, 700);
+    }
+
+    function handleWrong(element) {
+      if (isCorrectAnswered || element.disabled) return;
+      playBumpSound();
+      element.classList.add('bump-flash');
+      element.style.background = '#ffb0b0';
+      setTimeout(() => {
+        element.classList.remove('bump-flash');
+        element.style.background = '';
+      }, 400);
+    }
+
+    function init() {
+      levelBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          levelBtns.forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          const level = e.target.dataset.level;
+          possibleMinutes = levelConfig[level];
+          generateNewQuestion(); 
+        });
+      });
+
+      demoBtn.addEventListener('click', toggleDemo);
+      
+      ansBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const b = e.currentTarget;
+          if (b.disabled || isCorrectAnswered) return;
+          if (b.dataset.value === correctAnswerStr) handleCorrect(b);
+          else handleWrong(b);
+        });
+      });
+
+      keyBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          if (isCorrectAnswered || btn.disabled) return;
+          const key = e.currentTarget.dataset.key;
+          
+          if (!key) return; 
+
+          if (key === 'backspace') {
+            currentTyped = currentTyped.slice(0, -1);
+            updateKeyboardDisplay();
+          } else {
+            if (currentTyped.length < 5) {
+              currentTyped += key;
+              updateKeyboardDisplay();
+            }
+          }
+        });
+      });
+
+      keypadSubmitBtn.addEventListener('click', () => {
+        if (isCorrectAnswered || keypadSubmitBtn.disabled) return;
+        
+        const normalizedTyped = currentTyped.replace(/^0+/, '');
+        
+        if (currentTyped === correctAnswerStr || normalizedTyped === correctAnswerStr) {
+          handleCorrect(inputDisplay);
+        } else {
+          handleWrong(inputDisplay);
+        }
+      });
+      
+      newBtn.addEventListener('click', () => {
+        if (speechSynth.speaking) speechSynth.cancel();
+        generateNewQuestion();
+      });
+      
+      if (speechSynth) {
+        const silent = new SpeechSynthesisUtterance('');
+        silent.volume = 0;
+        speechSynth.speak(silent);
+      }
+      
+      generateNewQuestion();
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>

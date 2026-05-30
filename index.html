@@ -2,143 +2,160 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>欣欣學習工具列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>📚 學習遊戲總表</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            background: #fef5e7;
-            font-family: 'Segoe UI', 'Comic Neue', 'PingFang HK', sans-serif;
-            padding: 30px 20px;
+            background: #fef9e8;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Noto Sans TC', 'PingFang HK', 'Microsoft JhengHei', sans-serif;
+            padding: 28px 20px 48px;
+            color: #2c3e2f;
         }
-        .container {
-            max-width: 800px;
+
+        .page-container {
+            max-width: 880px;
             margin: 0 auto;
-            background: white;
-            border-radius: 40px;
-            padding: 30px 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 1px solid #ffddb0;
         }
-        h1 {
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
             font-size: 2rem;
-            color: #d45a3a;
-            text-align: center;
-            margin-bottom: 8px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2b7a3e, #f5a623);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: none;
+            letter-spacing: -0.3px;
         }
-        .sub {
-            text-align: center;
-            color: #b87a54;
-            margin-bottom: 30px;
+
+        .header p {
+            color: #6b4c3b;
+            margin-top: 8px;
+            font-size: 1rem;
             font-weight: 500;
+            background: #fff0da;
+            display: inline-block;
+            padding: 5px 18px;
+            border-radius: 40px;
         }
-        .file-list {
+
+        .game-grid {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
-        .file-link {
-            display: block;
-            padding: 14px 20px;
+
+        .game-link {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            border: 1px solid #ffe2c1;
+        }
+
+        .game-link:active {
+            transform: scale(0.98);
             background: #fffaf2;
-            border-radius: 60px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .game-link a {
+            display: block;
             text-decoration: none;
-            color: #4a2e1e;
-            font-weight: 600;
-            border: 2px solid #ffdfbf;
-            transition: 0.2s;
-            font-size: 1rem;
+            padding: 18px 20px;
+            font-size: 1.18rem;
+            font-weight: 550;
+            color: #2c4b32;
+            word-break: break-word;
+            letter-spacing: 0.2px;
+            transition: color 0.2s;
+            font-feature-settings: "palt";
         }
-        .file-link:hover {
-            background: #ffe6d0;
-            border-color: #ffb87a;
-            transform: translateX(5px);
+
+        .game-link a:hover {
+            color: #e67e22;
+            background-color: #fffef7;
+            border-radius: 28px;
         }
-        .file-icon {
-            display: inline-block;
+
+        /* 簡單裝飾 */
+        .filename-icon {
             margin-right: 12px;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
+            display: inline-block;
+            vertical-align: middle;
         }
-        footer {
+
+        .footer-note {
+            margin-top: 48px;
             text-align: center;
-            margin-top: 35px;
-            color: #c68b5a;
             font-size: 0.85rem;
+            color: #b57c48;
+            border-top: 1px dashed #f7d9b5;
+            padding-top: 24px;
         }
-        hr {
-            margin: 20px 0;
-            border: 1px dashed #ffd9b5;
+
+        @media (max-width: 560px) {
+            body {
+                padding: 20px 14px 36px;
+            }
+            .game-link a {
+                padding: 16px 18px;
+                font-size: 1rem;
+            }
+            .filename-icon {
+                font-size: 1.2rem;
+                margin-right: 8px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>🌸 欣欣學習工具 🌸</h1>
-    <div class="sub">點擊名稱即可開始遊戲或練習</div>
-    <div class="file-list" id="fileList"></div>
-    <hr>
-    <footer>💡 請將所有 .html 檔案與本頁面放在同一個資料夾內，點擊即可開啟。</footer>
+<div class="page-container">
+    <div class="header">
+        <h1>🧸 欣欣學習樂園</h1>
+        <p>⭐ 點擊遊戲名稱開始玩 ⭐</p>
+    </div>
+
+    <div class="game-grid">
+        <!-- 按照文件名順序整齊列出，保持最簡潔的連結 -->
+        <div class="game-link"><a href="./0010_時鐘.html" target="_blank">🕒 0010_時鐘.html</a></div>
+        <div class="game-link"><a href="./0020_左右.html" target="_blank">👈 0020_左右.html</a></div>
+        <div class="game-link"><a href="./0100_單雙數.html" target="_blank">🔢 0100_單雙數.html</a></div>
+        <div class="game-link"><a href="./0120_簡單加減.html" target="_blank">🧮 0120_簡單加減.html</a></div>
+        <div class="game-link"><a href="./0121_複雜加減.html" target="_blank">🧩 0121_複雜加減.html</a></div>
+        <div class="game-link"><a href="./0122_大小排列.html" target="_blank">📊 0122_大小排列.html</a></div>
+        <div class="game-link"><a href="./0125_數字拆解.html" target="_blank">🍎 0125_數字拆解.html</a></div>
+        <div class="game-link"><a href="./0126_加減符號.html" target="_blank">➕ 0126_加減符號.html</a></div>
+        <div class="game-link"><a href="./0131_五個數字猜算.html" target="_blank">🚂 0131_五個數字猜算.html</a></div>
+        <div class="game-link"><a href="./0132_10個數字猜算.html" target="_blank">🔟 0132_10個數字猜算.html</a></div>
+        <div class="game-link"><a href="./0135_規律.html" target="_blank">🍦 0135_規律.html</a></div>
+        <div class="game-link"><a href="./0136_數氣球.html" target="_blank">🎈 0136_數氣球.html</a></div>
+        <div class="game-link"><a href="./0140_數圖形.html" target="_blank">🔺 0140_數圖形.html</a></div>
+        <div class="game-link"><a href="./0150_圖形重疊.html" target="_blank">🔘 0150_圖形重疊.html</a></div>
+        <div class="game-link"><a href="./0215_中文閱讀.html" target="_blank">📖 0215_中文閱讀.html</a></div>
+        <div class="game-link"><a href="./0230_中文量詞.html" target="_blank">📦 0230_中文量詞.html</a></div>
+        <div class="game-link"><a href="./0305_英文閱讀.html" target="_blank">🌿 0305_英文閱讀.html</a></div>
+        <div class="game-link"><a href="./0310_英文字填充.html" target="_blank">✏️ 0310_英文字填充.html</a></div>
+        <div class="game-link"><a href="./0410_厚薄窄闊學習遊戲.html" target="_blank">📏 0410_厚薄窄闊學習遊戲.html</a></div>
+        <div class="game-link"><a href="./0420_常識問答.html" target="_blank">💡 0420_常識問答.html</a></div>
+        <div class="game-link"><a href="./0430_情境問答遊戲.html" target="_blank">🗣️ 0430_情境問答遊戲.html</a></div>
+    </div>
+
+    <div class="footer-note">
+        🌟 直接點擊檔案名稱就會開啟遊戲，所有學習工具都在同一個資料夾裡 🌟
+    </div>
 </div>
-
-<script>
-    // 依照您提供的所有檔案名稱 (依實際上載檔案清單)
-    const allFiles = [
-        "0010_clock.html",
-        "0020_lift_right_iphone.html",
-        "0100 odd even v3_andriod.html",
-        "0120 addition less 20 substraction less 10.html",
-        "0120_sorting_numbers.html",
-        "0121 addition and substraction alternative.html",
-        "0125_addition_tree.html",
-        "0130_plus_or_minus.html",
-        "0131_5_cars_1_missing.html",
-        "0132_10_cars_5_missing.html",
-        "0135_雪糕規律.html",
-        "0136_數氣球.html",
-        "0140_count_shapes_no.html",
-        "0150_shape_stacking.html",
-        "0215_繁體中文_閱讀.html",
-        "0230_中文量詞.html",
-        "0305_eng_word_and_artiicle.html",
-        "0310_eng_fill_in.html",
-        "0410_厚薄窄闊學習遊戲.html",
-        "0420_常識問答.html",
-        "0430_情境問答遊戲.html"
-    ];
-
-    const listContainer = document.getElementById('fileList');
-
-    // 可選：為每個檔案加一個小圖示 (根據檔名關鍵字)
-    function getIcon(filename) {
-        if (filename.includes('clock')) return '🕒';
-        if (filename.includes('left') || filename.includes('right')) return '⬅️';
-        if (filename.includes('odd') || filename.includes('even')) return '🔢';
-        if (filename.includes('addition') || filename.includes('substraction')) return '➕';
-        if (filename.includes('sorting')) return '🔢';
-        if (filename.includes('雪糕')) return '🍦';
-        if (filename.includes('氣球')) return '🎈';
-        if (filename.includes('shape') || filename.includes('圖形')) return '🔷';
-        if (filename.includes('中文') || filename.includes('量詞')) return '📖';
-        if (filename.includes('eng') || filename.includes('english')) return '🌍';
-        if (filename.includes('厚薄') || filename.includes('常識') || filename.includes('情境')) return '🧠';
-        return '📁';
-    }
-
-    allFiles.forEach(file => {
-        const link = document.createElement('a');
-        link.className = 'file-link';
-        link.href = file;
-        link.target = '_blank';
-        const icon = getIcon(file);
-        // 顯示美化名稱 (去掉 .html，保留原始名稱)
-        let displayName = file.replace('.html', '');
-        link.innerHTML = `<span class="file-icon">${icon}</span> ${displayName}`;
-        listContainer.appendChild(link);
-    });
-</script>
 </body>
 </html>

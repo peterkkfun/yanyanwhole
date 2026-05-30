@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>欣欣叻叻 · 數字排序</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f9e7b2 0%, #f5d0b8 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Quicksand', system-ui, sans-serif;
+      padding: 16px;
+      margin: 0;
+    }
+
+    .game-container {
+      max-width: 750px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 64px 64px 48px 48px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 6px 12px rgba(0, 0, 0, 0.1);
+      padding: 28px 24px 36px;
+      border: 3px solid #fff9e6;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #3b2b1f;
+      text-shadow: 3px 3px 0 #ffd78c;
+      letter-spacing: 2px;
+      margin-top: -8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h1 span {
+      background: #ffb347;
+      padding: 6px 18px;
+      border-radius: 60px;
+      font-size: 1.4rem;
+      color: #2d1f0f;
+      box-shadow: inset 0 -2px 0 #b45f06, 0 6px 0 #b45f06;
+      transform: translateY(-3px);
+    }
+
+    .instruction-panel {
+      background: #a7d0cd;
+      padding: 18px 12px;
+      border-radius: 50px;
+      margin: 8px 0 20px;
+      border: 3px solid #fef9e3;
+      box-shadow: 0 8px 0 #5f8b7a, inset 0 2px 8px white;
+    }
+
+    .question-text {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #1e3a2f;
+      text-shadow: 1px 1px 0 #e2f2e9;
+      line-height: 1.4;
+    }
+
+    .question-zh {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #1e3a2f;
+      text-shadow: 1px 1px 0 #e2f2e9;
+      margin-bottom: 4px;
+    }
+
+    .question-en {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #1e3a2f;
+      text-shadow: 1px 1px 0 #e2f2e9;
+    }
+
+    .voice-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 10px 0 5px;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      background: #fcf3e0;
+      border: none;
+      border-radius: 40px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #3b2b1f;
+      box-shadow: 0 5px 0 #c29a6b, 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      border: 2px solid #ffe3b1;
+      transition: all 0.05s ease-in;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #c29a6b, 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .icon-btn:disabled {
+      opacity: 0.5;
+      transform: none;
+      box-shadow: 0 5px 0 #c29a6b;
+      pointer-events: none;
+    }
+
+    .number-pool {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      margin: 28px 0 18px;
+    }
+
+    .num-btn {
+      width: 90px;
+      height: 90px;
+      border-radius: 30px;
+      background: #ffcf8a;
+      border: 4px solid #fff3d1;
+      box-shadow: 0 9px 0 #b45f2b, 0 6px 12px rgba(0,0,0,0.2);
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #2c1c0c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.08s;
+      user-select: none;
+      transform: translateY(-3px);
+      position: relative;
+    }
+
+    .num-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 5px 0 #b45f2b, 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .num-btn.disabled, .num-btn:disabled {
+      opacity: 0.4;
+      transform: translateY(5px);
+      box-shadow: 0 4px 0 #7a4a2a, 0 4px 8px rgba(0,0,0,0.1);
+      pointer-events: none;
+      background: #bc9b7a;
+    }
+
+    /* 錯誤抖動 + 閃爍顏色 */
+    .shake {
+      animation: shake 0.3s ease-in-out;
+    }
+
+    .flash-error {
+      background: #ff6b6b !important;
+      border-color: #ffb8b8 !important;
+      box-shadow: 0 9px 0 #b0302a, 0 6px 12px rgba(0,0,0,0.2) !important;
+      transition: background 0.05s, border-color 0.05s;
+    }
+
+    @keyframes shake {
+      0% { left: 0; }
+      25% { left: -7px; }
+      50% { left: 7px; }
+      75% { left: -3px; }
+      100% { left: 0; }
+    }
+
+    /* 提示高亮 */
+    .hint-highlight {
+      background: #ffe570 !important;
+      box-shadow: 0 9px 0 #b87c2e, 0 0 20px #ffd966 !important;
+      border: 4px solid #fff1b5 !important;
+      transform: scale(1.02) translateY(-3px);
+      transition: 0.1s;
+    }
+
+    .sequence-area {
+      background: #e5d5b0;
+      border-radius: 50px;
+      padding: 18px 18px;
+      margin: 10px 0 20px;
+      border: 3px dashed #7c5f3f;
+      min-height: 100px;
+      box-shadow: inset 0 4px 8px rgba(60, 40, 20, 0.1);
+    }
+
+    .sequence-title {
+      font-size: 1.3rem;
+      color: #4d3119;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .sequence-slots {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .seq-chip {
+      background: #fcf9f0;
+      border-radius: 40px;
+      padding: 10px 24px;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #2d4e3a;
+      box-shadow: inset 0 -4px 0 #b5926a, 0 6px 0 #7b5e41, 0 4px 8px rgba(0,0,0,0.1);
+      border: 2px solid #ffeac2;
+      min-width: 85px;
+      text-align: center;
+    }
+
+    .banner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .banner-popup {
+      background: #ffd966;
+      padding: 28px 50px;
+      border-radius: 120px;
+      box-shadow: 0 20px 0 #b45f2b, 0 30px 40px rgba(0,0,0,0.3);
+      border: 6px solid #fff3bf;
+      transform: scale(1);
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .banner-text {
+      font-size: 5.5rem;
+      font-weight: 900;
+      color: #a34100;
+      text-shadow: 4px 4px 0 #ffeaa6;
+      letter-spacing: 10px;
+      white-space: nowrap;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.2); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .footer-note {
+      margin-top: 25px;
+      color: #5e412b;
+      font-weight: 500;
+    }
+
+    /* 簡單調整排版，因為按鈕減少了 */
+    .game-container {
+      padding-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <h1>
+    🧸 數字排排樂
+    <span>0-100</span>
+  </h1>
+
+  <div class="instruction-panel">
+    <div class="question-zh" id="questionZh">將數字由小到大排列</div>
+    <div class="question-en" id="questionEn">Sort from smallest to largest</div>
+  </div>
+
+  <div class="voice-buttons">
+    <button class="icon-btn" id="repeatQuestionBtn" title="聽多次題目 (粵+英)">🔊 重複題目</button>
+    <button class="icon-btn" id="hintBtn" title="提示下一個正確數字">💡 提示</button>
+  </div>
+
+  <div id="numberPool" class="number-pool">
+    <!-- 動態生成5個數字按鈕 -->
+  </div>
+
+  <div class="sequence-area">
+    <div class="sequence-title">📋 你嘅排序</div>
+    <div id="sequenceContainer" class="sequence-slots">
+      <div style="color:#7a5a3a; width:100%;">㩒數字開始排～</div>
+    </div>
+  </div>
+
+  <!-- 已移除「檢查答案」和「新一題」按鈕，答對自動彈出橫幅並進入下一題 -->
+  
+  <div class="footer-note">
+    ⭐ 㩒數字排順序 · 答啱有「欣欣叻叻」 ⭐
+  </div>
+</div>
+
+<div id="bannerOverlay" class="banner-overlay hidden">
+  <div class="banner-popup">
+    <div class="banner-text">欣欣叻叻</div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ---------- 遊戲狀態 ----------
+    let currentNumbers = [];             
+    let sortDirection = 'asc';          
+    let selectedNumbers = [];           
+    let gameActive = true;              
+    let nextQuestionTimer = null;
+    let isProcessingCompletion = false;  // 防止重複觸發完成流程
+    
+    let synth = window.speechSynthesis;
+    let voices = [];
+    let britishVoice = null;
+    let cantoneseVoice = null;
+    let voicesReady = false;
+
+    // 音效相關 (錯誤碰撞聲)
+    let audioCtx = null;
+    function initAudio() {
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.warn("Web Audio API 不支持");
+      }
+    }
+
+    function playErrorSound() {
+      if (!audioCtx) {
+        initAudio();
+      }
+      if (!audioCtx) return;
+      
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.value = 380;
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.15);
+      
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(now + 0.2);
+    }
+
+    // DOM 元素
+    const questionEnEl = document.getElementById('questionEn');
+    const questionZhEl = document.getElementById('questionZh');
+    const numberPoolDiv = document.getElementById('numberPool');
+    const sequenceContainer = document.getElementById('sequenceContainer');
+    const repeatBtn = document.getElementById('repeatQuestionBtn');
+    const hintBtn = document.getElementById('hintBtn');
+    const bannerOverlay = document.getElementById('bannerOverlay');
+
+    // ---------- 輔助函數 ----------
+    function getRandomDistinctNumbers(count, min, max) {
+      const nums = new Set();
+      while (nums.size < count) {
+        nums.add(Math.floor(Math.random() * (max - min + 1)) + min);
+      }
+      return Array.from(nums);
+    }
+
+    function getCorrectSorted() {
+      return [...currentNumbers].sort((a, b) => sortDirection === 'asc' ? a - b : b - a);
+    }
+
+    function clearHintHighlight() {
+      document.querySelectorAll('.num-btn').forEach(btn => {
+        btn.classList.remove('hint-highlight');
+      });
+    }
+
+    function renderNumberPool() {
+      const pool = currentNumbers;
+      let html = '';
+      pool.forEach(num => {
+        const disabledClass = selectedNumbers.includes(num) ? 'disabled' : '';
+        html += `<button class="num-btn ${disabledClass}" data-value="${num}" ${selectedNumbers.includes(num) ? 'disabled' : ''}>${num}</button>`;
+      });
+      numberPoolDiv.innerHTML = html;
+      clearHintHighlight();
+    }
+
+    function renderSequence() {
+      if (selectedNumbers.length === 0) {
+        sequenceContainer.innerHTML = '<div style="color:#7a5a3a; width:100%;">㩒數字開始排～</div>';
+        return;
+      }
+      let chipsHtml = '';
+      selectedNumbers.forEach(num => {
+        chipsHtml += `<div class="seq-chip">${num}</div>`;
+      });
+      sequenceContainer.innerHTML = chipsHtml;
+    }
+
+    function updateQuestionText() {
+      if (sortDirection === 'asc') {
+        questionZhEl.textContent = '將數字由小到大排列';
+        questionEnEl.textContent = '📈 Sort from smallest to largest';
+      } else {
+        questionZhEl.textContent = '將數字由大至小排列';
+        questionEnEl.textContent = '📉 Sort from largest to smallest';
+      }
+    }
+
+    function generateNewQuestion() {
+      if (nextQuestionTimer) clearTimeout(nextQuestionTimer);
+      currentNumbers = getRandomDistinctNumbers(5, 0, 100);
+      sortDirection = Math.random() < 0.5 ? 'asc' : 'desc';
+      selectedNumbers = [];
+      gameActive = true;
+      isProcessingCompletion = false;
+      
+      updateQuestionText();
+      renderNumberPool();
+      renderSequence();
+      clearHintHighlight();
+      
+      bannerOverlay.classList.add('hidden');
+    }
+
+    // ---------- 語音功能 (粵語優先) ----------
+    function loadVoices() {
+      voices = synth.getVoices();
+      if (voices.length === 0) return;
+      
+      britishVoice = voices.find(v => v.lang === 'en-GB' && v.name.includes('Google') || v.lang === 'en-GB') 
+                  || voices.find(v => v.lang.startsWith('en-GB')) 
+                  || voices.find(v => v.lang === 'en-US' && v.name.includes('Google'));
+      
+      cantoneseVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'yue' || v.lang.includes('Hong Kong')) 
+                    || voices.find(v => v.name.includes('Cantonese') || v.name.includes('粵語'));
+      
+      if (!cantoneseVoice) cantoneseVoice = voices.find(v => v.lang === 'zh-HK');
+      
+      voicesReady = true;
+    }
+
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = loadVoices;
+    }
+    loadVoices();
+
+    function stopSpeaking() {
+      if (synth.speaking) {
+        synth.cancel();
+      }
+    }
+
+    function speakText(text, lang, voice = null, onEndCallback = null) {
+      return new Promise((resolve) => {
+        if (!synth) {
+          if (onEndCallback) onEndCallback();
+          resolve();
+          return;
+        }
+        stopSpeaking();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        if (voice) utterance.voice = voice;
+        utterance.rate = 0.95;
+        utterance.pitch = 1.1;
+        
+        utterance.onend = () => {
+          if (onEndCallback) onEndCallback();
+          resolve();
+        };
+        utterance.onerror = () => {
+          console.warn("Speech error");
+          if (onEndCallback) onEndCallback();
+          resolve();
+        };
+        synth.speak(utterance);
+      });
+    }
+
+    async function speakQuestion() {
+      if (!voicesReady) {
+        loadVoices();
+      }
+      
+      let zhText = (sortDirection === 'asc') ? 
+        '將數字由小到大排列。' : 
+        '將數字由大至小排列。';
+      
+      let enText = (sortDirection === 'asc') ? 
+        'Sort the numbers from smallest to largest.' : 
+        'Sort the numbers from largest to smallest.';
+      
+      await speakText(zhText, 'zh-HK', cantoneseVoice);
+      await new Promise(r => setTimeout(r, 200));
+      await speakText(enText, 'en-GB', britishVoice);
+    }
+
+    async function speakYanYanLekLek() {
+      if (!voicesReady) loadVoices();
+      await speakText('欣欣叻叻', 'zh-HK', cantoneseVoice);
+    }
+
+    // ---------- 自動完成：當5個數字都排好，顯示橫幅並進入下一題 ----------
+    function handleCompletion() {
+      if (!gameActive) return;
+      if (isProcessingCompletion) return;
+      if (selectedNumbers.length !== 5) return;
+      
+      // 驗證是否完全正確（理論上一定正確，因為錯誤的數字不會被加入）
+      const sorted = getCorrectSorted();
+      const isCorrect = selectedNumbers.every((val, idx) => val === sorted[idx]);
+      
+      if (!isCorrect) {
+        // 極端情況：如果因為某些bug導致錯誤，重置狀態
+        console.warn("序列錯誤，重置");
+        resetCurrentRound();
+        return;
+      }
+      
+      isProcessingCompletion = true;
+      gameActive = false;
+      bannerOverlay.classList.remove('hidden');
+      clearHintHighlight();
+      
+      speakYanYanLekLek().then(() => {
+        if (nextQuestionTimer) clearTimeout(nextQuestionTimer);
+        nextQuestionTimer = setTimeout(async () => {
+          bannerOverlay.classList.add('hidden');
+          // 可選：再講一次欣欣叻叻（原版有）
+          await speakYanYanLekLek();
+          generateNewQuestion();
+          setTimeout(() => {
+            speakQuestion();
+          }, 200);
+          nextQuestionTimer = null;
+          isProcessingCompletion = false;
+        }, 2000);
+      });
+    }
+
+    function resetCurrentRound() {
+      selectedNumbers = [];
+      gameActive = true;
+      isProcessingCompletion = false;
+      renderNumberPool();
+      renderSequence();
+      clearHintHighlight();
+    }
+
+    // ---------- 提示按鈕 ----------
+    function giveHint() {
+      if (!gameActive) return;
+      if (selectedNumbers.length >= 5) {
+        // 已完成，無需提示
+        return;
+      }
+      
+      const correctSorted = getCorrectSorted();
+      const nextCorrect = correctSorted[selectedNumbers.length];
+      
+      const targetBtn = Array.from(document.querySelectorAll('.num-btn')).find(
+        btn => parseInt(btn.dataset.value, 10) === nextCorrect && !btn.disabled
+      );
+      
+      if (targetBtn) {
+        clearHintHighlight();
+        targetBtn.classList.add('hint-highlight');
+        setTimeout(() => {
+          targetBtn.classList.remove('hint-highlight');
+        }, 2500);
+        
+        if (cantoneseVoice) {
+          speakText(nextCorrect.toString(), 'zh-HK', cantoneseVoice);
+        }
+      }
+    }
+
+    // ---------- 點擊數字 (錯誤時抖動+閃紅) ----------
+    function handleNumberClick(e) {
+      const btn = e.target.closest('.num-btn');
+      if (!btn) return;
+      if (!gameActive) return;
+      if (btn.disabled) return;
+      
+      const value = parseInt(btn.dataset.value, 10);
+      if (selectedNumbers.includes(value)) return;
+      
+      const correctSorted = getCorrectSorted();
+      const expectedNext = correctSorted[selectedNumbers.length];
+      
+      // 錯誤選擇：碰撞、閃紅、音效
+      if (value !== expectedNext) {
+        btn.classList.add('shake', 'flash-error');
+        playErrorSound();
+        
+        setTimeout(() => {
+          btn.classList.remove('shake', 'flash-error');
+        }, 350);
+        
+        clearHintHighlight();
+        return;
+      }
+      
+      // 正確數字：加入序列
+      selectedNumbers.push(value);
+      renderNumberPool();
+      renderSequence();
+      clearHintHighlight();
+      
+      // 檢查是否已完成5個數字
+      if (selectedNumbers.length === 5) {
+        handleCompletion();
+      }
+    }
+
+    function handleRepeatQuestion() {
+      stopSpeaking();
+      speakQuestion();
+    }
+
+    // ---------- 初始化 ----------
+    function initGame() {
+      generateNewQuestion();
+      
+      numberPoolDiv.addEventListener('click', handleNumberClick);
+      repeatBtn.addEventListener('click', handleRepeatQuestion);
+      hintBtn.addEventListener('click', giveHint);
+      
+      initAudio();
+      
+      setTimeout(() => {
+        if (currentNumbers.length) {
+          speakQuestion();
+        }
+      }, 300);
+    }
+
+    if (synth.onvoiceschanged) {
+      synth.onvoiceschanged = () => {
+        loadVoices();
+      };
+    }
+
+    window.addEventListener('beforeunload', () => {
+      stopSpeaking();
+      if (audioCtx) {
+        audioCtx.close();
+      }
+    });
+
+    initGame();
+
+  })();
+</script>
+</body>
+</html>
