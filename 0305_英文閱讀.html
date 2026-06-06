@@ -233,6 +233,7 @@
             <button class="btn btn-outline backToMainBtn"><i class="fas fa-home"></i> 返回</button>
             <button id="repeatSoundBtn" class="btn btn-light"><i class="fas fa-redo"></i> 重播</button>
             <button id="addToFavBtn" class="btn btn-pink"><i class="fas fa-heart"></i> 加入最愛</button>
+            <button id="prevWordBtn" class="btn btn-blue"><i class="fas fa-arrow-left"></i> 上一個</button>
             <button id="nextWordBtn" class="btn btn-green">下一個 <i class="fas fa-arrow-right"></i></button>
         </div>
     </div>
@@ -371,7 +372,7 @@
             if(!chineseText) { container.innerText = '翻譯內容'; return; }
             for(let i = 0; i < chineseText.length; i++) {
                 const ch = chineseText[i];
-                const isChinese = /[\u4e00-\u9fff]/.test(ch);
+                const isChinese = /[一-鿿]/.test(ch);
                 const span = document.createElement('span');
                 if(isChinese) {
                     span.className = 'cchar'; span.innerText = ch;
@@ -555,6 +556,16 @@
                 updateFavBtnUI(rawWord);
             }
         };
+        
+        document.getElementById('prevWordBtn').onclick = () => { 
+            if (currentTrainIdx > 0) { 
+                currentTrainIdx--; 
+                loadFlashcard(currentTrainIdx); 
+            } else {
+                showPopup("💡 提示", "這已經是第一個單字囉！");
+            }
+        };
+        
         document.getElementById('nextWordBtn').onclick = () => { currentTrainIdx++; loadFlashcard(currentTrainIdx); };
 
         // ========== 模式二：聽音遊戲 ==========
