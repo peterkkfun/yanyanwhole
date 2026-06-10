@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>🌸 欣欣學中文 🌸 | 筆順 + 聽音遊戲 + 文章閱讀 (超慢速朗讀)</title>
+    <title>🌸 欣欣學中文 🌸 | 筆順 + 聽音遊戲 + 文章閱讀</title>
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -101,6 +101,33 @@
         .char-span:hover { background: #ffe4ec; }
         .highlight { background: #ffd966 !important; color: #2d1a22 !important; box-shadow: 0 0 10px #ffb82e; font-weight: 800; }
 
+        /* 自訂拉桿樣式 (Slider) */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #e57399;
+            cursor: pointer;
+            margin-top: -7px;
+            box-shadow: 0 2px 5px rgba(229, 115, 153, 0.4);
+            border: 3px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: #ffe0eb;
+            border-radius: 5px;
+            border: 1px solid #ffb6c1;
+        }
+
         /* Game */
         .big-play-btn {
             font-size: 5rem; width: 140px; height: 140px; border-radius: 50%; background: #ffb74d; border: 5px solid #f57c00;
@@ -128,7 +155,7 @@
 <div class="container">
     <div class="header">
         <h1>🌸 欣欣學中文 🌸</h1>
-        <p>筆順動畫 + 聽音遊戲 + 粵普雙語文章閱讀 (超慢速朗讀)</p>
+        <p>筆順動畫 + 聽音遊戲 + 粵普雙語文章閱讀</p>
     </div>
 
     <!-- 主選單：群組與文章管理 -->
@@ -219,7 +246,7 @@
         </div>
     </div>
 
-    <!-- 模式三：文章閱讀 (超慢速朗讀) -->
+    <!-- 模式三：文章閱讀 -->
     <div id="articleView" class="main-view" style="display: none;">
         <div style="text-align: center;"><span class="progress-tag" id="articleProgress">句子 0 / 0</span></div>
         <div class="flashcard" style="text-align: left; padding: 25px 20px;">
@@ -229,9 +256,24 @@
                 <div class="chinese-sentence-display" id="articleSentenceDisplay"></div>
             </div>
 
+            <!-- 新增朗讀速度控制拉桿 -->
+            <div style="background: #fff0f5; padding: 15px 20px; border-radius: 25px; border: 2px dashed #ffb6c1; margin-bottom: 20px; text-align: center;">
+                <label for="speedSlider" style="font-weight:800; color:#a1375e; display:block; margin-bottom: 10px; font-size: 1.1rem;">
+                    <i class="fas fa-tachometer-alt"></i> 朗讀速度調整
+                </label>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <span style="color: #b3406c; font-weight: 700; font-size: 1.2rem;">🐢</span>
+                    <input type="range" id="speedSlider" min="0.1" max="1.0" step="0.1" value="0.4" style="max-width: 250px;">
+                    <span style="color: #b3406c; font-weight: 700; font-size: 1.2rem;">🐇</span>
+                </div>
+                <div id="speedValueDisplay" style="color: #e57399; font-weight: 700; margin-top: 8px; font-size: 0.95rem;">
+                    目前速度: 0.4 (適合學習 👶)
+                </div>
+            </div>
+
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                <button id="speakCantoBtn" class="btn btn-pink"><i class="fas fa-comment-dots"></i> 朗讀廣東話 (超慢速)</button>
-                <button id="speakMandoBtn" class="btn btn-outline"><i class="fas fa-comment-dots"></i> 朗讀普通話 (超慢速)</button>
+                <button id="speakCantoBtn" class="btn btn-pink"><i class="fas fa-comment-dots"></i> 朗讀廣東話</button>
+                <button id="speakMandoBtn" class="btn btn-outline"><i class="fas fa-comment-dots"></i> 朗讀普通話</button>
             </div>
         </div>
         <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
@@ -269,12 +311,12 @@
         // --- 變數狀態 ---
         let trainingWords = []; let currentTrainIdx = 0; let hanziWriters = [];
         let isGaming = false; let gameWordsPool = []; let gameTargetWord = ""; let gameRoundCount = 0;
-        let shuffledGameWords = []; // 新增：用於記錄打亂後的遊戲單字
+        let shuffledGameWords = []; 
         let articleSentences = []; let currentSentenceIdx = 0;
 
-        // --- 語音核心 (超慢速，特別為幼兒調校) ---
+        // --- 語音核心 ---
         const synth = window.speechSynthesis;
-        const SLOW_RATE_ARTICLE = 0.42;
+        const SLOW_RATE_ARTICLE = 0.42; // 用於遊戲預設速度
         const SLOW_RATE_CHAR = 0.50;
 
         function speakCantonese(text, onBoundary, onEnd, rate = SLOW_RATE_ARTICLE) {
@@ -567,7 +609,6 @@
                     
                 } catch(e) { console.error("HanziWriter Error:", e); }
             }
-            // 取消了原來的自動播放，讓小朋友能先觀察文字
         }
 
         document.getElementById('playAudioCantoBtn').onclick = () => speakCantonese(trainingWords[currentTrainIdx]);
@@ -583,13 +624,11 @@
             let isFavorite = favGroup && favGroup.words.includes(word);
 
             if (isFavorite) {
-                // 移除最愛
                 favGroup.words = favGroup.words.filter(w => w !== word);
                 saveGroups();
                 renderGroupPanels();
                 showPopup("✨ 成功解鎖！", "小朋友太棒了，已經記住這個詞語囉！");
 
-                // 如果目前正在複習的就是「❤️ 我的最愛」群組
                 if (groups.find(g => g.id === currentGroupId) && groups.find(g => g.id === currentGroupId).name === "❤️ 我的最愛") {
                     trainingWords = favGroup.words;
                     if (trainingWords.length === 0) {
@@ -607,7 +646,6 @@
                     updateFavBtnUI(word);
                 }
             } else {
-                // 加入最愛
                 if (!favGroup) {
                     const newId = Date.now() + 999;
                     favGroup = {
@@ -617,7 +655,7 @@
                         articleTitle: "我的最愛詞語",
                         articleContent: "這些是我最喜歡的詞語。"
                     };
-                    groups.unshift(favGroup); // 放最前
+                    groups.unshift(favGroup); 
                 }
                 if (!favGroup.words.includes(word)) {
                     favGroup.words.push(word);
@@ -639,7 +677,6 @@
             if(!group || group.words.length < 2) return alert("需要至少 2 個以上的詞語才能玩遊戲喔！");
             gameWordsPool = group.words;
             
-            // 打亂該群組所有生字，準備全部考一次
             shuffledGameWords = [...gameWordsPool].sort(() => Math.random() - 0.5);
             
             isGaming = true; gameRoundCount = 0;
@@ -659,7 +696,7 @@
             
             let options = [gameTargetWord];
             let distractors = gameWordsPool.filter(w => w !== gameTargetWord).sort(() => Math.random() - 0.5);
-            options.push(...distractors.slice(0, 3)); // 若詞彙不夠4個，只會推入剩下的
+            options.push(...distractors.slice(0, 3));
             options.sort(() => Math.random() - 0.5);
 
             const container = document.getElementById('gameOptionsContainer');
@@ -692,7 +729,21 @@
         document.getElementById('playGameAudioBtn').onclick = playGameAudio;
 
 
-        // ==================== 模式三：文章逐句閱讀 (超慢速朗讀) ====================
+        // ==================== 模式三：文章逐句閱讀 (動態速度朗讀) ====================
+        
+        // 速度拉桿文字與數值更新邏輯
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValueDisplay = document.getElementById('speedValueDisplay');
+        speedSlider.addEventListener('input', function() {
+            const val = parseFloat(this.value);
+            let text = "";
+            if (val <= 0.3) text = "(極慢速 🐢)";
+            else if (val <= 0.5) text = "(適合學習 👶)";
+            else if (val <= 0.8) text = "(正常速度 🚶)";
+            else text = "(稍快速度 🐇)";
+            speedValueDisplay.innerText = `目前速度: ${val.toFixed(1)} ${text}`;
+        });
+
         document.getElementById('startArticleBtn').onclick = () => {
             const group = groups.find(g => g.id === currentGroupId);
             if(!group || !group.articleContent) return alert('請先在主頁輸入「專屬閱讀文章」內容！');
@@ -731,10 +782,11 @@
             displayBox.charsData = charsData;
         }
 
-        // 朗讀廣東話 (超慢速)
+        // 朗讀廣東話 (依照拉桿速度)
         document.getElementById('speakCantoBtn').onclick = () => {
             const sentence = articleSentences[currentSentenceIdx];
             const charsData = document.getElementById('articleSentenceDisplay').charsData;
+            const currentSpeed = parseFloat(speedSlider.value); // 取得當前速度設定
             document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight'));
             
             speakCantonese(sentence, (e) => {
@@ -744,13 +796,14 @@
                         charsData[e.charIndex].classList.add('highlight');
                     }
                 }
-            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }, SLOW_RATE_ARTICLE);
+            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }, currentSpeed);
         };
 
-        // 朗讀普通話 (超慢速)
+        // 朗讀普通話 (依照拉桿速度)
         document.getElementById('speakMandoBtn').onclick = () => {
             const sentence = articleSentences[currentSentenceIdx];
             const charsData = document.getElementById('articleSentenceDisplay').charsData;
+            const currentSpeed = parseFloat(speedSlider.value); // 取得當前速度設定
             document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight'));
             
             speakMandarin(sentence, (e) => {
@@ -760,7 +813,7 @@
                         charsData[e.charIndex].classList.add('highlight');
                     }
                 }
-            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }, SLOW_RATE_ARTICLE);
+            }, () => { document.querySelectorAll('.char-span').forEach(s => s.classList.remove('highlight')); }, currentSpeed);
         };
 
         document.getElementById('prevArticleBtn').onclick = () => { if(currentSentenceIdx > 0) { currentSentenceIdx--; loadArticleSentence(); } };
