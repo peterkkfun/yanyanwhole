@@ -85,7 +85,7 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        /* 字卡與文章共用 - 強化居中 */
+        /* 字卡與文章共用 */
         .flashcard {
             background: #f1f9ec; border-radius: 60px; padding: 30px 20px; text-align: center;
             box-shadow: inset 0 1px 6px #c8e6c9, 0 12px 20px rgba(30, 80, 30, 0.1); margin: 20px 0; border: 2px solid #a5d6a7;
@@ -96,7 +96,7 @@
             border-radius: 50px; font-weight: 700; color: #1e5631; border: 1px solid #6da56d; margin-bottom: 15px;
         }
 
-        /* Phonics 學習專區 - 英文單字完美置中 */
+        /* Phonics 學習專區 */
         .english-word { 
             font-size: 2.8rem; font-weight: 800; color: #1d5e2b; margin: 10px auto 20px auto;
             background: #e2f0da; border-radius: 60px; padding: 14px 32px;
@@ -172,7 +172,7 @@
 <div class="game-container">
     <div class="header">
         <h1><i class="fas fa-leaf"></i> 馮樂欣學英文 <i class="fas fa-seedling"></i></h1>
-        <p>🌱 智慧音節拼讀 + 聽音遊戲 + 文章閱讀 (幼幼友善) 🌱</p>
+        <p>🌱 智慧音節拼讀 + 聽音遊戲 + 文章閱讀 (幼兒友善) 🌱</p>
     </div>
 
     <div id="inputView" class="main-view">
@@ -334,15 +334,12 @@
 
         // 自動音節拆分核心演算法
         function autoSyllableSplit(word) {
-            // 1. 如果使用者有手動輸入點「.」，優先尊重手動設定
             if (word.includes('.')) return word.split('.'); 
             
             let orig = word;
-            // 2. 基礎母音拆分正則表達式 (找尋 母音+子音 結構)
             let syllables = orig.match(/[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi);
             if (!syllables) return [orig];
             
-            // 3. 智慧修復：避免常見的英文組合字 (Digraphs) 被無情切斷
             for (let i = 0; i < syllables.length - 1; i++) {
                 let current = syllables[i];
                 let next = syllables[i+1];
@@ -352,13 +349,10 @@
                 let firstCharNext = next.charAt(0).toLowerCase();
                 let combined = lastChar + firstCharNext;
                 
-                // 像是 ch, sh, th, ph, wh 應該要連著後面的母音發音 (如 tea-cher, mo-ther)
                 if (['ch', 'sh', 'th', 'ph', 'wh'].includes(combined)) {
                     syllables[i] = current.slice(0, -1);
                     syllables[i+1] = current.slice(-1) + next;
-                } 
-                // ck 通常是跟著前面的母音走 (如 back-pack)
-                else if (combined === 'ck') {
+                } else if (combined === 'ck') {
                     syllables[i] = current + firstCharNext;
                     syllables[i+1] = next.slice(1);
                 }
@@ -370,9 +364,11 @@
             if(!container) return;
             container.innerHTML = '';
             if(!chineseText) { container.innerText = '翻譯內容'; return; }
-            for(let i = 0; i < chineseText.length; i++) {
-                const ch = chineseText[i];
-                const isChinese = /[一-鿿]/.test(ch);
+            
+            // 修正：使用 for...of 解決擴展區中文字元(如特殊廣東話字)的斷字亂碼問題
+            for(const ch of chineseText) {
+                // 修正：使用 \p{Script=Han} 確保能涵蓋包含擴展區的所有中文字元
+                const isChinese = /\p{Script=Han}/u.test(ch);
                 const span = document.createElement('span');
                 if(isChinese) {
                     span.className = 'cchar'; span.innerText = ch;
@@ -450,12 +446,19 @@
             currentGroupId = newId; saveGroups(); renderGroupPanels(); selectGroup(newId); showPopup("✨ 新增成功！", "已建立全新學習群組。");
         };
 
+        // 修正：將目標語言調整為 zh-HK (香港繁體)，並增強錯誤處理
         async function fetchTranslation(text) {
             try {
-                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(text)}`);
-                const data = await res.json(); return data[0].map(item => item[0]).join('');
-            } catch(e) { return "點擊發音學習"; }
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-HK&dt=t&q=${encodeURIComponent(text)}`);
+                if (!res.ok) throw new Error('Network response was not ok');
+                const data = await res.json(); 
+                return data[0].map(item => item[0]).join('');
+            } catch(e) { 
+                console.error("Translation API failed:", e);
+                return "（暫無法載入翻譯，請點擊字卡發音）"; 
+            }
         }
+
         function showPopup(title, sub) {
             const pop = document.createElement('div'); pop.className = 'popup-banner';
             pop.innerHTML = `<h2>${title}</h2><p style="font-weight:600; font-size:1.2rem; color:#1e5c27;">${sub}</p>`;
@@ -498,16 +501,12 @@
             wordElement.onclick = () => speakEnglish(cleanWord, null, null, EXTRA_SLOW_EN_WORD);
             updateFavBtnUI(rawWord);
             
-            // 啟用全新的自動音節拆分
             const phonicsContainer = document.getElementById('phonicsBlocksList');
             phonicsContainer.innerHTML = '';
             
             rawWord.split(/(\s+|[,!?])/).forEach(token => {
                 if(!token || /^\s+$/.test(token) || /^[,!?]$/.test(token)) return;
-                
-                // 套用智慧拆分演算法
                 const chunks = autoSyllableSplit(token);
-                
                 chunks.forEach(c => {
                     const cleanC = c.replace(/[^a-zA-Z-']/g, ''); 
                     if(!cleanC) return;
@@ -531,7 +530,7 @@
             const cleanWord = trainingWords[currentTrainIdx].replace(/\./g, '');
             const transElem = document.getElementById('currentChineseTarget');
             let transText = transElem.innerText;
-            if(transText === "翻譯中..." || !transText) transText = "學習單字";
+            if(transText.includes("載入") || !transText) transText = "學習單字";
             playWordAndTranslationSlow(cleanWord, transText);
         };
         document.getElementById('repeatSoundBtn').onclick = () => document.getElementById('playPhonicsAudioBtn').click();
